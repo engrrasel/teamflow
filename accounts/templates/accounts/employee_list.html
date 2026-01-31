@@ -52,51 +52,53 @@
 
 <!-- ===== Add Employee Modal ===== -->
 <div id="employeeModal" class="modal">
-    <div class="modal-content">
-        <h3>Add Employee</h3>
+    <div class="modal-card">
+
+        <div class="modal-header">
+            <h2>Add Employee</h2>
+            <span id="closeModal" class="close-btn">&times;</span>
+        </div>
 
         <form method="post" action="{% url 'employee_add' %}">
             {% csrf_token %}
 
-            <div class="form-field">
-                <label for="id_email">Employee Email</label>
+            <div class="form-row">
+                <label>Employee Email</label>
                 {{ form.email }}
             </div>
 
-            <div class="form-field">
-                <label for="id_designation">Designation</label>
+            <div class="form-row">
+                <label>Designation</label>
                 {{ form.designation }}
             </div>
 
-            <div class="actions">
-                <button type="submit">Save Employee</button>
-                <button type="button" id="closeModal">Cancel</button>
+            <div class="modal-actions">
+                <button type="submit" class="primary-btn">Save Employee</button>
+                <button type="button" id="cancelModal" class="secondary-btn">Cancel</button>
             </div>
         </form>
+
     </div>
 </div>
 
+{% endblock %}
 
+
+{% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const addBtn = document.getElementById("addEmployeeBtn");
-    const modal = document.getElementById("employeeModal");
-    const closeBtn = document.getElementById("closeModal");
+    const modal = document.getElementById('employeeModal');
+    const openBtn = document.getElementById('addEmployeeBtn');
+    const closeBtn = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelModal');
 
-    addBtn.addEventListener("click", function () {
-        modal.classList.add("show");
-    });
+    openBtn.onclick = () => modal.classList.add('show');
+    closeBtn.onclick = () => modal.classList.remove('show');
+    cancelBtn.onclick = () => modal.classList.remove('show');
 
-    closeBtn.addEventListener("click", function () {
-        modal.classList.remove("show");
-    });
-
-    window.addEventListener("click", function (e) {
-        if (e.target === modal) {
-            modal.classList.remove("show");
-        }
-    });
+    window.onclick = (e) => {
+        if (e.target === modal) modal.classList.remove('show');
+    };
 });
 </script>
-
 {% endblock %}
