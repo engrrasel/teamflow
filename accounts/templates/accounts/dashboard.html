@@ -1,0 +1,12 @@
+{% extends "base/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Welcome to your Company Dashboard</h2>
+    <p>You are logged in as <strong>{{ request.user.email }}</strong></p>
+    <p>Company: <strong>{{ request.membership.company.name }}</strong></p>
+    <p>Role: <strong>{{ request.membership.role }}</strong></p>
+</div>
+{% endblock %}

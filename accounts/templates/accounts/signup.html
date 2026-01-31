@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
+</head>
+<body>
+
+<div class="auth-box">
+    <h2>Create Account</h2>
+
+    <div class="form-layout">
+
+        <!-- ✅ Left: Form -->
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.name.label_tag }}
+            {{ form.name }}
+
+            {{ form.email.label_tag }}
+            {{ form.email }}
+
+            {{ form.password1.label_tag }}
+            {{ form.password1 }}
+
+            {{ form.password2.label_tag }}
+            {{ form.password2 }}
+
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <!-- ✅ Right: Password Rules -->
+        <div class="rules-box">
+            <ul class="password-rules">
+                <li id="rule-length">At least 8 characters</li>
+                <li id="rule-number">Contains a number</li>
+                <li id="rule-letter">Contains a letter</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="auth-links">
+        <a href="{% url 'login' %}">Already have an account?</a>
+    </div>
+</div>
+
+<!-- 🔧 Password validation JS -->
+<script>
+const passwordInput = document.getElementById("id_password1");
+
+const ruleLength = document.getElementById("rule-length");
+const ruleNumber = document.getElementById("rule-number");
+const ruleLetter = document.getElementById("rule-letter");
+
+passwordInput.addEventListener("input", function () {
+    const value = passwordInput.value;
+
+    toggleRule(ruleLength, value.length >= 8);
+    toggleRule(ruleNumber, /\d/.test(value));
+    toggleRule(ruleLetter, /[a-zA-Z]/.test(value));
+});
+
+function toggleRule(element, condition) {
+    if (condition) {
+        element.classList.add("valid");
+    } else {
+        element.classList.remove("valid");
+    }
+}
+</script>
+
+</body>
+</html>
