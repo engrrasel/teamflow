@@ -3,6 +3,10 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
+from .forms import EmployeeFullEditForm
+from .forms import EmployeeEditForm
+from django.shortcuts import get_object_or_404, redirect, render
+
 from .forms import (
     SignupForm,
     LoginForm,
@@ -188,3 +192,64 @@ def employee_create_view(request):
     return render(request, "accounts/employee_add.html", {
         "form": form
     })
+
+
+
+
+
+
+
+from .forms import EmployeeFullEditForm
+
+@login_required
+def employee_edit_view(request, pk):
+    if not request.membership:
+        return redirect('/company/create/')
+
+    company = request.membership.company
+
+    membership = get_object_or_404(
+        Membership,
+        pk=pk,
+        company=company
+    )
+
+    form = EmployeeFullEditForm(
+        request.POST or None,
+        membership=membership,
+        company=company
+    )
+
+    if request.method == "POST" and form.is_valid():
+        # 🔽 Update User
+        user = membership.user
+        user.name = form.cleaned_data['name']
+        user.email = form.cleaned_data['email']
+        user.save()
+
+        # 🔽 Update Membership
+        membership.designation = form.cleaned_data['designation']
+        membership.save()
+
+        return redirect('employee_list')
+
+    return render(request, 'accounts/employee_edit.html', {
+        'form': form
+    })
+
+
+@login_required
+def employee_delete_view(request, pk):
+    if not request.membership:
+        return redirect('/company/create/')
+
+    company = request.membership.company
+
+    membership = get_object_or_404(
+        Membership,
+        pk=pk,
+        company=company   # 🔐 SaaS safety
+    )
+
+    membership.delete()
+    return redirect('employee_list')

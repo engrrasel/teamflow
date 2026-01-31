@@ -4,19 +4,18 @@
 
 <div class="emp-card">
 
-<div class="emp-header">
-    <h2>Company Employees</h2>
+    <div class="emp-header">
+        <h2>Company Employees</h2>
 
-    <div style="display:flex; gap:10px;">
-        <a href="{% url 'designation_list' %}" class="btn-outline">
-            Designations
-        </a>
-        <button id="addEmployeeBtn" class="add-btn">
-            + Add Employee
-        </button>
+        <div style="display:flex; gap:10px;">
+            <a href="{% url 'designation_list' %}" class="btn-outline">
+                Designations
+            </a>
+            <button id="addEmployeeBtn" class="add-btn">
+                + Add Employee
+            </button>
+        </div>
     </div>
-</div>
-
 
     <table class="emp-table">
         <thead>
@@ -24,14 +23,25 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Designation</th>
+                <th>Actions</th>
             </tr>
         </thead>
+
         <tbody>
             {% for m in memberships %}
             <tr>
                 <td>{{ m.user.name }}</td>
                 <td>{{ m.user.email }}</td>
                 <td>{{ m.designation|default:"—" }}</td>
+                <td>
+                    <a href="{% url 'employee_edit' m.id %}" class="action-link">Edit</a>
+                    <span style="margin:0 8px; color:#bbb;">|</span>
+                    <a href="{% url 'employee_delete' m.id %}"
+                       class="action-link danger"
+                       onclick="return confirm('Delete this employee?')">
+                       Delete
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -48,18 +58,6 @@
             {% csrf_token %}
             {{ form.as_p }}
 
-
-            <!-- Mini designation creator -->
-            <div id="designationMiniModal" class="mini-designation">
-                <div class="mini-head">Create New Designation</div>
-
-                <input type="text" id="groupInput" placeholder="Designation Group">
-                <input type="text" id="designationInput" placeholder="Designation Name">
-
-                <button type="button" id="saveDesignationBtn">Save Designation</button>
-            </div>
-
-
             <div class="actions">
                 <button type="submit">Save</button>
                 <button type="button" id="closeModal">Cancel</button>
@@ -67,65 +65,5 @@
         </form>
     </div>
 </div>
-
-{% endblock %}
-
-
-{% block extra_js %}
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    const modal = document.getElementById("employeeModal");
-    const openBtn = document.getElementById("addEmployeeBtn");
-    const closeBtn = document.getElementById("closeModal");
-
-    openBtn.onclick = () => modal.classList.add("show");
-    closeBtn.onclick = () => modal.classList.remove("show");
-    window.onclick = (e) => { if (e.target === modal) modal.classList.remove("show"); };
-
-    document.getElementById("addDesignationLink").onclick = function(e){
-        e.preventDefault();
-        document.getElementById("designationMiniModal").classList.toggle("show");
-    };
-
-    function getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]').value;
-    }
-
-    document.getElementById("saveDesignationBtn").onclick = function () {
-        const group = document.getElementById("groupInput").value;
-        const designation = document.getElementById("designationInput").value;
-
-        fetch("/company/ajax/designation/create/", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCSRFToken(),
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-                group: group,
-                designation: designation
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            const select = document.querySelector("select[name='designation']");
-            const option = new Option(
-                data.name + " (" + data.group + ")",
-                data.id,
-                true,
-                true
-            );
-            select.add(option);
-
-            document.getElementById("designationMiniModal").classList.remove("show");
-
-            document.getElementById("groupInput").value = "";
-            document.getElementById("designationInput").value = "";
-        });
-    };
-
-});
-</script>
 
 {% endblock %}

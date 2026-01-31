@@ -1,0 +1,42 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<div class="emp-card" style="max-width:600px; margin:auto;">
+
+    <div class="emp-header">
+        <h2>Edit Employee</h2>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div style="color:#dc2626; margin-bottom:15px;">
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label>Name</label>
+            {{ form.name }}
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            {{ form.email }}
+        </div>
+
+        <div class="form-group">
+            <label>Designation</label>
+            {{ form.designation }}
+        </div>
+
+        <button type="submit" class="add-btn">Update</button>
+    </form>
+
+    <div style="margin-top:15px;">
+        <a href="{% url 'employee_list' %}">← Back</a>
+    </div>
+
+</div>
+{% endblock %}
