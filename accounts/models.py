@@ -61,6 +61,7 @@ class Membership(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
+
     designation = models.ForeignKey(
         Designation,
         on_delete=models.SET_NULL,

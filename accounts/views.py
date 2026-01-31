@@ -3,6 +3,11 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
+from accounts.services import can_manage_company
+
+from django.http import HttpResponseForbidden
+
+
 from .forms import EmployeeFullEditForm
 from .forms import EmployeeEditForm
 from django.shortcuts import get_object_or_404, redirect, render
@@ -136,10 +141,17 @@ def invite_employee_view(request):
 
 # ------------------ Employee List ------------------
 
+
+
 @login_required
 def employee_list_view(request):
     if not request.membership:
         return redirect('/company/create/')
+
+    # ✅ SECURITY CHECK
+    if not can_manage_company(request.membership):
+
+        return HttpResponseForbidden("You are not allowed to view employees.")
 
     company = request.membership.company
 
@@ -149,12 +161,11 @@ def employee_list_view(request):
         .select_related('user')
     )
 
-    # 🔥 এই লাইনটাই missing
     form = EmployeeInviteForm(company=company)
 
     return render(request, "accounts/employee_list.html", {
         "memberships": memberships,
-        "form": form,   # ✅ পাঠাও
+        "form": form,
     })
 
 # ------------------ Employee Create (Manual Add) ------------------
@@ -192,9 +203,6 @@ def employee_create_view(request):
     return render(request, "accounts/employee_add.html", {
         "form": form
     })
-
-
-
 
 
 

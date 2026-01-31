@@ -22,33 +22,44 @@
             </div>
         </div>
 
+        <!-- ✅ Proper clickable nav -->
         <ul class="nav-links">
+
             <li>
-                <i class="fas fa-th-large"></i>
-                <span>Dashboard</span>
+                <a href="{% url 'dashboard' %}" class="nav-item">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
             </li>
 
             <li>
-                <i class="fas fa-users"></i>
-                <span>
-                    <a href="{% url 'employee_list' %}">Users</a>
-                </span>
+                <a href="{% url 'employee_list' %}" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
             </li>
 
             <li>
-                <i class="fas fa-envelope"></i>
-                <span>Messages</span>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
             </li>
 
             <li>
-                <i class="fas fa-chart-line"></i>
-                <span>Analytics</span>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
             </li>
 
             <li>
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
             </li>
+
         </ul>
 
         <div class="sidebar-footer">
@@ -74,8 +85,6 @@
 </div>
 
 <script src="{% static 'js/sidebar.js' %}"></script>
-
-<!-- ✅ JS block MUST be here -->
 {% block extra_js %}{% endblock %}
 
 </body>

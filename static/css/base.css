@@ -11,18 +11,12 @@ body {
     background: linear-gradient(135deg, #eef2f7, #f8fafc);
 }
 
-
-.layout {
-    display: flex;
-    min-height: 100vh;
-}
-
 .main {
     flex: 1;
     padding: 25px 35px;
 }
 
-/* ========== Topbar & Page Card ========== */
+/* ========== Topbar ========== */
 
 .topbar {
     height: 65px;
@@ -36,8 +30,6 @@ body {
     padding: 0 25px;
     margin-bottom: 25px;
 }
-
-
 
 /* ========== Sidebar Brand ========== */
 
@@ -167,179 +159,8 @@ body {
     background: #f9fbff;
 }
 
-/* ========== Modal (Single, Correct Version) ========== */
-/* ===== Overlay ===== */
-.modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
+/* ========== Outline Button & Action Links ========== */
 
-    background: rgba(2, 6, 23, 0.55);
-    backdrop-filter: blur(14px);
-    z-index: 9999;
-}
-
-.modal.show {
-    display: flex;
-}
-
-/* ===== Dialog ===== */
-.modal-content {
-    width: 480px;
-    max-width: 94%;
-    padding: 36px;
-    border-radius: 24px;
-
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(22px);
-    border: 1px solid rgba(255,255,255,0.5);
-
-    box-shadow:
-        0 40px 80px rgba(0,0,0,0.25),
-        inset 0 1px 0 rgba(255,255,255,0.7);
-
-    animation: dialogIn 0.25s ease;
-}
-
-/* ===== Title ===== */
-.modal-content h3 {
-    margin: 0 0 28px;
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    color: #0f172a;
-}
-
-/* ===== Form layout ===== */
-.modal-content label {
-    font-size: 13px;
-    font-weight: 500;
-    color: #475569;
-    display: block;
-    margin-bottom: 6px;
-}
-
-/* Inputs */
-.modal-content input,
-.modal-content select {
-    width: 100%;
-    padding: 13px 14px;
-    margin-bottom: 22px;
-
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.08);
-    background: rgba(255,255,255,0.85);
-
-    font-size: 14px;
-    outline: none;
-    transition: all 0.2s ease;
-}
-
-.modal-content input:focus,
-.modal-content select:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 4px rgba(79,70,229,0.12);
-}
-
-/* ===== Buttons row ===== */
-.modal-content .actions {
-    margin-top: 10px;
-    display: flex;
-    gap: 12px;
-}
-
-/* Primary button */
-.modal-content button[type="submit"] {
-    flex: 1;
-    padding: 12px;
-    border-radius: 12px;
-    border: none;
-    font-weight: 600;
-    font-size: 14px;
-
-    background: linear-gradient(135deg, #6366f1, #4338ca);
-    color: white;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.modal-content button[type="submit"]:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 24px rgba(67,56,202,0.35);
-}
-
-/* Secondary button */
-#closeModal {
-    flex: 1;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.08);
-    background: rgba(255,255,255,0.7);
-    cursor: pointer;
-}
-
-/* Animation */
-@keyframes dialogIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.97);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-/* ===== Mini designation panel ===== */
-
-.mini-designation {
-    display: none;
-    margin-top: 18px;
-    padding: 18px;
-    border-radius: 14px;
-
-    background: rgba(255,255,255,0.55);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(0,0,0,0.06);
-
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    animation: slideDown 0.25s ease;
-}
-
-.mini-designation .mini-head {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #334155;
-}
-
-.mini-designation input {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(0,0,0,0.1);
-    background: rgba(255,255,255,0.85);
-}
-
-.mini-designation button {
-    padding: 8px 14px;
-    border-radius: 8px;
-    border: none;
-    background: #4f46e5;
-    color: white;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.mini-designation.show {
-    display: block;
-}
 .btn-outline {
     padding: 10px 16px;
     border-radius: 8px;
@@ -367,4 +188,81 @@ body {
 
 .action-link.danger {
     color: #dc2626;
+}
+
+/* ========== Modal (Single Correct Version) ========== */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(2, 6, 23, 0.55);
+    backdrop-filter: blur(14px);
+    z-index: 9999;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    width: 480px;
+    max-width: 94%;
+    padding: 36px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(22px);
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow:
+        0 40px 80px rgba(0,0,0,0.25),
+        inset 0 1px 0 rgba(255,255,255,0.7);
+    animation: dialogIn 0.25s ease;
+}
+
+/* animations kept original */
+@keyframes dialogIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.nav-links {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.nav-links li {
+    width: 100%;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    width: 100%;            /* 🔥 full row */
+    padding: 14px 22px;     /* বড় clickable area */
+    box-sizing: border-box;
+
+    border-radius: 10px;
+    text-decoration: none;
+    color: white;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+.nav-item i {
+    width: 24px;
+    text-align: center;
 }

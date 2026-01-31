@@ -49,6 +49,7 @@
 
 </div>
 
+
 <!-- ===== Add Employee Modal ===== -->
 <div id="employeeModal" class="modal">
     <div class="modal-content">
@@ -56,14 +57,46 @@
 
         <form method="post" action="{% url 'employee_add' %}">
             {% csrf_token %}
-            {{ form.as_p }}
+
+            <div class="form-field">
+                <label for="id_email">Employee Email</label>
+                {{ form.email }}
+            </div>
+
+            <div class="form-field">
+                <label for="id_designation">Designation</label>
+                {{ form.designation }}
+            </div>
 
             <div class="actions">
-                <button type="submit">Save</button>
+                <button type="submit">Save Employee</button>
                 <button type="button" id="closeModal">Cancel</button>
             </div>
         </form>
     </div>
 </div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const addBtn = document.getElementById("addEmployeeBtn");
+    const modal = document.getElementById("employeeModal");
+    const closeBtn = document.getElementById("closeModal");
+
+    addBtn.addEventListener("click", function () {
+        modal.classList.add("show");
+    });
+
+    closeBtn.addEventListener("click", function () {
+        modal.classList.remove("show");
+    });
+
+    window.addEventListener("click", function (e) {
+        if (e.target === modal) {
+            modal.classList.remove("show");
+        }
+    });
+});
+</script>
 
 {% endblock %}

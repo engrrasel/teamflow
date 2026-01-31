@@ -49,6 +49,16 @@ class EmployeeInviteForm(forms.Form):
         self.company = kwargs.pop('company', None)
         super().__init__(*args, **kwargs)
 
+        # ✅ Glass UI styling (only addition)
+        self.fields['email'].widget.attrs.update({
+            'class': 'glass-input',
+            'placeholder': 'employee@email.com'
+        })
+
+        self.fields['designation'].widget.attrs.update({
+            'class': 'glass-input'
+        })
+
         if self.company:
             self.fields['designation'].queryset = Designation.objects.filter(
                 group__company=self.company
