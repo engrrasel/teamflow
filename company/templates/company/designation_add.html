@@ -1,0 +1,35 @@
+{% extends "base/base.html" %}
+
+{% block title %}Add Designation{% endblock %}
+
+{% block content %}
+
+<div class="emp-card" style="max-width:600px; margin:auto;">
+
+    <div class="emp-header">
+        <h2>Add New Designation</h2>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Group</label>
+            {{ form.group }}
+        </div>
+
+        <div class="form-group">
+            <label>Designation Name</label>
+            {{ form.name }}
+        </div>
+
+        <button type="submit" class="add-btn">Save Designation</button>
+    </form>
+
+    <div style="margin-top:15px;">
+        <a href="{% url 'designation_list' %}">← Back to list</a>
+    </div>
+
+</div>
+
+{% endblock %}

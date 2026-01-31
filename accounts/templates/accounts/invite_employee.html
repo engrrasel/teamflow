@@ -1,0 +1,31 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+
+<div class="emp-card">
+
+    <div class="emp-header">
+        <h2>Invite Employee</h2>
+
+        <a href="/company/designations/" class="add-btn">
+            + Add Designation
+        </a>
+    </div>
+
+    <form method="post" class="emp-form">
+        {% csrf_token %}
+
+        <label>Email Address</label>
+        {{ form.email }}
+
+        <label>Designation</label>
+        {{ form.designation }}
+
+        <button type="submit" class="add-btn" style="margin-top:20px;">
+            Send Invite
+        </button>
+    </form>
+
+</div>
+
+{% endblock %}

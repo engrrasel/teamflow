@@ -1,0 +1,82 @@
+{% extends "base/base.html" %}
+
+{% block title %}Designations{% endblock %}
+
+{% block content %}
+
+<div class="emp-card">
+
+    <!-- ===== Header ===== -->
+    <div class="emp-header">
+        <h2>Designation List</h2>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+
+            <!-- Quick Add -->
+            <form method="post" style="display:flex; gap:8px; align-items:center;">
+                {% csrf_token %}
+                {{ form.group }}
+                {{ form.name }}
+                <button type="submit" class="add-btn" style="padding:8px 14px;">
+                    Add
+                </button>
+            </form>
+
+            <!-- Groups -->
+            <a href="{% url 'group_list' %}" class="add-btn" style="background:#64748b;">
+                Groups
+            </a>
+
+            <!-- Back -->
+            <a href="{% url 'employee_list' %}" class="add-btn" style="background:#94a3b8;">
+                ← Back
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Error message -->
+    {% if form.errors %}
+        <div style="color:#dc2626; margin-bottom:12px; font-size:14px;">
+            {{ form.errors }}
+        </div>
+    {% endif %}
+
+    <!-- ===== Table ===== -->
+    <table class="emp-table">
+        <thead>
+            <tr>
+                <th style="width:30%;">Group</th>
+                <th style="width:40%;">Designation</th>
+                <th style="width:30%;">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for d in designations %}
+            <tr>
+                <td>{{ d.group.name }}</td>
+                <td><strong>{{ d.name }}</strong></td>
+                <td>
+                    <a href="{% url 'designation_edit' d.id %}" class="action-link">Edit</a>
+                    <span style="margin:0 8px; color:#bbb;">|</span>
+                    <a href="{% url 'designation_delete' d.id %}"
+                       class="action-link danger"
+                       onclick="return confirm('Delete this designation?')">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" style="text-align:center; padding:30px; color:#777;">
+                    No designations found. Add one from above.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

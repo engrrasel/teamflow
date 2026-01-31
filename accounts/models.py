@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.conf import settings
+
+from company.models import Company, Designation
 
 
 # ------------------ User Manager ------------------
@@ -15,7 +18,7 @@ class UserManager(BaseUserManager):
         if password:
             user.set_password(password)
         else:
-            user.set_unusable_password()  # 🔥 invited user এর জন্য
+            user.set_unusable_password()
 
         user.save()
         return user
@@ -32,10 +35,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=100, blank=True)
 
-    # SaaS invite flow এর জন্য
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    is_invited = models.BooleanField(default=False)  # 🔥 গুরুত্বপূর্ণ
+    is_invited = models.BooleanField(default=False)
 
     objects = UserManager()
 
@@ -46,11 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-# ------------------ Membership (SaaS core) ------------------
-
-from django.conf import settings
-from company.models import Company
-
+# ------------------ Membership ------------------
 
 class Membership(models.Model):
     ROLE_CHOICES = (
@@ -62,6 +60,13 @@ class Membership(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+
+    designation = models.ForeignKey(
+        Designation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         unique_together = ('user', 'company')

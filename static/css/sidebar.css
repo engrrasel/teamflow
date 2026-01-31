@@ -92,3 +92,10 @@
 .sidebar.collapsed .logout-btn span {
     display: none;
 }
+
+.nav-links li span a {
+    text-decoration: none;
+    color: inherit;
+    display: inline-block;
+    width: 100%;
+}

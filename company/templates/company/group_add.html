@@ -1,0 +1,35 @@
+{% extends "base/base.html" %}
+
+{% block title %}Add Designation Group{% endblock %}
+
+{% block content %}
+
+<div class="emp-card" style="max-width:600px; margin:auto;">
+
+    <div class="emp-header">
+        <h2>Add Designation Group</h2>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Group Name</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+                <div style="color:#dc2626; margin-top:6px;">
+                    {{ form.name.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="add-btn">Save Group</button>
+    </form>
+
+    <div style="margin-top:15px;">
+        <a href="{% url 'group_list' %}">← Back to Groups</a>
+    </div>
+
+</div>
+
+{% endblock %}

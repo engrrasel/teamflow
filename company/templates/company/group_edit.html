@@ -1,0 +1,25 @@
+{% extends "base/base.html" %}
+
+{% block title %}Edit Group{% endblock %}
+
+{% block content %}
+
+<div class="emp-card" style="max-width:600px; margin:auto;">
+
+    <div class="emp-header">
+        <h2>Edit Group</h2>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Group Name</label>
+            {{ form.name }}
+        </div>
+
+        <button type="submit" class="add-btn">Update Group</button>
+    </form>
+
+</div>
+
+{% endblock %}

@@ -23,14 +23,34 @@
         </div>
 
         <ul class="nav-links">
-            <li><i class="fas fa-th-large"></i><span>Dashboard</span></li>
-            <li><i class="fas fa-user"></i><span>Users</span></li>
-            <li><i class="fas fa-envelope"></i><span>Messages</span></li>
-            <li><i class="fas fa-chart-line"></i><span>Analytics</span></li>
-            <li><i class="fas fa-cog"></i><span>Settings</span></li>
+            <li>
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </li>
+
+            <li>
+                <i class="fas fa-users"></i>
+                <span>
+                    <a href="{% url 'employee_list' %}">Users</a>
+                </span>
+            </li>
+
+            <li>
+                <i class="fas fa-envelope"></i>
+                <span>Messages</span>
+            </li>
+
+            <li>
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </li>
+
+            <li>
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </li>
         </ul>
 
-        <!-- 🔥 Logout inside sidebar -->
         <div class="sidebar-footer">
             <a href="{% url 'logout' %}" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i>
@@ -54,5 +74,9 @@
 </div>
 
 <script src="{% static 'js/sidebar.js' %}"></script>
+
+<!-- ✅ JS block MUST be here -->
+{% block extra_js %}{% endblock %}
+
 </body>
 </html>

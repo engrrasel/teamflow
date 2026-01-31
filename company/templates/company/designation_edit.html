@@ -1,0 +1,41 @@
+{% extends "base/base.html" %}
+
+{% block title %}Edit Designation{% endblock %}
+
+{% block content %}
+
+<div class="emp-card" style="max-width:600px; margin:auto;">
+
+    <div class="emp-header">
+        <h2>Edit Designation</h2>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Group</label>
+            {{ form.group }}
+        </div>
+
+        <div class="form-group">
+            <label>Designation Name</label>
+            {{ form.name }}
+        </div>
+
+        {% if form.errors %}
+            <div style="color:#dc2626; margin-bottom:12px;">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <button type="submit" class="add-btn">Update Designation</button>
+    </form>
+
+    <div style="margin-top:15px;">
+        <a href="{% url 'designation_list' %}">← Back to List</a>
+    </div>
+
+</div>
+
+{% endblock %}
