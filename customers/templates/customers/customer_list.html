@@ -1,0 +1,99 @@
+{% extends "base/base.html" %}
+{% block content %}
+
+<div class="emp-card">
+    <div class="emp-header">
+        <h2>Customers</h2>
+        <button id="addCustomerBtn" class="add-btn">+ Add Customer</button>
+    </div>
+
+    <table class="emp-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Division</th>
+                <th>District</th>
+                <th>Thana</th>
+                <th>Post Office</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in customers %}
+            <tr>
+                <td>{{ c.name }}</td>
+                <td>{{ c.phone }}</td>
+                <td>{{ c.division }}</td>
+                <td>{{ c.district }}</td>
+                <td>{{ c.thana }}</td>
+                <td>{{ c.post_office }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Modal -->
+<div id="customerModal" class="modal">
+    <div class="modal-content">
+        <h3>Add Customer</h3>
+
+        <form method="post" action="{% url 'customer_add' %}">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div class="actions">
+                <button type="submit">Save Customer</button>
+                <button type="button" id="closeCustomerModal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(function () {
+    $("#addCustomerBtn").click(function () {
+        $("#customerModal").addClass("show");
+    });
+
+    $("#closeCustomerModal").click(function () {
+        $("#customerModal").removeClass("show");
+    });
+
+    $("#id_division").on("change", function () {
+        $.get("/ajax/load-districts/", { division: this.value }, function (data) {
+            $("#id_district").html('<option value="">Select</option>');
+            data.forEach(d => {
+                $("#id_district").append(`<option value="${d.id}">${d.name}</option>`);
+            });
+        });
+    });
+
+    $("#id_district").on("change", function () {
+        $.get("/ajax/load-thanas/", { district: this.value }, function (data) {
+            $("#id_thana").html('<option value="">Select</option>');
+            data.forEach(t => {
+                $("#id_thana").append(`<option value="${t.id}">${t.name}</option>`);
+            });
+        });
+    });
+
+    $("#id_thana").on("change", function () {
+        $.get("/ajax/load-post/", { thana: this.value }, function (data) {
+            $("#id_post_office").html('<option value="">Select</option>');
+            data.forEach(p => {
+                $("#id_post_office").append(
+                    `<option value="${p.id}">${p.name} (${p.post_code})</option>`
+                );
+            });
+        });
+    });
+});
+</script>
+
+{% endblock %}

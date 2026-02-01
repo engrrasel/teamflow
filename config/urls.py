@@ -10,6 +10,12 @@ urlpatterns = [
     
     path('company/', include('company.urls')),
 
+    path('', include('locations.urls')),
+
+    path("customers/", include("customers.urls")),
+
+
+
     path('dashboard/', dashboard_view, name='dashboard'),
 
     # Accounts (Login, Signup, Logout)
