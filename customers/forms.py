@@ -1,13 +1,25 @@
 from django import forms
-from .models import Customer
+from .models import Customer, BusinessCategory, SellingProduct
 from locations.models import Division, District, Thana, PostOffice
 
 
 class CustomerForm(forms.ModelForm):
     division = forms.ModelChoiceField(queryset=Division.objects.all())
-    district = forms.ModelChoiceField(queryset=District.objects.none())
-    thana = forms.ModelChoiceField(queryset=Thana.objects.none())
-    post_office = forms.ModelChoiceField(queryset=PostOffice.objects.none())
+    district = forms.ModelChoiceField(queryset=District.objects.none(), required=False)
+    thana = forms.ModelChoiceField(queryset=Thana.objects.none(), required=False)
+    post_office = forms.ModelChoiceField(queryset=PostOffice.objects.none(), required=False)
+
+    business_categories = forms.ModelMultipleChoiceField(
+        queryset=BusinessCategory.objects.none(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    selling_products = forms.ModelMultipleChoiceField(
+        queryset=SellingProduct.objects.none(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
 
     class Meta:
         model = Customer
@@ -18,44 +30,44 @@ class CustomerForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
+        self.company = kwargs.pop('company')
         super().__init__(*args, **kwargs)
 
-        # 🟢 Edit mode হলে initial অনুযায়ী queryset বসবে
-        if self.instance.pk:
+        # ✅ Company isolation (CRITICAL)
+        self.fields['business_categories'].queryset = \
+            BusinessCategory.objects.filter(company=self.company)
+
+        self.fields['selling_products'].queryset = \
+            SellingProduct.objects.filter(company=self.company)
+
+        # ---------- Cascading Address (Edit + Validation safe) ----------
+
+        # District
+        if self.data.get('division'):
+            self.fields['district'].queryset = District.objects.filter(
+                division_id=self.data.get('division')
+            )
+        elif self.instance.pk and self.instance.division:
             self.fields['district'].queryset = District.objects.filter(
                 division=self.instance.division
             )
+
+        # Thana
+        if self.data.get('district'):
+            self.fields['thana'].queryset = Thana.objects.filter(
+                district_id=self.data.get('district')
+            )
+        elif self.instance.pk and self.instance.district:
             self.fields['thana'].queryset = Thana.objects.filter(
                 district=self.instance.district
             )
+
+        # Post Office
+        if self.data.get('thana'):
+            self.fields['post_office'].queryset = PostOffice.objects.filter(
+                thana_id=self.data.get('thana')
+            )
+        elif self.instance.pk and self.instance.thana:
             self.fields['post_office'].queryset = PostOffice.objects.filter(
                 thana=self.instance.thana
             )
-
-        # 🟢 POST request হলে dynamic queryset বসবে
-        if 'division' in self.data:
-            try:
-                division_id = int(self.data.get('division'))
-                self.fields['district'].queryset = District.objects.filter(
-                    division_id=division_id
-                )
-            except (ValueError, TypeError):
-                pass
-
-        if 'district' in self.data:
-            try:
-                district_id = int(self.data.get('district'))
-                self.fields['thana'].queryset = Thana.objects.filter(
-                    district_id=district_id
-                )
-            except (ValueError, TypeError):
-                pass
-
-        if 'thana' in self.data:
-            try:
-                thana_id = int(self.data.get('thana'))
-                self.fields['post_office'].queryset = PostOffice.objects.filter(
-                    thana_id=thana_id
-                )
-            except (ValueError, TypeError):
-                pass

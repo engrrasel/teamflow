@@ -2,10 +2,24 @@
 {% block content %}
 
 <div class="emp-card">
-    <div class="emp-header">
-        <h2>Customers</h2>
-        <button id="addCustomerBtn" class="add-btn">+ Add Customer</button>
+<div class="emp-header">
+    <h2>Customers</h2>
+
+    <div style="display:flex; gap:10px;">
+        <a href="{% url 'business_category_list' %}" class="btn-outline">
+            Business Categories
+        </a>
+
+        <a href="{% url 'selling_product_list' %}" class="btn-outline">
+            Selling Products
+        </a>
+
+        <button id="addCustomerBtn" class="add-btn">
+            + Add Customer
+        </button>
     </div>
+</div>
+
 
     <table class="emp-table">
         <thead>
