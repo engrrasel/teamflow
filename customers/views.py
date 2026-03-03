@@ -4,12 +4,20 @@ from .models import Customer
 from .forms import CustomerForm
 
 
+# -----------------------------
+# CUSTOMER LIST
+# -----------------------------
+
 @login_required
 def customer_list_view(request):
 
-    company = request.membership.company
+    membership = getattr(request, "membership", None)
 
-    # Only this company's customers
+    if not membership:
+        return redirect("dashboard")
+
+    company = membership.company
+
     customers = Customer.objects.filter(company=company)
 
     form = CustomerForm(company=company)
@@ -20,10 +28,19 @@ def customer_list_view(request):
     })
 
 
+# -----------------------------
+# CUSTOMER ADD
+# -----------------------------
+
 @login_required
 def customer_add_view(request):
 
-    company = request.membership.company
+    membership = getattr(request, "membership", None)
+
+    if not membership:
+        return redirect("dashboard")
+
+    company = membership.company
 
     customers = Customer.objects.filter(company=company)
 
@@ -40,7 +57,6 @@ def customer_add_view(request):
 
             return redirect("customer_list")
 
-        # form invalid হলে popup open থাকবে
         return render(request, "customers/customer_list.html", {
             "customers": customers,
             "form": form,
@@ -57,7 +73,12 @@ def customer_add_view(request):
 @login_required
 def customer_edit_view(request, pk):
 
-    company = request.membership.company
+    membership = getattr(request, "membership", None)
+
+    if not membership:
+        return redirect("dashboard")
+
+    company = membership.company
 
     customer = get_object_or_404(
         Customer,
@@ -101,7 +122,12 @@ def customer_edit_view(request, pk):
 @login_required
 def customer_delete_view(request, pk):
 
-    company = request.membership.company
+    membership = getattr(request, "membership", None)
+
+    if not membership:
+        return redirect("dashboard")
+
+    company = membership.company
 
     customer = get_object_or_404(
         Customer,
