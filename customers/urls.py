@@ -6,11 +6,15 @@ from .views_master import (
     selling_product_list,
     selling_product_delete,
 )
+from . import views
 
 urlpatterns = [
     # ---------- Customers ----------
     path("", customer_list_view, name="customer_list"),
     path("add/", customer_add_view, name="customer_add"),
+
+        path("edit/<int:pk>/", views.customer_edit_view, name="customer_edit"),
+    path("delete/<int:pk>/", views.customer_delete_view, name="customer_delete"),
 
     # ---------- Business Categories ----------
     path(

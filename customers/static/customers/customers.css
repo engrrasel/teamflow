@@ -279,3 +279,43 @@ body{
     border-radius:6px;
     cursor:pointer;
 }
+
+
+/* Action links */
+
+.action-links{
+    white-space:nowrap;
+}
+
+/* Edit */
+
+.edit-link{
+    color:#2563eb;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.edit-link:hover{
+    text-decoration:underline;
+}
+
+
+/* Delete */
+
+.delete-link{
+    color:#dc2626;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.delete-link:hover{
+    text-decoration:underline;
+}
+
+
+/* Separator */
+
+.separator{
+    margin:0 6px;
+    color:#999;
+}

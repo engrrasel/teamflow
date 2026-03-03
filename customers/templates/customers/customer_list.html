@@ -2,29 +2,28 @@
 {% load static %}
 {% block content %}
 
-
 <link rel="stylesheet" href="{% static 'customers/customers.css' %}">
 
 <div class="emp-card">
 
 <div class="emp-header">
     <h2>Customers</h2>
+<div style="display:flex; gap:10px;">
+    <a href="{% url 'business_category_list' %}" class="btn-outline">
+        Business Categories
+    </a>
 
-    <div style="display:flex; gap:10px;">
-        <a href="{% url 'business_category_list' %}" class="btn-outline">
-            Business Categories
-        </a>
+    <a href="{% url 'selling_product_list' %}" class="btn-outline">
+        Selling Products
+    </a>
 
-        <a href="{% url 'selling_product_list' %}" class="btn-outline">
-            Selling Products
-        </a>
-
-        <button id="addCustomerBtn" class="add-btn">
-            + Add Customer
-        </button>
-    </div>
+    <button id="addCustomerBtn" class="add-btn">
+        + Add Customer
+    </button>
 </div>
 
+
+</div>
 
 <table class="emp-table">
     <thead>
@@ -35,104 +34,134 @@
             <th>District</th>
             <th>Thana</th>
             <th>Post Office</th>
+            <th>Action</th>
         </tr>
     </thead>
 
-    <tbody>
-        {% for c in customers %}
-        <tr>
-            <td>{{ c.name }}</td>
-            <td>{{ c.phone }}</td>
-            <td>{{ c.division }}</td>
-            <td>{{ c.district }}</td>
-            <td>{{ c.thana }}</td>
-            <td>{{ c.post_office }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+
+<tbody>
+
+{% for c in customers %}
+    <tr>
+        <td>{{ c.name }}</td>
+        <td>{{ c.phone }}</td>
+        <td>{{ c.division }}</td>
+        <td>{{ c.district }}</td>
+        <td>{{ c.thana }}</td>
+        <td>{{ c.post_office }}</td>
+
+        <td class="action-links">
+
+        <a href="{% url 'customer_edit' c.id %}" class="edit-link">
+        Edit
+        </a>
+
+        <span class="separator">|</span>
+
+        <a href="{% url 'customer_delete' c.id %}"
+        class="delete-link"
+        onclick="return confirm('Delete this customer?')">
+        Delete
+        </a>
+
+        </td>
+
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="7" style="text-align:center;padding:30px;">
+            No customers yet
+        </td>
+    </tr>
+{% endfor %}
+
+</tbody>
+
 </table>
 
 </div>
 
-
 <!-- Modal -->
+
 <div id="customerModal" class="modal {% if open_modal %}show{% endif %}">
     <div class="modal-content">
 
-        <h3>Add Customer</h3>
+```
+    <h3>Add Customer</h3>
 
-        <form method="post" action="{% url 'customer_add' %}">
-        {% csrf_token %}
+    <form method="post" action="{% url 'customer_add' %}">
+    {% csrf_token %}
 
-        {% if form.non_field_errors %}
-        <div class="form-error">
-        {{ form.non_field_errors }}
-        </div>
-        {% endif %}
+    {% if form.non_field_errors %}
+    <div class="form-error">
+    {{ form.non_field_errors }}
+    </div>
+    {% endif %}
 
-        <div class="form-grid">
+    <div class="form-grid">
 
-        <div class="form-group">
-        <label>Name</label>
-        {{ form.name }}
-        <div class="form-error">{{ form.name.errors }}</div>
-        </div>
+    <div class="form-group">
+    <label>Name</label>
+    {{ form.name }}
+    <div class="form-error">{{ form.name.errors }}</div>
+    </div>
 
-        <div class="form-group">
-        <label>Phone</label>
-        {{ form.phone }}
-        <div class="form-error">{{ form.phone.errors }}</div>
-        </div>
+    <div class="form-group">
+    <label>Phone</label>
+    {{ form.phone }}
+    <div class="form-error">{{ form.phone.errors }}</div>
+    </div>
 
-        <div class="form-group">
-        <label>Division</label>
-        {{ form.division }}
-        </div>
+    <div class="form-group">
+    <label>Division</label>
+    {{ form.division }}
+    </div>
 
-        <div class="form-group">
-        <label>District</label>
-        {{ form.district }}
-        </div>
+    <div class="form-group">
+    <label>District</label>
+    {{ form.district }}
+    </div>
 
-        <div class="form-group">
-        <label>Thana</label>
-        {{ form.thana }}
-        </div>
+    <div class="form-group">
+    <label>Thana</label>
+    {{ form.thana }}
+    </div>
 
-        <div class="form-group">
-        <label>Post Office</label>
-        {{ form.post_office }}
-        </div>
-
-        </div>
-
-
-        <div class="form-section">
-        <label>Business Categories</label>
-        <div class="checkbox-group">
-        {{ form.business_categories }}
-        </div>
-        </div>
-
-
-        <div class="form-section">
-        <label>Selling Products</label>
-        <div class="checkbox-group">
-        {{ form.selling_products }}
-        </div>
-        </div>
-
-
-        <div class="actions">
-        <button type="submit" class="btn-primary">Save Customer</button>
-        <button type="button" id="closeCustomerModal" class="btn-secondary">Cancel</button>
-        </div>
-
-        </form>
+    <div class="form-group">
+    <label>Post Office</label>
+    {{ form.post_office }}
+    </div>
 
     </div>
-</div>
 
+
+    <div class="form-section">
+    <label>Business Categories</label>
+    <div class="checkbox-group">
+    {{ form.business_categories }}
+    </div>
+    </div>
+
+
+    <div class="form-section">
+    <label>Selling Products</label>
+    <div class="checkbox-group">
+    {{ form.selling_products }}
+    </div>
+    </div>
+
+
+    <div class="actions">
+    <button type="submit" class="btn-primary">Save Customer</button>
+    <button type="button" id="closeCustomerModal" class="btn-secondary">Cancel</button>
+    </div>
+
+    </form>
+
+</div>
+```
+
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
