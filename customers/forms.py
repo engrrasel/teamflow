@@ -1,13 +1,27 @@
 from django import forms
 from .models import Customer, BusinessCategory, SellingProduct
 from locations.models import Division, District, Thana, PostOffice
+import re
 
 
 class CustomerForm(forms.ModelForm):
+
     division = forms.ModelChoiceField(queryset=Division.objects.all())
-    district = forms.ModelChoiceField(queryset=District.objects.none(), required=False)
-    thana = forms.ModelChoiceField(queryset=Thana.objects.none(), required=False)
-    post_office = forms.ModelChoiceField(queryset=PostOffice.objects.none(), required=False)
+
+    district = forms.ModelChoiceField(
+        queryset=District.objects.none(),
+        required=False
+    )
+
+    thana = forms.ModelChoiceField(
+        queryset=Thana.objects.none(),
+        required=False
+    )
+
+    post_office = forms.ModelChoiceField(
+        queryset=PostOffice.objects.none(),
+        required=False
+    )
 
     business_categories = forms.ModelMultipleChoiceField(
         queryset=BusinessCategory.objects.none(),
@@ -24,50 +38,110 @@ class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
         fields = [
-            'name', 'phone',
-            'division', 'district', 'thana', 'post_office',
-            'business_categories', 'selling_products'
+            "name",
+            "phone",
+            "division",
+            "district",
+            "thana",
+            "post_office",
+            "business_categories",
+            "selling_products",
         ]
 
     def __init__(self, *args, **kwargs):
-        self.company = kwargs.pop('company')
+        self.company = kwargs.pop("company")
         super().__init__(*args, **kwargs)
 
-        # ✅ Company isolation (CRITICAL)
-        self.fields['business_categories'].queryset = \
+        # -----------------------------
+        # Company Isolation
+        # -----------------------------
+
+        self.fields["business_categories"].queryset = \
             BusinessCategory.objects.filter(company=self.company)
 
-        self.fields['selling_products'].queryset = \
+        self.fields["selling_products"].queryset = \
             SellingProduct.objects.filter(company=self.company)
 
-        # ---------- Cascading Address (Edit + Validation safe) ----------
+        # -----------------------------
+        # Cascading Address
+        # -----------------------------
 
         # District
-        if self.data.get('division'):
-            self.fields['district'].queryset = District.objects.filter(
-                division_id=self.data.get('division')
+        if self.data.get("division"):
+            self.fields["district"].queryset = District.objects.filter(
+                division_id=self.data.get("division")
             )
+
         elif self.instance.pk and self.instance.division:
-            self.fields['district'].queryset = District.objects.filter(
+            self.fields["district"].queryset = District.objects.filter(
                 division=self.instance.division
             )
 
         # Thana
-        if self.data.get('district'):
-            self.fields['thana'].queryset = Thana.objects.filter(
-                district_id=self.data.get('district')
+        if self.data.get("district"):
+            self.fields["thana"].queryset = Thana.objects.filter(
+                district_id=self.data.get("district")
             )
+
         elif self.instance.pk and self.instance.district:
-            self.fields['thana'].queryset = Thana.objects.filter(
+            self.fields["thana"].queryset = Thana.objects.filter(
                 district=self.instance.district
             )
 
         # Post Office
-        if self.data.get('thana'):
-            self.fields['post_office'].queryset = PostOffice.objects.filter(
-                thana_id=self.data.get('thana')
+        if self.data.get("thana"):
+            self.fields["post_office"].queryset = PostOffice.objects.filter(
+                thana_id=self.data.get("thana")
             )
+
         elif self.instance.pk and self.instance.thana:
-            self.fields['post_office'].queryset = PostOffice.objects.filter(
+            self.fields["post_office"].queryset = PostOffice.objects.filter(
                 thana=self.instance.thana
             )
+
+    # -----------------------------
+    # Phone Normalize
+    # -----------------------------
+
+    def normalize_phone(self, phone):
+
+        phone = phone.strip()
+
+        # remove spaces / dash
+        phone = re.sub(r"[^\d+]", "", phone)
+
+        if phone.startswith("+880"):
+            phone = "0" + phone[4:]
+
+        elif phone.startswith("880"):
+            phone = "0" + phone[3:]
+
+        return phone
+
+    # -----------------------------
+    # Duplicate Phone Validation
+    # -----------------------------
+
+    def clean_phone(self):
+
+        phone = self.cleaned_data.get("phone")
+
+        if not phone:
+            return phone
+
+        phone = self.normalize_phone(phone)
+
+        qs = Customer.objects.filter(
+            company=self.company,
+            phone=phone
+        )
+
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise forms.ValidationError(
+                "Customer with this phone number already exists."
+            )
+
+        return phone

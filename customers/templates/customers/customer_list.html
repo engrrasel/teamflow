@@ -1,7 +1,12 @@
 {% extends "base/base.html" %}
+{% load static %}
 {% block content %}
 
+
+<link rel="stylesheet" href="{% static 'customers/customers.css' %}">
+
 <div class="emp-card">
+
 <div class="emp-header">
     <h2>Customers</h2>
 
@@ -21,48 +26,110 @@
 </div>
 
 
-    <table class="emp-table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Division</th>
-                <th>District</th>
-                <th>Thana</th>
-                <th>Post Office</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in customers %}
-            <tr>
-                <td>{{ c.name }}</td>
-                <td>{{ c.phone }}</td>
-                <td>{{ c.division }}</td>
-                <td>{{ c.district }}</td>
-                <td>{{ c.thana }}</td>
-                <td>{{ c.post_office }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<table class="emp-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Division</th>
+            <th>District</th>
+            <th>Thana</th>
+            <th>Post Office</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for c in customers %}
+        <tr>
+            <td>{{ c.name }}</td>
+            <td>{{ c.phone }}</td>
+            <td>{{ c.division }}</td>
+            <td>{{ c.district }}</td>
+            <td>{{ c.thana }}</td>
+            <td>{{ c.post_office }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 </div>
 
 
 <!-- Modal -->
-<div id="customerModal" class="modal">
+<div id="customerModal" class="modal {% if open_modal %}show{% endif %}">
     <div class="modal-content">
+
         <h3>Add Customer</h3>
 
         <form method="post" action="{% url 'customer_add' %}">
-            {% csrf_token %}
+        {% csrf_token %}
 
-            {{ form.as_p }}
+        {% if form.non_field_errors %}
+        <div class="form-error">
+        {{ form.non_field_errors }}
+        </div>
+        {% endif %}
 
-            <div class="actions">
-                <button type="submit">Save Customer</button>
-                <button type="button" id="closeCustomerModal">Cancel</button>
-            </div>
+        <div class="form-grid">
+
+        <div class="form-group">
+        <label>Name</label>
+        {{ form.name }}
+        <div class="form-error">{{ form.name.errors }}</div>
+        </div>
+
+        <div class="form-group">
+        <label>Phone</label>
+        {{ form.phone }}
+        <div class="form-error">{{ form.phone.errors }}</div>
+        </div>
+
+        <div class="form-group">
+        <label>Division</label>
+        {{ form.division }}
+        </div>
+
+        <div class="form-group">
+        <label>District</label>
+        {{ form.district }}
+        </div>
+
+        <div class="form-group">
+        <label>Thana</label>
+        {{ form.thana }}
+        </div>
+
+        <div class="form-group">
+        <label>Post Office</label>
+        {{ form.post_office }}
+        </div>
+
+        </div>
+
+
+        <div class="form-section">
+        <label>Business Categories</label>
+        <div class="checkbox-group">
+        {{ form.business_categories }}
+        </div>
+        </div>
+
+
+        <div class="form-section">
+        <label>Selling Products</label>
+        <div class="checkbox-group">
+        {{ form.selling_products }}
+        </div>
+        </div>
+
+
+        <div class="actions">
+        <button type="submit" class="btn-primary">Save Customer</button>
+        <button type="button" id="closeCustomerModal" class="btn-secondary">Cancel</button>
+        </div>
+
         </form>
+
     </div>
 </div>
 
@@ -70,7 +137,9 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+
 $(function () {
+
     $("#addCustomerBtn").click(function () {
         $("#customerModal").addClass("show");
     });
@@ -79,34 +148,53 @@ $(function () {
         $("#customerModal").removeClass("show");
     });
 
+    // Division → District
     $("#id_division").on("change", function () {
+
         $.get("/ajax/load-districts/", { division: this.value }, function (data) {
+
             $("#id_district").html('<option value="">Select</option>');
+
             data.forEach(d => {
                 $("#id_district").append(`<option value="${d.id}">${d.name}</option>`);
             });
+
         });
+
     });
 
+    // District → Thana
     $("#id_district").on("change", function () {
+
         $.get("/ajax/load-thanas/", { district: this.value }, function (data) {
+
             $("#id_thana").html('<option value="">Select</option>');
+
             data.forEach(t => {
                 $("#id_thana").append(`<option value="${t.id}">${t.name}</option>`);
             });
+
         });
+
     });
 
+    // Thana → Post Office
     $("#id_thana").on("change", function () {
+
         $.get("/ajax/load-post/", { thana: this.value }, function (data) {
+
             $("#id_post_office").html('<option value="">Select</option>');
+
             data.forEach(p => {
                 $("#id_post_office").append(
                     `<option value="${p.id}">${p.name} (${p.post_code})</option>`
                 );
             });
+
         });
+
     });
+
 });
 </script>
 
