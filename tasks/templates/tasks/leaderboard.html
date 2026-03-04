@@ -1,0 +1,233 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/leaderboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="leaderboard-header">
+
+<h2>Employee Leaderboard</h2>
+
+<a href="{% url 'task_list' %}" class="btn-back">
+Back
+</a>
+
+</div>
+
+
+<div class="leaderboard-tabs">
+
+<button class="lb-btn active" data-tab="daily">Daily</button>
+<button class="lb-btn" data-tab="weekly">Weekly</button>
+<button class="lb-btn" data-tab="monthly">Monthly</button>
+<button class="lb-btn" data-tab="quarterly">Quarterly</button>
+<button class="lb-btn" data-tab="yearly">Yearly</button>
+
+</div>
+
+
+
+<!-- DAILY -->
+
+<div class="lb-content active" id="daily">
+
+<h3>Daily Leaderboard</h3>
+
+<table class="emp-table">
+
+<tr>
+<th>Rank</th>
+<th>Employee</th>
+<th>Points</th>
+</tr>
+
+{% for e in daily %}
+
+<tr>
+
+<td>
+{% if forloop.counter == 1 %}
+🥇
+{% elif forloop.counter == 2 %}
+🥈
+{% elif forloop.counter == 3 %}
+🥉
+{% else %}
+{{ forloop.counter }}
+{% endif %}
+</td>
+
+<td>{{ e.user.name|default:e.user.email }}</td>
+
+<td>{{ e.points|default:0 }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="3">No data</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+
+<!-- WEEKLY -->
+
+<div class="lb-content" id="weekly">
+
+<h3>Weekly Leaderboard</h3>
+
+<table class="emp-table">
+
+<tr>
+<th>Rank</th>
+<th>Employee</th>
+<th>Points</th>
+</tr>
+
+{% for e in weekly %}
+
+<tr>
+<td>{{ forloop.counter }}</td>
+<td>{{ e.user.name|default:e.user.email }}</td>
+<td>{{ e.points|default:0 }}</td>
+</tr>
+
+{% empty %}
+<tr><td colspan="3">No data</td></tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+
+<!-- MONTHLY -->
+
+<div class="lb-content" id="monthly">
+
+<h3>Monthly Leaderboard</h3>
+
+<table class="emp-table">
+
+<tr>
+<th>Rank</th>
+<th>Employee</th>
+<th>Points</th>
+</tr>
+
+{% for e in monthly %}
+
+<tr>
+<td>{{ forloop.counter }}</td>
+<td>{{ e.user.name|default:e.user.email }}</td>
+<td>{{ e.points|default:0 }}</td>
+</tr>
+
+{% empty %}
+<tr><td colspan="3">No data</td></tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+
+<!-- QUARTERLY -->
+
+<div class="lb-content" id="quarterly">
+
+<h3>Quarterly Leaderboard</h3>
+
+<table class="emp-table">
+
+<tr>
+<th>Rank</th>
+<th>Employee</th>
+<th>Points</th>
+</tr>
+
+{% for e in quarterly %}
+
+<tr>
+<td>{{ forloop.counter }}</td>
+<td>{{ e.user.name|default:e.user.email }}</td>
+<td>{{ e.points|default:0 }}</td>
+</tr>
+
+{% empty %}
+<tr><td colspan="3">No data</td></tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+
+<!-- YEARLY -->
+
+<div class="lb-content" id="yearly">
+
+<h3>Yearly Leaderboard</h3>
+
+<table class="emp-table">
+
+<tr>
+<th>Rank</th>
+<th>Employee</th>
+<th>Points</th>
+</tr>
+
+{% for e in yearly %}
+
+<tr>
+<td>{{ forloop.counter }}</td>
+<td>{{ e.user.name|default:e.user.email }}</td>
+<td>{{ e.points|default:0 }}</td>
+</tr>
+
+{% empty %}
+<tr><td colspan="3">No data</td></tr>
+{% endfor %}
+
+</table>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+const buttons=document.querySelectorAll(".lb-btn")
+const tabs=document.querySelectorAll(".lb-content")
+
+buttons.forEach(btn=>{
+
+btn.addEventListener("click",()=>{
+
+buttons.forEach(b=>b.classList.remove("active"))
+tabs.forEach(t=>t.classList.remove("active"))
+
+btn.classList.add("active")
+
+document.getElementById(btn.dataset.tab).classList.add("active")
+
+})
+
+})
+
+</script>
+
+{% endblock %}

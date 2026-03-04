@@ -14,6 +14,7 @@ urlpatterns = [
 
     path("customers/", include("customers.urls")),
 
+    path("tasks/", include("tasks.urls")),
 
 
     path('dashboard/', dashboard_view, name='dashboard'),

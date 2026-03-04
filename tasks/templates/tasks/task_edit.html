@@ -1,0 +1,70 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/task.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="task-header">
+<h2>Edit Task</h2>
+</div>
+
+<div class="emp-card">
+
+<form method="post" class="task-form">
+
+{% csrf_token %}
+
+<div class="full">
+<label>Task Title</label>
+<input type="text" name="title" value="{{ task.title }}" required>
+</div>
+
+<div>
+<label>Task Type</label>
+<select name="task_type">
+
+<option value="desk" {% if task.task_type == "desk" %}selected{% endif %}>Desk Work</option>
+<option value="visit" {% if task.task_type == "visit" %}selected{% endif %}>Visit</option>
+<option value="call" {% if task.task_type == "call" %}selected{% endif %}>Call</option>
+<option value="meeting" {% if task.task_type == "meeting" %}selected{% endif %}>Meeting</option>
+<option value="collection" {% if task.task_type == "collection" %}selected{% endif %}>Collection</option>
+
+</select>
+</div>
+
+<div>
+<label>Deadline</label>
+<input type="date" name="due_date" value="{{ task.due_date|date:'Y-m-d' }}">
+</div>
+
+<div>
+<label>Status</label>
+<select name="status">
+
+<option value="pending" {% if task.status == "pending" %}selected{% endif %}>Pending</option>
+<option value="checked_in" {% if task.status == "checked_in" %}selected{% endif %}>Checked In</option>
+<option value="completed" {% if task.status == "completed" %}selected{% endif %}>Completed</option>
+
+</select>
+</div>
+
+<div class="full">
+
+<button type="submit" class="btn btn-primary">
+Update Task
+</button>
+
+<a href="{% url 'task_list' %}" class="btn btn-danger">
+Cancel
+</a>
+
+</div>
+
+</form>
+
+</div>
+
+{% endblock %}

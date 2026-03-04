@@ -1,0 +1,53 @@
+<div class="emp-card">
+
+<table class="emp-table">
+
+<thead>
+<tr>
+<th>Rank</th>
+<th>Employee</th>
+<th>Points</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for e in employees %}
+
+<tr>
+
+<td>
+
+{% if forloop.counter == 1 %}
+🥇
+{% elif forloop.counter == 2 %}
+🥈
+{% elif forloop.counter == 3 %}
+🥉
+{% else %}
+#{{ forloop.counter }}
+{% endif %}
+
+</td>
+
+<td>{{ e.user.name }}</td>
+
+<td>{{ e.points|default:0 }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="3" class="no-data">
+No data
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>

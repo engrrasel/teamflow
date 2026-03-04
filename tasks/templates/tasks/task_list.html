@@ -1,0 +1,282 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/task.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="task-header">
+
+<h2>Tasks</h2>
+
+<div class="task-actions">
+<a href="{% url 'leaderboard' %}" class="btn btn-warning">
+Leaderboard
+</a>
+
+<button class="btn btn-primary" onclick="openTaskModal()">
+<i class="fa fa-plus"></i> Add Task
+</button>
+
+<a href="{% url 'my_tasks' %}" class="btn btn-success">
+<i class="fa fa-list"></i> My Tasks
+</a>
+
+</div>
+
+</div>
+
+<div class="task-stats">
+
+<div class="stat-card">
+<span>Total</span>
+<strong>{{ tasks|length }}</strong>
+</div>
+
+<div class="stat-card pending">
+<span>Pending</span>
+<strong>{{ pending_count }}</strong>
+</div>
+
+<div class="stat-card checkin">
+<span>Checked</span>
+<strong>{{ checked_count }}</strong>
+</div>
+
+<div class="stat-card completed">
+<span>Completed</span>
+<strong>{{ completed_count }}</strong>
+</div>
+
+</div>
+
+<div class="task-toolbar">
+
+<input type="text" id="taskSearch" placeholder="Search task..." class="task-search">
+
+<div class="task-tabs">
+
+<button class="tab active" data-status="all">All</button> <button class="tab" data-status="pending">Pending</button> <button class="tab" data-status="checked_in">Checked</button> <button class="tab" data-status="submitted">Submitted</button> <button class="tab" data-status="approved">Approved</button>
+
+</div>
+
+</div>
+
+<div class="emp-card">
+
+<table class="emp-table" id="taskTable">
+
+<thead>
+<tr>
+<th>Task</th>
+<th>Employee</th>
+<th>Customer</th>
+<th>Assign Date</th>
+<th>Deadline</th>
+<th>Status</th>
+<th>Points</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for t in tasks %}
+
+<tr data-status="{{ t.status }}">
+
+<td>{{ t.title }}</td>
+
+<td>{{ t.employee }}</td>
+
+<td>
+{% if t.customer %}
+{{ t.customer }}
+{% else %}
+-
+{% endif %}
+</td>
+
+<td>{{ t.created_at|date:"d M Y" }}</td>
+
+<td>
+{% if t.due_date %}
+{{ t.due_date|date:"d M Y" }}
+{% else %}
+-
+{% endif %}
+</td>
+
+<td>
+<span class="status status-{{ t.status }}">
+{{ t.status }}
+</span>
+</td>
+
+<td>
+{% if t.points %}
+{{ t.points }}
+{% else %}
+0
+{% endif %}
+</td>
+
+<td class="actions">
+
+<a href="{% url 'task_edit' t.id %}" class="edit-link">
+Edit
+</a>
+
+<span class="divider">|</span>
+
+<a href="{% url 'task_delete' t.id %}"
+class="delete-link"
+onclick="return confirm('Delete this task?')">
+Delete </a>
+
+{% if t.status == "submitted" %}
+
+<span class="divider">|</span>
+
+<a href="{% url 'approve_task' t.id %}" class="btn btn-success btn-sm">
+Approve
+</a>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="8" class="no-data">
+No tasks found
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+<div id="taskModal" class="task-modal">
+
+<div class="task-modal-content">
+
+<div class="modal-header">
+<h3>Add Task</h3>
+<span class="close-btn" onclick="closeTaskModal()">&times;</span>
+</div>
+
+<form method="post" action="{% url 'task_add' %}" class="task-form">
+
+{% csrf_token %}
+
+<input type="text" name="title" placeholder="Task title" class="full" required>
+
+<select name="task_type">
+<option value="desk">Desk Work</option>
+<option value="visit">Visit</option>
+<option value="call">Call</option>
+<option value="meeting">Meeting</option>
+<option value="collection">Collection</option>
+</select>
+
+<select name="employee">
+<option value="">Myself</option>
+{% for e in employees %}
+<option value="{{ e.user.id }}">{{ e.user.name }}</option>
+{% endfor %}
+</select>
+
+<select name="customer">
+<option value="">No Customer</option>
+{% for c in customers %}
+<option value="{{ c.id }}">{{ c.name }}</option>
+{% endfor %}
+</select>
+
+<input type="date" name="due_date">
+
+<div class="full">
+<button type="submit" class="btn btn-primary">
+Assign Task
+</button>
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+function openTaskModal(){
+document.getElementById("taskModal").style.display="flex";
+}
+
+function closeTaskModal(){
+document.getElementById("taskModal").style.display="none";
+}
+
+window.onclick=function(e){
+let modal=document.getElementById("taskModal");
+if(e.target==modal){
+modal.style.display="none";
+}
+}
+
+
+
+const tabs=document.querySelectorAll(".tab");
+const rows=document.querySelectorAll("#taskTable tbody tr");
+
+tabs.forEach(tab=>{
+tab.addEventListener("click",()=>{
+
+tabs.forEach(t=>t.classList.remove("active"));
+tab.classList.add("active");
+
+const status=tab.dataset.status;
+
+rows.forEach(row=>{
+if(status==="all" || row.dataset.status===status){
+row.style.display="";
+}else{
+row.style.display="none";
+}
+});
+
+});
+});
+
+
+
+document.getElementById("taskSearch").addEventListener("keyup",function(){
+
+let value=this.value.toLowerCase();
+
+rows.forEach(row=>{
+row.textContent.toLowerCase().includes(value)
+? row.style.display=""
+: row.style.display="none";
+});
+
+});
+
+</script>
+
+{% endblock %}

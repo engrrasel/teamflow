@@ -47,6 +47,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    # -------- Employee total points --------
+
+    def total_points(self):
+        from tasks.models import Task
+
+        tasks = Task.objects.filter(
+            employee=self,
+            status="approved"
+        )
+
+        return sum(t.points for t in tasks)
+
 
 # ------------------ Membership ------------------
 
@@ -58,9 +70,16 @@ class Membership(models.Model):
     )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.CASCADE
+    )
+
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES
+    )
 
     designation = models.ForeignKey(
         Designation,
