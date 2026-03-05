@@ -1,14 +1,11 @@
 from django.db import models
 from django.conf import settings
-from company.models import Company
-from customers.models import Customer
+from django.utils import timezone
 
 
 # -----------------------------
 # TASK
 # -----------------------------
-from django.db import models
-from django.utils import timezone
 
 class Task(models.Model):
 
@@ -16,6 +13,7 @@ class Task(models.Model):
         ("pending", "Pending"),
         ("submitted", "Submitted"),
         ("approved", "Approved"),
+        ("rejected", "Rejected"),
     )
 
     TASK_TYPE = (
@@ -32,24 +30,21 @@ class Task(models.Model):
         related_name="tasks"
     )
 
-    # যাকে task দেওয়া হয়েছে
     employee = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="assigned_tasks"
     )
 
-    # কে task assign করেছে
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="created_tasks"
     )
 
-    title = models.CharField(
-        max_length=200
-    )
+    title = models.CharField(max_length=200)
 
     task_type = models.CharField(
         max_length=20,
@@ -81,8 +76,22 @@ class Task(models.Model):
         default="pending"
     )
 
-    points = models.FloatField(
-        default=0
+    # admin custom point
+    custom_points = models.FloatField(
+        default=1
+    )
+
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_tasks"
+    )
+
+    approved_at = models.DateTimeField(
+        null=True,
+        blank=True
     )
 
     assign_date = models.DateField(
@@ -94,21 +103,87 @@ class Task(models.Model):
     )
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["status"]),
+            models.Index(fields=["employee"]),
+            models.Index(fields=["due_date"]),
+        ]
 
+    # -------------------------
+    # TASK SUBMIT
+    # -------------------------
+
+    def submit(self):
+        self.status = "submitted"
+        self.submitted_at = timezone.now()
+        self.save()
+
+    # -------------------------
+    # TASK APPROVE
+    # -------------------------
+
+    def approve(self, admin_user):
+
+        if self.status != "submitted":
+            return
+
+        self.status = "approved"
+        self.approved_by = admin_user
+        self.approved_at = timezone.now()
+
+        self.save()
+
+    # -------------------------
+    # POINT CALCULATION
+    # -------------------------
     def calculate_points(self):
+
+        # admin যদি extra point দেয়
+        if self.custom_points > 1:
+            return self.custom_points
+
+        # task assign হয়েছে কিন্তু submit হয়নি
+        if not self.submitted_at:
+            return 1
+
+        if not self.due_date:
+            return 1
+
+        submit_date = self.submitted_at.date()
+
+        if submit_date <= self.due_date:
+            return 1
+
+        delay_days = (submit_date - self.due_date).days
+
+        if delay_days == 1:
+            return 0.5
+
+        return 0
+
+    # -------------------------
+    # PENALTY CALCULATION
+    # -------------------------
+
+    def calculate_penalty(self):
 
         if not self.submitted_at or not self.due_date:
             return 0
 
-        if self.submitted_at.date() <= self.due_date:
-            return 1
-        else:
-            return 0.5
+        submit_date = self.submitted_at.date()
+
+        delay_days = (submit_date - self.due_date).days
+
+        if delay_days <= 1:
+            return 0
+
+        # ২ দিন লেট হলে -1 থেকে শুরু
+        return delay_days - 1
 
     def __str__(self):
         return f"{self.employee} → {self.title}"
-    
+
 
 # -----------------------------
 # VISIT REPORT

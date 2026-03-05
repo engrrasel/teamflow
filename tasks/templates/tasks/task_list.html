@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block extra_css %}
-
 <link rel="stylesheet" href="{% static 'css/task.css' %}">
 {% endblock %}
 
@@ -13,6 +12,7 @@
 <h2>Tasks</h2>
 
 <div class="task-actions">
+
 <a href="{% url 'leaderboard' %}" class="btn btn-warning">
 Leaderboard
 </a>
@@ -38,17 +38,17 @@ Leaderboard
 
 <div class="stat-card pending">
 <span>Pending</span>
-<strong>{{ pending_count }}</strong>
+<strong>{{ pending_count|default:0 }}</strong>
 </div>
 
 <div class="stat-card checkin">
-<span>Checked</span>
-<strong>{{ checked_count }}</strong>
+<span>Submitted</span>
+<strong>{{ submitted_count|default:0 }}</strong>
 </div>
 
 <div class="stat-card completed">
-<span>Completed</span>
-<strong>{{ completed_count }}</strong>
+<span>Approved</span>
+<strong>{{ approved_count|default:0 }}</strong>
 </div>
 
 </div>
@@ -58,9 +58,10 @@ Leaderboard
 <input type="text" id="taskSearch" placeholder="Search task..." class="task-search">
 
 <div class="task-tabs">
-
-<button class="tab active" data-status="all">All</button> <button class="tab" data-status="pending">Pending</button> <button class="tab" data-status="checked_in">Checked</button> <button class="tab" data-status="submitted">Submitted</button> <button class="tab" data-status="approved">Approved</button>
-
+<button class="tab active" data-status="all">All</button>
+<button class="tab" data-status="pending">Pending</button>
+<button class="tab" data-status="submitted">Submitted</button>
+<button class="tab" data-status="approved">Approved</button>
 </div>
 
 </div>
@@ -112,16 +113,26 @@ Leaderboard
 
 <td>
 <span class="status status-{{ t.status }}">
-{{ t.status }}
+{{ t.get_status_display }}
 </span>
 </td>
 
-<td>
-{% if t.points %}
-{{ t.points }}
-{% else %}
-0
+<td class="points">
+
+<span class="point-value">
+{{ t.calculate_points }}
+</span>
+
+{% if t.status != "approved" %}
+<span class="approx">(approx)</span>
 {% endif %}
+
+{% if t.calculate_penalty > 0 %}
+<span class="penalty">
+-{{ t.calculate_penalty }}
+</span>
+{% endif %}
+
 </td>
 
 <td class="actions">
@@ -135,7 +146,8 @@ Edit
 <a href="{% url 'task_delete' t.id %}"
 class="delete-link"
 onclick="return confirm('Delete this task?')">
-Delete </a>
+Delete
+</a>
 
 {% if t.status == "submitted" %}
 
@@ -167,6 +179,8 @@ No tasks found
 
 </div>
 
+<!-- Task Modal -->
+
 <div id="taskModal" class="task-modal">
 
 <div class="task-modal-content">
@@ -193,7 +207,7 @@ No tasks found
 <select name="employee">
 <option value="">Myself</option>
 {% for e in employees %}
-<option value="{{ e.user.id }}">{{ e.user.name }}</option>
+<option value="{{ e.user.id }}">{{ e.user }}</option>
 {% endfor %}
 </select>
 
@@ -205,6 +219,15 @@ No tasks found
 </select>
 
 <input type="date" name="due_date">
+
+<input
+type="number"
+name="custom_points"
+step="0.1"
+min="0"
+value="1"
+placeholder="Points"
+>
 
 <div class="full">
 <button type="submit" class="btn btn-primary">
@@ -239,8 +262,6 @@ modal.style.display="none";
 }
 }
 
-
-
 const tabs=document.querySelectorAll(".tab");
 const rows=document.querySelectorAll("#taskTable tbody tr");
 
@@ -262,8 +283,6 @@ row.style.display="none";
 
 });
 });
-
-
 
 document.getElementById("taskSearch").addEventListener("keyup",function(){
 

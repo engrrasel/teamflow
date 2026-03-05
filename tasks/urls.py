@@ -23,10 +23,6 @@ urlpatterns = [
 
     path("<int:task_id>/approve/", views.approve_task, name="approve_task"),
 
-    path("tasks/<int:task_id>/submit/", views.submit_task, name="submit_task"),
-
-    path("tasks/<int:task_id>/approve/", views.approve_task, name="approve_task"),
-
     path("leaderboard/", views.leaderboard_view, name="leaderboard"),
 
 ]

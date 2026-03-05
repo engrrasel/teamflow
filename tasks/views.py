@@ -1,17 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from datetime import date, timedelta
 from django.utils import timezone
-
-from django.db.models import Sum, Q, Value
-from django.db.models.functions import Coalesce
+from datetime import date, timedelta
 
 from .models import Task, VisitReport, SalesOrder, Collection
 from customers.models import Customer
 from accounts.models import Membership
 
-from django.db.models import Sum, Q, Value, FloatField
-from django.db.models.functions import Coalesce
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 
 # -----------------------------
 # MY TASKS
@@ -20,8 +18,7 @@ from django.db.models.functions import Coalesce
 def my_tasks_view(request):
 
     tasks = Task.objects.filter(
-        employee=request.user,
-        due_date=date.today()
+        employee=request.user
     ).select_related("customer")
 
     return render(
@@ -43,13 +40,14 @@ def check_in_view(request, task_id):
         employee=request.user
     )
 
+    # status change
     task.status = "checked_in"
     task.save()
 
+    # visit report create
     VisitReport.objects.get_or_create(task=task)
 
     return redirect("my_tasks")
-
 
 # -----------------------------
 # ADD ORDER
@@ -65,10 +63,11 @@ def add_order_view(request, task_id):
 
     amount = request.POST.get("amount")
 
-    SalesOrder.objects.create(
-        task=task,
-        amount=amount
-    )
+    if amount:
+        SalesOrder.objects.create(
+            task=task,
+            amount=amount
+        )
 
     return redirect("my_tasks")
 
@@ -87,10 +86,11 @@ def add_collection_view(request, task_id):
 
     amount = request.POST.get("amount")
 
-    Collection.objects.create(
-        task=task,
-        amount=amount
-    )
+    if amount:
+        Collection.objects.create(
+            task=task,
+            amount=amount
+        )
 
     return redirect("my_tasks")
 
@@ -103,12 +103,14 @@ def task_list_view(request):
 
     company = request.membership.company
 
-    tasks = Task.objects.filter(company=company)
+    tasks = Task.objects.filter(
+        company=company
+    ).select_related("employee", "customer")
 
     employees = Membership.objects.filter(
         company=company,
         role="employee"
-    )
+    ).select_related("user")
 
     customers = Customer.objects.filter(company=company)
 
@@ -133,22 +135,32 @@ def task_add_view(request):
 
     if request.method == "POST":
 
-        employee_id = request.POST.get("employee")
-        customer_id = request.POST.get("customer")
         title = request.POST.get("title")
         task_type = request.POST.get("task_type")
         due_date = request.POST.get("due_date")
+        employee_id = request.POST.get("employee")
+        customer_id = request.POST.get("customer")
+        custom_points = request.POST.get("custom_points") or 1
 
-        if not employee_id:
-            employee_id = request.user.id
+        # employee fallback
+        if employee_id:
+            employee = get_object_or_404(User, id=employee_id)
+        else:
+            employee = request.user
+
+        # customer optional
+        customer = None
+        if customer_id:
+            customer = get_object_or_404(Customer, id=customer_id)
 
         Task.objects.create(
             company=company,
-            employee_id=employee_id,
-            customer_id=customer_id or None,
+            employee=employee,
+            customer=customer,
             title=title,
             task_type=task_type,
-            due_date=due_date,
+            due_date=due_date or None,
+            custom_points=custom_points,
             created_by=request.user
         )
 
@@ -173,7 +185,11 @@ def task_edit_view(request, task_id):
 
         return redirect("task_list")
 
-    return render(request, "tasks/task_edit.html", {"task": task})
+    return render(
+        request,
+        "tasks/task_edit.html",
+        {"task": task}
+    )
 
 
 # -----------------------------
@@ -223,9 +239,7 @@ def approve_task(request, task_id):
         company=company
     )
 
-    task.points = task.calculate_points()
     task.status = "approved"
-
     task.save()
 
     return redirect("task_list")
@@ -233,7 +247,8 @@ def approve_task(request, task_id):
 
 # -----------------------------
 # LEADERBOARD
-#@login_required
+# -----------------------------
+@login_required
 def leaderboard_view(request):
 
     company = request.membership.company
@@ -247,7 +262,6 @@ def leaderboard_view(request):
     daily = []
     weekly = []
     monthly = []
-    quarterly = []
     yearly = []
 
     for e in employees:
@@ -258,52 +272,16 @@ def leaderboard_view(request):
             status="approved"
         )
 
-        # Daily
-        daily_points = tasks.filter(
-            submitted_at__date=today
-        ).aggregate(Sum("points"))["points__sum"] or 0
+        points = sum([t.calculate_points() for t in tasks])
 
-        # Weekly
-        weekly_points = tasks.filter(
-            submitted_at__date__gte=today - timedelta(days=7)
-        ).aggregate(Sum("points"))["points__sum"] or 0
-
-        # Monthly
-        monthly_points = tasks.filter(
-            submitted_at__date__month=today.month
-        ).aggregate(Sum("points"))["points__sum"] or 0
-
-        # Quarterly
-        quarter_start_month = ((today.month - 1) // 3) * 3 + 1
-        quarterly_points = tasks.filter(
-            submitted_at__date__month__gte=quarter_start_month
-        ).aggregate(Sum("points"))["points__sum"] or 0
-
-        # Yearly
-        yearly_points = tasks.filter(
-            submitted_at__date__year=today.year
-        ).aggregate(Sum("points"))["points__sum"] or 0
-
-        daily.append({"user": e.user, "points": daily_points})
-        weekly.append({"user": e.user, "points": weekly_points})
-        monthly.append({"user": e.user, "points": monthly_points})
-        quarterly.append({"user": e.user, "points": quarterly_points})
-        yearly.append({"user": e.user, "points": yearly_points})
+        daily.append({"user": e.user, "points": points})
 
     daily.sort(key=lambda x: x["points"], reverse=True)
-    weekly.sort(key=lambda x: x["points"], reverse=True)
-    monthly.sort(key=lambda x: x["points"], reverse=True)
-    quarterly.sort(key=lambda x: x["points"], reverse=True)
-    yearly.sort(key=lambda x: x["points"], reverse=True)
 
     return render(
         request,
         "tasks/leaderboard.html",
         {
-            "daily": daily,
-            "weekly": weekly,
-            "monthly": monthly,
-            "quarterly": quarterly,
-            "yearly": yearly,
+            "daily": daily
         }
     )
