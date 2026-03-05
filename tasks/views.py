@@ -103,9 +103,25 @@ def task_list_view(request):
 
     company = request.membership.company
 
+    start_date = request.GET.get("start")
+    end_date = request.GET.get("end")
+
     tasks = Task.objects.filter(
         company=company
     ).select_related("employee", "customer")
+
+    # Default → today
+    if not start_date and not end_date:
+        today = date.today()
+        tasks = tasks.filter(assign_date=today)
+
+    # Single date
+    elif start_date and not end_date:
+        tasks = tasks.filter(assign_date=start_date)
+
+    # Date range
+    elif start_date and end_date:
+        tasks = tasks.filter(assign_date__range=[start_date, end_date])
 
     employees = Membership.objects.filter(
         company=company,
@@ -114,20 +130,31 @@ def task_list_view(request):
 
     customers = Customer.objects.filter(company=company)
 
-    return render(
-        request,
-        "tasks/task_list.html",
-        {
-            "tasks": tasks,
-            "employees": employees,
-            "customers": customers
-        }
-    )
+    pending_count = tasks.filter(status="pending").count()
+    submitted_count = tasks.filter(status="submitted").count()
+    approved_count = tasks.filter(status="approved").count()
 
+    context = {
+        "tasks": tasks,
+        "employees": employees,
+        "customers": customers,
+        "pending_count": pending_count,
+        "submitted_count": submitted_count,
+        "approved_count": approved_count,
+    }
+
+    return render(request, "tasks/task_list.html", context)
 
 # -----------------------------
 # ADD TASK
-# -----------------------------
+# -----------------------------from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+
+from accounts.models import User
+from customers.models import Customer
+from .models import Task
+
+
 @login_required
 def task_add_view(request):
 
@@ -138,20 +165,31 @@ def task_add_view(request):
         title = request.POST.get("title")
         task_type = request.POST.get("task_type")
         due_date = request.POST.get("due_date")
+
         employee_id = request.POST.get("employee")
         customer_id = request.POST.get("customer")
-        custom_points = request.POST.get("custom_points") or 1
 
-        # employee fallback
+        custom_points = request.POST.get("custom_points")
+
+        # convert points
+        try:
+            custom_points = float(custom_points)
+        except:
+            custom_points = 1
+
+
+        # employee
         if employee_id:
             employee = get_object_or_404(User, id=employee_id)
         else:
             employee = request.user
 
-        # customer optional
+
+        # customer
         customer = None
         if customer_id:
             customer = get_object_or_404(Customer, id=customer_id)
+
 
         Task.objects.create(
             company=company,
@@ -165,7 +203,6 @@ def task_add_view(request):
         )
 
     return redirect("task_list")
-
 
 # -----------------------------
 # EDIT TASK

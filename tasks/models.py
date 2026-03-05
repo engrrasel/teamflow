@@ -3,9 +3,9 @@ from django.conf import settings
 from django.utils import timezone
 
 
-# -----------------------------
-# TASK
-# -----------------------------
+# =========================================
+# TASK MODEL
+# =========================================
 
 class Task(models.Model):
 
@@ -22,6 +22,12 @@ class Task(models.Model):
         ("call", "Call"),
         ("meeting", "Meeting"),
         ("collection", "Collection"),
+    )
+
+    PRIORITY_CHOICES = (
+        ("low", "Low"),
+        ("medium", "Medium"),
+        ("high", "High"),
     )
 
     company = models.ForeignKey(
@@ -52,6 +58,12 @@ class Task(models.Model):
         default="desk"
     )
 
+    priority = models.CharField(
+        max_length=10,
+        choices=PRIORITY_CHOICES,
+        default="medium"
+    )
+
     customer = models.ForeignKey(
         "customers.Customer",
         on_delete=models.SET_NULL,
@@ -65,20 +77,15 @@ class Task(models.Model):
         blank=True
     )
 
-    submitted_at = models.DateTimeField(
-        null=True,
-        blank=True
-    )
-
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default="pending"
     )
 
-    # admin custom point
-    custom_points = models.FloatField(
-        default=1
+    submitted_at = models.DateTimeField(
+        null=True,
+        blank=True
     )
 
     approved_by = models.ForeignKey(
@@ -94,100 +101,115 @@ class Task(models.Model):
         blank=True
     )
 
-    assign_date = models.DateField(
-        auto_now_add=True
+    # admin manual override
+    custom_points = models.FloatField(
+        null=True,
+        blank=True
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    assign_date = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
         indexes = [
             models.Index(fields=["status"]),
             models.Index(fields=["employee"]),
-            models.Index(fields=["due_date"]),
+            models.Index(fields=["company", "status"]),
         ]
 
-    # -------------------------
-    # TASK SUBMIT
-    # -------------------------
+    # =========================================
+    # ACTION METHODS
+    # =========================================
 
     def submit(self):
+
+        if self.status != "pending":
+            return False
+
         self.status = "submitted"
         self.submitted_at = timezone.now()
         self.save()
 
-    # -------------------------
-    # TASK APPROVE
-    # -------------------------
+        return True
+
 
     def approve(self, admin_user):
 
         if self.status != "submitted":
-            return
+            return False
 
         self.status = "approved"
         self.approved_by = admin_user
         self.approved_at = timezone.now()
-
         self.save()
 
-    # -------------------------
+        return True
+
+
+    def reject(self, admin_user):
+
+        if self.status != "submitted":
+            return False
+
+        self.status = "rejected"
+        self.approved_by = admin_user
+        self.approved_at = timezone.now()
+        self.save()
+
+        return True
+
+
+    # =========================================
     # POINT CALCULATION
-    # -------------------------
+    # =========================================
+
     def calculate_points(self):
 
-        # admin যদি extra point দেয়
-        if self.custom_points > 1:
+        # admin override
+        if self.custom_points is not None:
             return self.custom_points
 
-        # task assign হয়েছে কিন্তু submit হয়নি
         if not self.submitted_at:
-            return 1
+            return 0
+
+        priority_points = {
+            "low": 1,
+            "medium": 1.5,
+            "high": 2
+        }
+
+        base_point = priority_points.get(self.priority, 1)
 
         if not self.due_date:
-            return 1
+            return base_point
 
         submit_date = self.submitted_at.date()
 
         if submit_date <= self.due_date:
-            return 1
+            return base_point
 
         delay_days = (submit_date - self.due_date).days
 
+        # ১ দিন লেট
         if delay_days == 1:
-            return 0.5
+            return base_point * 0.5
 
-        return 0
-
-    # -------------------------
-    # PENALTY CALCULATION
-    # -------------------------
-
-    def calculate_penalty(self):
-
-        if not self.submitted_at or not self.due_date:
+        # ২ দিন লেট
+        if delay_days == 2:
             return 0
 
-        submit_date = self.submitted_at.date()
+        # ৩ দিন থেকে প্রতিদিন -1
+        return -(delay_days - 2)
 
-        delay_days = (submit_date - self.due_date).days
-
-        if delay_days <= 1:
-            return 0
-
-        # ২ দিন লেট হলে -1 থেকে শুরু
-        return delay_days - 1
 
     def __str__(self):
         return f"{self.employee} → {self.title}"
 
 
-# -----------------------------
+# =========================================
 # VISIT REPORT
-# -----------------------------
+# =========================================
 
 class VisitReport(models.Model):
 
@@ -197,21 +219,17 @@ class VisitReport(models.Model):
         related_name="visit_report"
     )
 
-    check_in_time = models.DateTimeField(
-        auto_now_add=True
-    )
+    check_in_time = models.DateTimeField(auto_now_add=True)
 
-    note = models.TextField(
-        blank=True
-    )
+    note = models.TextField(blank=True)
 
     def __str__(self):
         return f"Visit Report - {self.task}"
 
 
-# -----------------------------
+# =========================================
 # SALES ORDER
-# -----------------------------
+# =========================================
 
 class SalesOrder(models.Model):
 
@@ -226,17 +244,15 @@ class SalesOrder(models.Model):
         decimal_places=2
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Order {self.amount} - {self.task}"
 
 
-# -----------------------------
+# =========================================
 # COLLECTION
-# -----------------------------
+# =========================================
 
 class Collection(models.Model):
 
@@ -251,9 +267,7 @@ class Collection(models.Model):
         decimal_places=2
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Collection {self.amount} - {self.task}"

@@ -2,7 +2,9 @@
 {% load static %}
 
 {% block extra_css %}
+
 <link rel="stylesheet" href="{% static 'css/task.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
 
 {% block content %}
@@ -13,21 +15,23 @@
 
 <div class="task-actions">
 
-<a href="{% url 'leaderboard' %}" class="btn btn-warning">
+<a href="{% url 'leaderboard' %}" class="task-btn leaderboard">
 Leaderboard
 </a>
 
-<button class="btn btn-primary" onclick="openTaskModal()">
-<i class="fa fa-plus"></i> Add Task
+<button onclick="openTaskModal()" class="task-btn add">
++ Add Task
 </button>
 
-<a href="{% url 'my_tasks' %}" class="btn btn-success">
-<i class="fa fa-list"></i> My Tasks
+<a href="{% url 'my_tasks' %}" class="task-btn my">
+My Tasks
 </a>
 
 </div>
 
 </div>
+
+<!-- STATS -->
 
 <div class="task-stats">
 
@@ -53,7 +57,23 @@ Leaderboard
 
 </div>
 
+<!-- TOOLBAR -->
+
 <div class="task-toolbar">
+
+<div class="task-date-filter">
+
+<input type="text" id="dateRange" placeholder="Select date or range">
+
+<button class="btn-filter" onclick="applyFilter()">
+Filter
+</button>
+
+<a href="#" class="btn-today" id="todayBtn">
+Today
+</a>
+
+</div>
 
 <input type="text" id="taskSearch" placeholder="Search task..." class="task-search">
 
@@ -65,6 +85,8 @@ Leaderboard
 </div>
 
 </div>
+
+<!-- TABLE -->
 
 <div class="emp-card">
 
@@ -123,14 +145,10 @@ Leaderboard
 {{ t.calculate_points }}
 </span>
 
-{% if t.status != "approved" %}
-<span class="approx">(approx)</span>
+{% if t.status != "approved" %} <span class="approx">(approx)</span>
 {% endif %}
 
-{% if t.calculate_penalty > 0 %}
-<span class="penalty">
--{{ t.calculate_penalty }}
-</span>
+{% if t.calculate_penalty > 0 %} <span class="penalty">-{{ t.calculate_penalty }}</span>
 {% endif %}
 
 </td>
@@ -146,8 +164,7 @@ Edit
 <a href="{% url 'task_delete' t.id %}"
 class="delete-link"
 onclick="return confirm('Delete this task?')">
-Delete
-</a>
+Delete </a>
 
 {% if t.status == "submitted" %}
 
@@ -179,7 +196,7 @@ No tasks found
 
 </div>
 
-<!-- Task Modal -->
+<!-- ADD TASK MODAL -->
 
 <div id="taskModal" class="task-modal">
 
@@ -204,35 +221,102 @@ No tasks found
 <option value="collection">Collection</option>
 </select>
 
-<select name="employee">
-<option value="">Myself</option>
-{% for e in employees %}
-<option value="{{ e.user.id }}">{{ e.user }}</option>
-{% endfor %}
+<select name="priority">
+<option value="low">Low Priority</option>
+<option value="medium" selected>Medium Priority</option>
+<option value="high">High Priority</option>
 </select>
+
+<!-- EMPLOYEE PICKER -->
+
+<div class="full">
+
+<label class="form-label">
+Employees
+</label>
+
+<div class="employee-picker">
+
+<div class="picker-header">
+
+<input type="text" id="empSearch" placeholder="Search employee...">
+
+<button type="button" onclick="selectAllEmployees()">
+Select All
+</button>
+
+</div>
+
+<div class="employee-list">
+
+{% for e in employees %}
+
+<label class="employee-item">
+
+<div class="emp-row">
+
+<input type="checkbox"
+name="employees"
+value="{{ e.user.id }}">
+
+<span class="avatar">
+{{ e.user.username|first|upper }}
+</span>
+
+<span class="employee-name">
+{{ e.user }}
+</span>
+
+</div>
+
+</label>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+<!-- CUSTOMER -->
+
+<div class="full">
+
+<label class="form-label">
+Customer
+</label>
 
 <select name="customer">
+
 <option value="">No Customer</option>
+
 {% for c in customers %}
+
 <option value="{{ c.id }}">{{ c.name }}</option>
 {% endfor %}
+
 </select>
 
-<input type="date" name="due_date">
+</div>
 
-<input
-type="number"
+<input type="date"
+name="due_date"
+value="{% now 'Y-m-d' %}">
+
+<input type="number"
 name="custom_points"
 step="0.1"
 min="0"
 value="1"
-placeholder="Points"
->
+placeholder="Points">
 
 <div class="full">
+
 <button type="submit" class="btn btn-primary">
 Assign Task
 </button>
+
 </div>
 
 </form>
@@ -245,22 +329,54 @@ Assign Task
 
 {% block extra_js %}
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script>
 
-function openTaskModal(){
-document.getElementById("taskModal").style.display="flex";
+document.addEventListener("DOMContentLoaded",function(){
+
+let selectedDates=[];
+
+flatpickr("#dateRange",{
+mode:"range",
+dateFormat:"Y-m-d",
+onChange:function(dates){
+selectedDates=dates;
+}
+});
+
+
+window.applyFilter=function(){
+
+if(selectedDates.length===0) return;
+
+let start=selectedDates[0].toISOString().split('T')[0];
+let end=start;
+
+if(selectedDates.length===2){
+end=selectedDates[1].toISOString().split('T')[0];
 }
 
-function closeTaskModal(){
-document.getElementById("taskModal").style.display="none";
-}
+window.location.href="?start="+start+"&end="+end;
 
-window.onclick=function(e){
-let modal=document.getElementById("taskModal");
-if(e.target==modal){
-modal.style.display="none";
-}
-}
+};
+
+
+document.getElementById("todayBtn").addEventListener("click",function(e){
+
+e.preventDefault();
+
+let d = new Date();
+
+let today =
+d.getFullYear() + "-" +
+String(d.getMonth()+1).padStart(2,"0") + "-" +
+String(d.getDate()).padStart(2,"0");
+
+window.location.href="?start="+today+"&end="+today;
+
+});
+
 
 const tabs=document.querySelectorAll(".tab");
 const rows=document.querySelectorAll("#taskTable tbody tr");
@@ -284,6 +400,7 @@ row.style.display="none";
 });
 });
 
+
 document.getElementById("taskSearch").addEventListener("keyup",function(){
 
 let value=this.value.toLowerCase();
@@ -293,6 +410,47 @@ row.textContent.toLowerCase().includes(value)
 ? row.style.display=""
 : row.style.display="none";
 });
+
+});
+
+});
+
+
+function openTaskModal(){
+document.getElementById("taskModal").style.display="flex";
+}
+
+function closeTaskModal(){
+document.getElementById("taskModal").style.display="none";
+}
+
+window.onclick=function(e){
+let modal=document.getElementById("taskModal");
+if(e.target==modal){
+modal.style.display="none";
+}
+}
+
+
+function selectAllEmployees(){
+document.querySelectorAll("input[name='employees']")
+.forEach(e=>e.checked=true);
+}
+
+
+document.addEventListener("keyup",function(e){
+
+if(e.target.id==="empSearch"){
+
+let value=e.target.value.toLowerCase();
+
+document.querySelectorAll(".employee-item").forEach(item=>{
+item.textContent.toLowerCase().includes(value)
+? item.style.display=""
+: item.style.display="none";
+});
+
+}
 
 });
 
