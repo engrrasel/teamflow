@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Task, TaskAssignment, VisitReport, SalesOrder, Collection
+from .models import Task, TaskAssignment, SalesOrder, Collection, EmployeeLocation
 
 
 # -----------------------------
@@ -55,18 +55,6 @@ class TaskAssignmentAdmin(admin.ModelAdmin):
 
 
 # -----------------------------
-# VISIT REPORT
-# -----------------------------
-@admin.register(VisitReport)
-class VisitReportAdmin(admin.ModelAdmin):
-
-    list_display = (
-        "assignment",
-        "check_in_time",
-    )
-
-
-# -----------------------------
 # SALES ORDER
 # -----------------------------
 @admin.register(SalesOrder)
@@ -89,4 +77,22 @@ class CollectionAdmin(admin.ModelAdmin):
         "assignment",
         "amount",
         "created_at",
+    )
+
+
+# -----------------------------
+# EMPLOYEE LOCATION (LIVE GPS)
+# -----------------------------
+@admin.register(EmployeeLocation)
+class EmployeeLocationAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "employee",
+        "latitude",
+        "longitude",
+        "updated_at",
+    )
+
+    search_fields = (
+        "employee__username",
     )

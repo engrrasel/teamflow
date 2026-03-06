@@ -66,18 +66,15 @@ Assign Task
 
 <td class="action-area">
 
-<!-- Check-in -->
 
 {% if a.status == "pending" %}
 
-<a href="{% url 'check_in' a.id %}" class="btn btn-primary">
+<button onclick="checkIn({{ a.id }})" class="btn btn-primary">
 Check-in
-</a>
+</button>
 
 {% endif %}
 
-
-<!-- Order -->
 
 {% if a.status == "checked_in" %}
 
@@ -92,8 +89,6 @@ Order
 {% endif %}
 
 
-<!-- Collection -->
-
 {% if a.status == "checked_in" %}
 
 <form action="{% url 'add_collection' a.id %}" method="post" class="inline-form">
@@ -107,8 +102,6 @@ Collect
 {% endif %}
 
 
-<!-- Submit -->
-
 {% if a.status == "checked_in" %}
 
 <a href="{% url 'submit_task' a.id %}" class="btn btn-warning">
@@ -118,8 +111,6 @@ Submit
 {% endif %}
 
 
-<!-- Submitted -->
-
 {% if a.status == "submitted" %}
 
 <span class="status status-submitted">
@@ -128,8 +119,6 @@ Waiting Approval
 
 {% endif %}
 
-
-<!-- Approved -->
 
 {% if a.status == "approved" %}
 
@@ -158,5 +147,54 @@ No tasks assigned
 </table>
 
 </div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+function checkIn(assignmentId){
+
+if(!navigator.geolocation){
+alert("Geolocation not supported");
+return;
+}
+
+navigator.geolocation.getCurrentPosition(function(pos){
+
+let lat = pos.coords.latitude;
+let lng = pos.coords.longitude;
+
+window.location.href =
+"/tasks/"+assignmentId+"/check-in/?lat="+lat+"&lng="+lng;
+
+});
+
+}
+
+
+
+function sendLocation(){
+
+if(!navigator.geolocation) return;
+
+navigator.geolocation.getCurrentPosition(function(pos){
+
+let lat = pos.coords.latitude;
+let lng = pos.coords.longitude;
+
+fetch("/tasks/update-location/?lat="+lat+"&lng="+lng);
+
+});
+
+}
+
+
+// প্রতি ২০ সেকেন্ডে location update
+setInterval(sendLocation,20000);
+
+</script>
 
 {% endblock %}

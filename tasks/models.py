@@ -61,10 +61,7 @@ class Task(models.Model):
 
     description = models.TextField(blank=True)
 
-    due_date = models.DateField(
-        null=True,
-        blank=True
-    )
+    due_date = models.DateField(null=True, blank=True)
 
     assign_date = models.DateField(auto_now_add=True)
 
@@ -72,23 +69,20 @@ class Task(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-        indexes = [
-            models.Index(fields=["company"]),
-            models.Index(fields=["created_at"]),
-        ]
 
     def __str__(self):
         return self.title
 
 
 # =========================================
-# TASK ASSIGNMENT (EMPLOYEE SPECIFIC)
+# TASK ASSIGNMENT
 # =========================================
 
 class TaskAssignment(models.Model):
 
     STATUS_CHOICES = (
         ("pending", "Pending"),
+        ("checked_in", "Checked In"),
         ("submitted", "Submitted"),
         ("approved", "Approved"),
         ("rejected", "Rejected"),
@@ -112,10 +106,7 @@ class TaskAssignment(models.Model):
         default="pending"
     )
 
-    submitted_at = models.DateTimeField(
-        null=True,
-        blank=True
-    )
+    submitted_at = models.DateTimeField(null=True, blank=True)
 
     approved_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -125,34 +116,26 @@ class TaskAssignment(models.Model):
         related_name="approved_assignments"
     )
 
-    approved_at = models.DateTimeField(
-        null=True,
-        blank=True
-    )
+    approved_at = models.DateTimeField(null=True, blank=True)
 
-    custom_points = models.FloatField(
-        null=True,
-        blank=True
-    )
+    custom_points = models.FloatField(null=True, blank=True)
+
+    # -------- NEW --------
+    reject_note = models.TextField(blank=True, null=True)
+    resubmit_note = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("task", "employee")
 
-        indexes = [
-            models.Index(fields=["employee"]),
-            models.Index(fields=["status"]),
-            models.Index(fields=["employee", "status"]),
-        ]
-
     # =========================================
-    # ACTION METHODS
+    # WORKFLOW METHODS
     # =========================================
 
     def submit(self):
 
-        if self.status != "pending":
+        if self.status != "checked_in":
             return False
 
         self.status = "submitted"
@@ -175,14 +158,36 @@ class TaskAssignment(models.Model):
         return True
 
 
-    def reject(self, admin_user):
+    def reject(self, admin_user, note=None):
 
         if self.status != "submitted":
             return False
 
         self.status = "rejected"
+        self.reject_note = note
         self.approved_by = admin_user
         self.approved_at = timezone.now()
+
+        self.save()
+
+        return True
+
+
+    def resubmit(self, note=None):
+
+        if self.status != "rejected":
+            return False
+
+        # employee আবার কাজ শুরু করতে পারবে
+        self.status = "checked_in"
+
+        self.resubmit_note = note
+
+        # previous submit clear
+        self.submitted_at = None
+        self.approved_at = None
+        self.approved_by = None
+
         self.save()
 
         return True
@@ -232,28 +237,6 @@ class TaskAssignment(models.Model):
 
 
 # =========================================
-# VISIT REPORT
-# =========================================
-
-class VisitReport(models.Model):
-
-    assignment = models.OneToOneField(
-        TaskAssignment,
-        on_delete=models.CASCADE,
-        related_name="visit_report"
-    )
-
-    check_in_time = models.DateTimeField(auto_now_add=True)
-
-    note = models.TextField(blank=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Visit Report - {self.assignment}"
-
-
-# =========================================
 # SALES ORDER
 # =========================================
 
@@ -273,7 +256,7 @@ class SalesOrder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Order {self.amount} - {self.assignment}"
+        return f"Order {self.amount}"
 
 
 # =========================================
@@ -296,4 +279,25 @@ class Collection(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Collection {self.amount} - {self.assignment}"
+        return f"Collection {self.amount}"
+
+
+# =========================================
+# LIVE EMPLOYEE LOCATION
+# =========================================
+
+class EmployeeLocation(models.Model):
+
+    employee = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="live_location"
+    )
+
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.employee} ({self.latitude},{self.longitude})"

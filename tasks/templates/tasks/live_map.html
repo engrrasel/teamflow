@@ -1,0 +1,39 @@
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<div id="map" style="height:600px"></div>
+
+<script>
+
+let map = L.map('map').setView([23.6850,90.3563],7);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+).addTo(map);
+
+let employees = [
+
+{% for e in locations %}
+
+{
+name:"{{ e.employee.username }}",
+lat:{{ e.latitude }},
+lng:{{ e.longitude }}
+},
+
+{% endfor %}
+
+];
+
+employees.forEach(e=>{
+
+let marker = L.marker([e.lat,e.lng]).addTo(map);
+
+marker.bindPopup(e.name);
+
+});
+
+</script>
+

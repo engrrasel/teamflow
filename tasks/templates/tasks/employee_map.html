@@ -1,0 +1,29 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+
+<div id="map" style="height:600px;"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+var map = L.map('map').setView([23.8103, 90.4125], 7);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+maxZoom:19
+}).addTo(map);
+
+{% for loc in locations %}
+
+L.marker([{{loc.latitude}},{{loc.longitude}}])
+.addTo(map)
+.bindPopup("{{loc.employee}}");
+
+{% endfor %}
+
+</script>
+
+{% endblock %}

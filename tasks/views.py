@@ -1,20 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from datetime import date
+from django.http import JsonResponse
 
-from .models import Task, TaskAssignment, VisitReport, SalesOrder, Collection
+from .models import Task, TaskAssignment, SalesOrder, Collection, EmployeeLocation
 from customers.models import Customer
 from accounts.models import Membership
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+from django.utils import timezone
 
 # -----------------------------
 # MY TASKS (EMPLOYEE DASHBOARD)
 # -----------------------------
-
 @login_required
 def my_tasks_view(request):
 
@@ -28,10 +27,9 @@ def my_tasks_view(request):
     return render(
         request,
         "tasks/my_tasks.html",
-        {
-            "assignments": assignments
-        }
+        {"assignments": assignments}
     )
+
 
 # -----------------------------
 # CHECK-IN
@@ -45,22 +43,20 @@ def check_in_view(request, assignment_id):
         employee=request.user
     )
 
-    # status change
     assignment.status = "checked_in"
     assignment.save()
 
-    # visit report create
-    VisitReport.objects.get_or_create(
-        assignment=assignment
-    )
-
     return redirect("my_tasks")
+
 
 # -----------------------------
 # ADD ORDER
 # -----------------------------
 @login_required
 def add_order_view(request, assignment_id):
+
+    if request.method != "POST":
+        return redirect("my_tasks")
 
     assignment = get_object_or_404(
         TaskAssignment,
@@ -85,6 +81,9 @@ def add_order_view(request, assignment_id):
 @login_required
 def add_collection_view(request, assignment_id):
 
+    if request.method != "POST":
+        return redirect("my_tasks")
+
     assignment = get_object_or_404(
         TaskAssignment,
         id=assignment_id,
@@ -103,81 +102,66 @@ def add_collection_view(request, assignment_id):
 
 
 # -----------------------------
-# TASK LIST (ADMIN)
+# LIVE EMPLOYEE MAP
 # -----------------------------
 @login_required
-def task_list_view(request):
+def live_employee_map(request):
 
-    company = request.membership.company
+    membership = getattr(request, "membership", None)
 
-    start_date = request.GET.get("start")
-    end_date = request.GET.get("end")
+    if not membership:
+        return redirect("dashboard")
 
-    tasks = Task.objects.filter(
-        company=company
-    ).select_related(
-        "customer", "created_by"
-    ).prefetch_related(
-        "assignments", "assignments__employee"
+    company = membership.company
+
+    locations = EmployeeLocation.objects.filter(
+        employee__membership__company=company
+    ).select_related("employee")
+
+    return render(
+        request,
+        "tasks/live_map.html",
+        {"locations": locations}
     )
 
-    if not start_date and not end_date:
-        today = date.today()
-        tasks = tasks.filter(assign_date=today)
 
-    elif start_date and not end_date:
-        tasks = tasks.filter(assign_date=start_date)
-
-    elif start_date and end_date:
-        tasks = tasks.filter(assign_date__range=[start_date, end_date])
-
-
-    employees = Membership.objects.filter(
-        company=company,
-        role="employee"
-    ).select_related("user")
-
-    customers = Customer.objects.filter(company=company)
-
-
-    # Assignment based counts
-    assignments = TaskAssignment.objects.filter(
-        task__company=company
-    )
-
-    total_count = assignments.count()
-
-    pending_count = assignments.filter(
-        status="pending"
-    ).count()
-
-    submitted_count = assignments.filter(
-        status="submitted"
-    ).count()
-
-    approved_count = assignments.filter(
-        status="approved"
-    ).count()
-
-
-    context = {
-        "tasks": tasks,
-        "employees": employees,
-        "customers": customers,
-
-        "total_count": total_count,
-        "pending_count": pending_count,
-        "submitted_count": submitted_count,
-        "approved_count": approved_count,
-    }
-
-    return render(request, "tasks/task_list.html", context)
 # -----------------------------
-# ADD TASK (MULTI EMPLOYEE)
-# -----------------------------@login_required
+# UPDATE EMPLOYEE LOCATION
+# -----------------------------
+@login_required
+def update_employee_location(request):
+
+    lat = request.GET.get("lat")
+    lng = request.GET.get("lng")
+
+    if not lat or not lng:
+        return JsonResponse({"status": "error"})
+
+    try:
+        lat = float(lat)
+        lng = float(lng)
+    except ValueError:
+        return JsonResponse({"status": "invalid"})
+
+    EmployeeLocation.objects.update_or_create(
+        employee=request.user,
+        defaults={
+            "latitude": lat,
+            "longitude": lng
+        }
+    )
+
+    return JsonResponse({"status": "ok"})
+
+@login_required
 def task_add_view(request):
 
-    company = request.membership.company
+    membership = getattr(request, "membership", None)
+
+    if not membership:
+        return redirect("dashboard")
+
+    company = membership.company
 
     if request.method == "POST":
 
@@ -188,20 +172,25 @@ def task_add_view(request):
         customer_id = request.POST.get("customer")
         employees = request.POST.getlist("employees")
 
-        # ⭐ custom points
+        # -------- CUSTOM POINTS --------
         custom_points = request.POST.get("custom_points")
 
         try:
             custom_points = float(custom_points)
-        except:
+        except (TypeError, ValueError):
             custom_points = None
-
+        # --------------------------------
 
         customer = None
+
         if customer_id:
-            customer = get_object_or_404(Customer, id=customer_id)
+            customer = get_object_or_404(
+                Customer,
+                id=customer_id,
+                company=company
+            )
 
-
+        # -------- CREATE TASK --------
         task = Task.objects.create(
             company=company,
             title=title,
@@ -211,8 +200,7 @@ def task_add_view(request):
             created_by=request.user
         )
 
-
-        # multi employee assignment
+        # -------- ASSIGN EMPLOYEES --------
         for emp_id in employees:
 
             employee = get_object_or_404(User, id=emp_id)
@@ -220,53 +208,51 @@ def task_add_view(request):
             TaskAssignment.objects.create(
                 task=task,
                 employee=employee,
-                custom_points=custom_points   # ⭐ এখানে save হবে
+                custom_points=custom_points
             )
 
     return redirect("task_list")
 
 
-# -----------------------------
-# EDIT TASK
-# -----------------------------
 @login_required
-def task_edit_view(request, task_id):
+def task_list_view(request):
 
-    task = get_object_or_404(Task, id=task_id)
+    company = request.membership.company
 
-    if request.method == "POST":
-
-        task.title = request.POST.get("title")
-        task.task_type = request.POST.get("task_type")
-        task.due_date = request.POST.get("due_date")
-
-        task.save()
-
-        return redirect("task_list")
-
-    return render(
-        request,
-        "tasks/task_edit.html",
-        {"task": task}
+    tasks = Task.objects.filter(
+        company=company
+    ).select_related(
+        "customer",
+        "created_by"
+    ).prefetch_related(
+        "assignments",
+        "assignments__employee"
     )
 
+    employees = Membership.objects.filter(
+        company=company,
+        role="employee"
+    ).select_related("user")
 
-# -----------------------------
-# DELETE TASK
-# -----------------------------
-@login_required
-def task_delete_view(request, task_id):
+    customers = Customer.objects.filter(company=company)
 
-    task = get_object_or_404(Task, id=task_id)
+    assignments = TaskAssignment.objects.filter(
+        task__company=company
+    )
 
-    task.delete()
+    context = {
+        "tasks": tasks,
+        "employees": employees,
+        "customers": customers,
+        "total_count": assignments.count(),
+        "pending_count": assignments.filter(status="pending").count(),
+        "submitted_count": assignments.filter(status="submitted").count(),
+        "approved_count": assignments.filter(status="approved").count(),
+    }
 
-    return redirect("task_list")
+    return render(request, "tasks/task_list.html", context)
 
 
-# -----------------------------
-# SUBMIT TASK
-# -----------------------------
 @login_required
 def submit_task(request, assignment_id):
 
@@ -276,17 +262,10 @@ def submit_task(request, assignment_id):
         employee=request.user
     )
 
-    if assignment.status != "checked_in":
-        return redirect("my_tasks")
-
-    assignment.status = "submitted"
-    assignment.submitted_at = timezone.now()
-    assignment.save()
+    assignment.submit()
 
     return redirect("my_tasks")
-# -----------------------------
-# APPROVE TASK
-# -----------------------------
+
 @login_required
 def approve_task(request, assignment_id):
 
@@ -302,10 +281,59 @@ def approve_task(request, assignment_id):
 
     return redirect("task_list")
 
+from django.utils import timezone
 
-# -----------------------------
-# LEADERBOARD
-# -----------------------------
+@login_required
+def task_edit_view(request, task_id):
+
+    task = get_object_or_404(Task, id=task_id)
+
+    if request.method == "POST":
+
+        task.title = request.POST.get("title")
+        task.task_type = request.POST.get("task_type")
+        task.priority = request.POST.get("priority")
+        task.due_date = request.POST.get("due_date")
+        task.description = request.POST.get("description")
+
+        task.save()
+
+        # -------- CUSTOM POINTS UPDATE --------
+        custom_points = request.POST.get("custom_points")
+
+        try:
+            custom_points = float(custom_points)
+        except (TypeError, ValueError):
+            custom_points = None
+
+        for assignment in task.assignments.all():
+            assignment.custom_points = custom_points
+            assignment.save()
+        # --------------------------------------
+
+        return redirect("task_list")
+
+    # প্রথম assignment থেকে point দেখানোর জন্য
+    assignment = task.assignments.first()
+
+    return render(
+        request,
+        "tasks/task_edit.html",
+        {
+            "task": task,
+            "assignment": assignment
+        }
+    )
+@login_required
+def task_delete_view(request, task_id):
+
+    task = get_object_or_404(Task, id=task_id)
+
+    task.delete()
+
+    return redirect("task_list")
+
+
 @login_required
 def leaderboard_view(request):
 
@@ -326,7 +354,7 @@ def leaderboard_view(request):
             status="approved"
         )
 
-        points = sum([a.calculate_points() for a in assignments])
+        points = sum(a.calculate_points() for a in assignments)
 
         leaderboard.append({
             "user": e.user,
@@ -341,42 +369,40 @@ def leaderboard_view(request):
     return render(
         request,
         "tasks/leaderboard.html",
-        {
-            "leaderboard": leaderboard
-        }
+        {"leaderboard": leaderboard}
     )
 
-def calculate_points(self):
 
-    # admin override
-    if self.custom_points is not None:
-        return self.custom_points
 
-    if not self.submitted_at:
-        return 0
+@login_required
+def reject_task(request, assignment_id):
 
-    priority_points = {
-        "low": 1,
-        "medium": 1.5,
-        "high": 2
-    }
+    assignment = get_object_or_404(
+        TaskAssignment,
+        id=assignment_id
+    )
 
-    base_point = priority_points.get(self.task.priority, 1)
+    note = request.POST.get("reject_note")
 
-    if not self.task.due_date:
-        return base_point
+    assignment.reject(request.user, note)
 
-    submit_date = self.submitted_at.date()
+    return redirect("task_list")
 
-    if submit_date <= self.task.due_date:
-        return base_point
 
-    delay_days = (submit_date - self.task.due_date).days
+from django.utils import timezone
 
-    if delay_days == 1:
-        return base_point * 0.5
+@login_required
+def resubmit_task(request, assignment_id):
 
-    if delay_days == 2:
-        return 0
+    assignment = get_object_or_404(
+        TaskAssignment,
+        id=assignment_id
+    )
 
-    return -(delay_days - 2)
+    if request.method == "POST":
+
+        note = request.POST.get("resubmit_note")
+
+        assignment.resubmit(note)
+
+    return redirect("task_list")

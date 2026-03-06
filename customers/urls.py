@@ -11,6 +11,8 @@ from . import views
 urlpatterns = [
     # ---------- Customers ----------
     path("", customer_list_view, name="customer_list"),
+    path("map/", views.customer_map_view, name="customer_map"),
+
     path("add/", customer_add_view, name="customer_add"),
 
         path("edit/<int:pk>/", views.customer_edit_view, name="customer_edit"),

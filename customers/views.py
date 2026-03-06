@@ -31,7 +31,6 @@ def customer_list_view(request):
 # -----------------------------
 # CUSTOMER ADD
 # -----------------------------
-
 @login_required
 def customer_add_view(request):
 
@@ -52,6 +51,17 @@ def customer_add_view(request):
 
             obj = form.save(commit=False)
             obj.company = company
+
+            # ⭐ Location save
+            latitude = request.POST.get("latitude")
+            longitude = request.POST.get("longitude")
+
+            if latitude:
+                obj.latitude = latitude
+
+            if longitude:
+                obj.longitude = longitude
+
             obj.save()
             form.save_m2m()
 
@@ -69,7 +79,6 @@ def customer_add_view(request):
 # -----------------------------
 # CUSTOMER EDIT
 # -----------------------------
-
 @login_required
 def customer_edit_view(request, pk):
 
@@ -97,7 +106,22 @@ def customer_edit_view(request, pk):
         )
 
         if form.is_valid():
-            form.save()
+
+            obj = form.save(commit=False)
+
+            # 📍 location save
+            latitude = request.POST.get("latitude")
+            longitude = request.POST.get("longitude")
+
+            if latitude:
+                obj.latitude = latitude
+
+            if longitude:
+                obj.longitude = longitude
+
+            obj.save()
+            form.save_m2m()
+
             return redirect("customer_list")
 
         return render(request, "customers/customer_list.html", {
@@ -138,3 +162,23 @@ def customer_delete_view(request, pk):
     customer.delete()
 
     return redirect("customer_list")
+
+@login_required
+def customer_map_view(request):
+
+    membership = getattr(request, "membership", None)
+
+    if not membership:
+        return redirect("dashboard")
+
+    company = membership.company
+
+    customers = Customer.objects.filter(
+        company=company,
+        latitude__isnull=False,
+        longitude__isnull=False
+    )
+
+    return render(request, "customers/customer_map.html", {
+        "customers": customers
+    })

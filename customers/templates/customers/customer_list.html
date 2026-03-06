@@ -1,5 +1,6 @@
 {% extends "base/base.html" %}
 {% load static %}
+
 {% block content %}
 
 <link rel="stylesheet" href="{% static 'customers/customers.css' %}">
@@ -7,72 +8,95 @@
 <div class="emp-card">
 
 <div class="emp-header">
-    <h2>Customers</h2>
+<h2>Customers</h2>
+
 <div style="display:flex; gap:10px;">
-    <a href="{% url 'business_category_list' %}" class="btn-outline">
-        Business Categories
-    </a>
+<a href="{% url 'customer_map' %}" class="btn-outline">
+🗺 Customers Map
+</a>
 
-    <a href="{% url 'selling_product_list' %}" class="btn-outline">
-        Selling Products
-    </a>
+<a href="{% url 'business_category_list' %}" class="btn-outline">
+Business Categories
+</a>
 
-    <button id="addCustomerBtn" class="add-btn">
-        + Add Customer
-    </button>
+<a href="{% url 'selling_product_list' %}" class="btn-outline">
+Selling Products
+</a>
+
+<button id="addCustomerBtn" class="add-btn">
++ Add Customer
+</button>
+
+
+
+</div>
 </div>
 
-
-</div>
 
 <table class="emp-table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Division</th>
-            <th>District</th>
-            <th>Thana</th>
-            <th>Post Office</th>
-            <th>Action</th>
-        </tr>
-    </thead>
 
+<thead>
+<tr>
+<th>Name</th>
+<th>Phone</th>
+<th>Division</th>
+<th>District</th>
+<th>Thana</th>
+<th>Post Office</th>
+<th>Map</th>
+<th>Action</th>
+</tr>
+</thead>
 
 <tbody>
 
 {% for c in customers %}
-    <tr>
-        <td>{{ c.name }}</td>
-        <td>{{ c.phone }}</td>
-        <td>{{ c.division }}</td>
-        <td>{{ c.district }}</td>
-        <td>{{ c.thana }}</td>
-        <td>{{ c.post_office }}</td>
 
-        <td class="action-links">
+<tr>
 
-        <a href="{% url 'customer_edit' c.id %}" class="edit-link">
-        Edit
-        </a>
+<td>{{ c.name }}</td>
+<td>{{ c.phone }}</td>
+<td>{{ c.division }}</td>
+<td>{{ c.district }}</td>
+<td>{{ c.thana }}</td>
+<td>{{ c.post_office }}</td>
 
-        <span class="separator">|</span>
+<td>
+{% if c.latitude and c.longitude %}
+<a href="https://maps.google.com/?q={{ c.latitude }},{{ c.longitude }}" target="_blank">
+📍 Map
+</a>
+{% else %}
+-
+{% endif %}
+</td>
 
-        <a href="{% url 'customer_delete' c.id %}"
-        class="delete-link"
-        onclick="return confirm('Delete this customer?')">
-        Delete
-        </a>
+<td class="action-links">
 
-        </td>
+<a href="{% url 'customer_edit' c.id %}" class="edit-link">
+Edit
+</a>
 
-    </tr>
+<span class="separator">|</span>
+
+<a href="{% url 'customer_delete' c.id %}"
+class="delete-link"
+onclick="return confirm('Delete this customer?')">
+Delete
+</a>
+
+</td>
+
+</tr>
+
 {% empty %}
-    <tr>
-        <td colspan="7" style="text-align:center;padding:30px;">
-            No customers yet
-        </td>
-    </tr>
+
+<tr>
+<td colspan="8" style="text-align:center;padding:30px;">
+No customers yet
+</td>
+</tr>
+
 {% endfor %}
 
 </tbody>
@@ -81,87 +105,127 @@
 
 </div>
 
+
 <!-- Modal -->
 
 <div id="customerModal" class="modal {% if open_modal %}show{% endif %}">
-    <div class="modal-content">
 
+<div class="modal-content">
 
-    <h3>Add Customer</h3>
+<h3>Add Customer</h3>
 
-    <form method="post" action="{% url 'customer_add' %}">
-    {% csrf_token %}
+<form method="post" action="{% url 'customer_add' %}">
+{% csrf_token %}
 
-    {% if form.non_field_errors %}
-    <div class="form-error">
-    {{ form.non_field_errors }}
-    </div>
-    {% endif %}
+{% if form.non_field_errors %}
+<div class="form-error">
+{{ form.non_field_errors }}
+</div>
+{% endif %}
 
-    <div class="form-grid">
+<div class="form-grid">
 
-    <div class="form-group">
-    <label>Name</label>
-    {{ form.name }}
-    <div class="form-error">{{ form.name.errors }}</div>
-    </div>
+<div class="form-group">
+<label>Name</label>
+{{ form.name }}
+</div>
 
-    <div class="form-group">
-    <label>Phone</label>
-    {{ form.phone }}
-    <div class="form-error">{{ form.phone.errors }}</div>
-    </div>
+<div class="form-group">
+<label>Phone</label>
+{{ form.phone }}
+</div>
 
-    <div class="form-group">
-    <label>Division</label>
-    {{ form.division }}
-    </div>
+<div class="form-group">
+<label>Division</label>
+{{ form.division }}
+</div>
 
-    <div class="form-group">
-    <label>District</label>
-    {{ form.district }}
-    </div>
+<div class="form-group">
+<label>District</label>
+{{ form.district }}
+</div>
 
-    <div class="form-group">
-    <label>Thana</label>
-    {{ form.thana }}
-    </div>
+<div class="form-group">
+<label>Thana</label>
+{{ form.thana }}
+</div>
 
-    <div class="form-group">
-    <label>Post Office</label>
-    {{ form.post_office }}
-    </div>
-
-    </div>
-
-
-    <div class="form-section">
-    <label>Business Categories</label>
-    <div class="checkbox-group">
-    {{ form.business_categories }}
-    </div>
-    </div>
-
-
-    <div class="form-section">
-    <label>Selling Products</label>
-    <div class="checkbox-group">
-    {{ form.selling_products }}
-    </div>
-    </div>
-
-
-    <div class="actions">
-    <button type="submit" class="btn-primary">Save Customer</button>
-    <button type="button" id="closeCustomerModal" class="btn-secondary">Cancel</button>
-    </div>
-
-    </form>
+<div class="form-group">
+<label>Post Office</label>
+{{ form.post_office }}
+</div>
 
 </div>
-```
+
+
+<!-- 📍 LOCATION -->
+
+<div class="form-group">
+
+<label>Location</label>
+
+<div style="display:flex; gap:10px;">
+
+<input type="text"
+id="locationDisplay"
+placeholder="Latitude, Longitude"
+readonly>
+
+<input type="hidden" name="latitude" id="latitude">
+<input type="hidden" name="longitude" id="longitude">
+
+<button type="button"
+onclick="getLocation()"
+class="btn-outline">
+
+📍 Get Location
+
+</button>
 
 </div>
+
+</div>
+
+
+<div class="form-section">
+
+<label>Business Categories</label>
+
+<div class="checkbox-group">
+{{ form.business_categories }}
+</div>
+
+</div>
+
+
+<div class="form-section">
+
+<label>Selling Products</label>
+
+<div class="checkbox-group">
+{{ form.selling_products }}
+</div>
+
+</div>
+
+
+<div class="actions">
+
+<button type="submit" class="btn-primary">
+Save Customer
+</button>
+
+<button type="button" id="closeCustomerModal" class="btn-secondary">
+Cancel
+</button>
+
+</div>
+
+</form>
+
+</div>
+</div>
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -169,62 +233,95 @@
 
 $(function () {
 
-    $("#addCustomerBtn").click(function () {
-        $("#customerModal").addClass("show");
-    });
+$("#addCustomerBtn").click(function () {
+$("#customerModal").addClass("show");
+});
 
-    $("#closeCustomerModal").click(function () {
-        $("#customerModal").removeClass("show");
-    });
+$("#closeCustomerModal").click(function () {
+$("#customerModal").removeClass("show");
+});
 
-    // Division → District
-    $("#id_division").on("change", function () {
 
-        $.get("/ajax/load-districts/", { division: this.value }, function (data) {
+// Division → District
+$("#id_division").on("change", function () {
 
-            $("#id_district").html('<option value="">Select</option>');
+$.get("/ajax/load-districts/", { division: this.value }, function (data) {
 
-            data.forEach(d => {
-                $("#id_district").append(`<option value="${d.id}">${d.name}</option>`);
-            });
+$("#id_district").html('<option value="">Select</option>');
 
-        });
-
-    });
-
-    // District → Thana
-    $("#id_district").on("change", function () {
-
-        $.get("/ajax/load-thanas/", { district: this.value }, function (data) {
-
-            $("#id_thana").html('<option value="">Select</option>');
-
-            data.forEach(t => {
-                $("#id_thana").append(`<option value="${t.id}">${t.name}</option>`);
-            });
-
-        });
-
-    });
-
-    // Thana → Post Office
-    $("#id_thana").on("change", function () {
-
-        $.get("/ajax/load-post/", { thana: this.value }, function (data) {
-
-            $("#id_post_office").html('<option value="">Select</option>');
-
-            data.forEach(p => {
-                $("#id_post_office").append(
-                    `<option value="${p.id}">${p.name} (${p.post_code})</option>`
-                );
-            });
-
-        });
-
-    });
+data.forEach(d => {
+$("#id_district").append(`<option value="${d.id}">${d.name}</option>`);
+});
 
 });
+
+});
+
+
+// District → Thana
+$("#id_district").on("change", function () {
+
+$.get("/ajax/load-thanas/", { district: this.value }, function (data) {
+
+$("#id_thana").html('<option value="">Select</option>');
+
+data.forEach(t => {
+$("#id_thana").append(`<option value="${t.id}">${t.name}</option>`);
+});
+
+});
+
+});
+
+
+// Thana → Post Office
+$("#id_thana").on("change", function () {
+
+$.get("/ajax/load-post/", { thana: this.value }, function (data) {
+
+$("#id_post_office").html('<option value="">Select</option>');
+
+data.forEach(p => {
+$("#id_post_office").append(
+`<option value="${p.id}">${p.name} (${p.post_code})</option>`
+);
+});
+
+});
+
+});
+
+});
+
+
+// 📍 Get GPS Location
+
+function getLocation(){
+
+if(!navigator.geolocation){
+alert("Geolocation not supported");
+return;
+}
+
+navigator.geolocation.getCurrentPosition(function(pos){
+
+let lat = pos.coords.latitude;
+let lng = pos.coords.longitude;
+
+document.getElementById("latitude").value = lat;
+document.getElementById("longitude").value = lng;
+
+document.getElementById("locationDisplay").value =
+lat + ", " + lng;
+
+}, function(){
+
+alert("Location permission denied");
+
+});
+
+}
+
 </script>
 
 {% endblock %}

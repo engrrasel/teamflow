@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
+
 <link rel="stylesheet" href="{% static 'css/task.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
@@ -29,7 +30,6 @@ My Tasks
 </div>
 </div>
 
-
 <!-- STATS -->
 
 <div class="task-stats">
@@ -56,7 +56,6 @@ My Tasks
 
 </div>
 
-
 <!-- TOOLBAR -->
 
 <div class="task-toolbar">
@@ -82,10 +81,10 @@ Today
 <button class="tab" data-status="pending">Pending</button>
 <button class="tab" data-status="submitted">Submitted</button>
 <button class="tab" data-status="approved">Approved</button>
+<button class="tab" data-status="rejected">Rejected</button>
 </div>
 
 </div>
-
 
 <!-- TASK TABLE -->
 
@@ -109,8 +108,7 @@ Today
 <tbody>
 
 {% for task in tasks %}
-    
-    {% for a in task.assignments.all %}
+{% for a in task.assignments.all %}
 
 <tr data-status="{{ a.status }}">
 
@@ -148,8 +146,7 @@ Today
 {{ a.calculate_points }}
 </span>
 
-{% if a.status != "approved" %}
-<span class="approx">(approx)</span>
+{% if a.status != "approved" %} <span class="approx">(approx)</span>
 {% endif %}
 
 </td>
@@ -165,8 +162,7 @@ Edit
 <a href="{% url 'task_delete' task.id %}"
 class="delete-link"
 onclick="return confirm('Delete this task?')">
-Delete
-</a>
+Delete </a>
 
 {% if a.status == "submitted" %}
 
@@ -174,8 +170,40 @@ Delete
 
 <a href="{% url 'approve_task' a.id %}"
 class="btn btn-success btn-sm">
-Approve
-</a>
+Approve </a>
+
+<form action="{% url 'reject_task' a.id %}" method="post" style="display:inline;">
+{% csrf_token %}
+<input type="hidden" name="reject_note" value="Needs correction">
+<button class="btn btn-danger btn-sm">
+Reject
+</button>
+</form>
+
+{% endif %}
+
+{% if a.status == "rejected" %}
+
+<div class="resubmit-box">
+
+<p class="text-danger">
+Reject reason: {{ a.reject_note }}
+</p>
+
+<form action="{% url 'resubmit_task' a.id %}" method="post">
+{% csrf_token %}
+
+<textarea name="resubmit_note"
+placeholder="Write what you fixed..."
+required></textarea>
+
+<button class="btn btn-warning btn-sm">
+Re-Submit
+</button>
+
+</form>
+
+</div>
 
 {% endif %}
 
@@ -183,8 +211,7 @@ Approve
 
 </tr>
 
-    {% endfor %}
-
+{% endfor %}
 {% empty %}
 
 <tr>
@@ -200,7 +227,6 @@ No tasks found
 </table>
 
 </div>
-
 
 <!-- ADD TASK MODAL -->
 
@@ -232,9 +258,6 @@ No tasks found
 <option value="medium" selected>Medium Priority</option>
 <option value="high">High Priority</option>
 </select>
-
-
-<!-- EMPLOYEE PICKER -->
 
 <div class="full">
 
@@ -284,9 +307,6 @@ value="{{ e.user.id }}">
 
 </div>
 
-
-<!-- CUSTOMER -->
-
 <div class="full">
 
 <label class="form-label">Customer</label>
@@ -296,6 +316,7 @@ value="{{ e.user.id }}">
 <option value="">No Customer</option>
 
 {% for c in customers %}
+
 <option value="{{ c.id }}">{{ c.name }}</option>
 {% endfor %}
 
@@ -309,7 +330,7 @@ value="{% now 'Y-m-d' %}">
 
 <input type="number"
 name="custom_points"
-step="1"
+step="0.1"
 min="0"
 value="1"
 placeholder="Points">
@@ -329,7 +350,6 @@ Assign Task
 </div>
 
 {% endblock %}
-
 
 {% block extra_js %}
 

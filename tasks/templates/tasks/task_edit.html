@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
+
 <link rel="stylesheet" href="{% static 'css/task.css' %}">
 {% endblock %}
 
@@ -17,39 +18,102 @@
 
 {% csrf_token %}
 
+<!-- TASK TITLE -->
+
 <div class="full">
 <label>Task Title</label>
 <input type="text" name="title" value="{{ task.title }}" required>
 </div>
 
+<!-- TASK TYPE -->
+
 <div>
 <label>Task Type</label>
+
 <select name="task_type">
 
-<option value="desk" {% if task.task_type == "desk" %}selected{% endif %}>Desk Work</option>
-<option value="visit" {% if task.task_type == "visit" %}selected{% endif %}>Visit</option>
-<option value="call" {% if task.task_type == "call" %}selected{% endif %}>Call</option>
-<option value="meeting" {% if task.task_type == "meeting" %}selected{% endif %}>Meeting</option>
-<option value="collection" {% if task.task_type == "collection" %}selected{% endif %}>Collection</option>
+<option value="desk" {% if task.task_type == "desk" %}selected{% endif %}>
+Desk Work
+</option>
+
+<option value="visit" {% if task.task_type == "visit" %}selected{% endif %}>
+Visit
+</option>
+
+<option value="call" {% if task.task_type == "call" %}selected{% endif %}>
+Call
+</option>
+
+<option value="meeting" {% if task.task_type == "meeting" %}selected{% endif %}>
+Meeting
+</option>
+
+<option value="collection" {% if task.task_type == "collection" %}selected{% endif %}>
+Collection
+</option>
 
 </select>
+
 </div>
+
+<!-- PRIORITY -->
+
+<div>
+<label>Priority</label>
+
+<select name="priority">
+
+<option value="low" {% if task.priority == "low" %}selected{% endif %}>
+Low
+</option>
+
+<option value="medium" {% if task.priority == "medium" %}selected{% endif %}>
+Medium
+</option>
+
+<option value="high" {% if task.priority == "high" %}selected{% endif %}>
+High
+</option>
+
+</select>
+
+</div>
+
+<!-- DEADLINE -->
 
 <div>
 <label>Deadline</label>
-<input type="date" name="due_date" value="{{ task.due_date|date:'Y-m-d' }}">
+<input type="date"
+name="due_date"
+value="{{ task.due_date|date:'Y-m-d' }}">
 </div>
+
+<!-- CUSTOM POINTS -->
 
 <div>
-<label>Status</label>
-<select name="status">
+<label>Custom Points</label>
 
-<option value="pending" {% if task.status == "pending" %}selected{% endif %}>Pending</option>
-<option value="checked_in" {% if task.status == "checked_in" %}selected{% endif %}>Checked In</option>
-<option value="completed" {% if task.status == "completed" %}selected{% endif %}>Completed</option>
+<input type="number"
+name="custom_points"
+step="0.1"
+min="0"
+value="{{ assignment.custom_points|default:'' }}"
+placeholder="Leave empty for auto points">
 
-</select>
 </div>
+
+<!-- DESCRIPTION -->
+
+<div class="full">
+
+<label>Description</label>
+
+<textarea name="description"
+placeholder="Task description...">{{ task.description }}</textarea>
+
+</div>
+
+<!-- BUTTONS -->
 
 <div class="full">
 
