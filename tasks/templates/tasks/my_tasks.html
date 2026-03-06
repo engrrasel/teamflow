@@ -59,10 +59,19 @@ Assign Task
 </td>
 
 <td>
+
 <span class="status status-{{ a.status }}">
 {{ a.get_status_display }}
 </span>
+
+{% if a.status == "rejected" %}
+<div class="reject-reason">
+❌ Reason: {{ a.reject_note }}
+</div>
+{% endif %}
+
 </td>
+
 
 <td class="action-area">
 
@@ -74,6 +83,7 @@ Check-in
 </button>
 
 {% endif %}
+
 
 
 {% if a.status == "checked_in" %}
@@ -89,6 +99,7 @@ Order
 {% endif %}
 
 
+
 {% if a.status == "checked_in" %}
 
 <form action="{% url 'add_collection' a.id %}" method="post" class="inline-form">
@@ -102,6 +113,7 @@ Collect
 {% endif %}
 
 
+
 {% if a.status == "checked_in" %}
 
 <a href="{% url 'submit_task' a.id %}" class="btn btn-warning">
@@ -109,6 +121,7 @@ Submit
 </a>
 
 {% endif %}
+
 
 
 {% if a.status == "submitted" %}
@@ -120,6 +133,7 @@ Waiting Approval
 {% endif %}
 
 
+
 {% if a.status == "approved" %}
 
 <span class="status status-approved">
@@ -127,6 +141,30 @@ Completed
 </span>
 
 {% endif %}
+
+
+
+{% if a.status == "rejected" and request.membership.role != "company_admin" %}
+
+<form action="{% url 'resubmit_task' a.id %}" method="post" style="margin-top:6px;">
+
+{% csrf_token %}
+
+<textarea
+name="resubmit_note"
+placeholder="Write what you fixed..."
+required
+style="width:200px;height:45px;margin-bottom:4px;">
+</textarea>
+
+<button class="btn btn-warning btn-sm">
+Resubmit
+</button>
+
+</form>
+
+{% endif %}
+
 
 </td>
 
@@ -149,6 +187,7 @@ No tasks assigned
 </div>
 
 {% endblock %}
+
 
 
 {% block extra_js %}

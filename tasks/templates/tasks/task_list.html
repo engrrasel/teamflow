@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block extra_css %}
-
 <link rel="stylesheet" href="{% static 'css/task.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
@@ -30,7 +29,7 @@ My Tasks
 </div>
 </div>
 
-<!-- STATS -->
+
 
 <div class="task-stats">
 
@@ -56,7 +55,7 @@ My Tasks
 
 </div>
 
-<!-- TOOLBAR -->
+
 
 <div class="task-toolbar">
 
@@ -86,7 +85,7 @@ Today
 
 </div>
 
-<!-- TASK TABLE -->
+
 
 <div class="emp-card">
 
@@ -101,7 +100,7 @@ Today
 <th>Deadline</th>
 <th>Status</th>
 <th>Points</th>
-<th>Actions</th>
+<th class="actions">Actions</th>
 </tr>
 </thead>
 
@@ -135,9 +134,12 @@ Today
 </td>
 
 <td>
-<span class="status status-{{ a.status }}">
+
+<span class="status status-{{ a.status }}"
+title="{% if a.status == 'rejected' %}{{ a.reject_note }}{% endif %}">
 {{ a.get_status_display }}
 </span>
+
 </td>
 
 <td class="points">
@@ -146,66 +148,44 @@ Today
 {{ a.calculate_points }}
 </span>
 
-{% if a.status != "approved" %} <span class="approx">(approx)</span>
+{% if a.status != "approved" %}
+<span class="approx">(approx)</span>
 {% endif %}
 
 </td>
 
+
 <td class="actions">
 
-<a href="{% url 'task_edit' task.id %}" class="edit-link">
-Edit
-</a>
+<div class="action-buttons">
 
-<span class="divider">|</span>
+<a href="{% url 'task_edit' task.id %}" class="edit-link">
+<i class="fa-solid fa-pen"></i>
+</a>
 
 <a href="{% url 'task_delete' task.id %}"
 class="delete-link"
 onclick="return confirm('Delete this task?')">
-Delete </a>
+<i class="fa-solid fa-trash"></i>
+</a>
+
 
 {% if a.status == "submitted" %}
 
-<span class="divider">|</span>
-
 <a href="{% url 'approve_task' a.id %}"
 class="btn btn-success btn-sm">
-Approve </a>
+<i class="fa-solid fa-check"></i>
+</a>
 
-<form action="{% url 'reject_task' a.id %}" method="post" style="display:inline;">
-{% csrf_token %}
-<input type="hidden" name="reject_note" value="Needs correction">
-<button class="btn btn-danger btn-sm">
-Reject
+<button
+class="btn btn-danger btn-sm"
+onclick="openRejectModal({{ a.id }})">
+<i class="fa-solid fa-xmark"></i>
 </button>
-</form>
 
 {% endif %}
-
-{% if a.status == "rejected" %}
-
-<div class="resubmit-box">
-
-<p class="text-danger">
-Reject reason: {{ a.reject_note }}
-</p>
-
-<form action="{% url 'resubmit_task' a.id %}" method="post">
-{% csrf_token %}
-
-<textarea name="resubmit_note"
-placeholder="Write what you fixed..."
-required></textarea>
-
-<button class="btn btn-warning btn-sm">
-Re-Submit
-</button>
-
-</form>
 
 </div>
-
-{% endif %}
 
 </td>
 
@@ -228,6 +208,8 @@ No tasks found
 
 </div>
 
+
+
 <!-- ADD TASK MODAL -->
 
 <div id="taskModal" class="task-modal">
@@ -243,7 +225,11 @@ No tasks found
 
 {% csrf_token %}
 
-<input type="text" name="title" placeholder="Task title" class="full" required>
+<input type="text"
+name="title"
+placeholder="Task title"
+class="full"
+required>
 
 <select name="task_type">
 <option value="desk">Desk Work</option>
@@ -258,6 +244,7 @@ No tasks found
 <option value="medium" selected>Medium Priority</option>
 <option value="high">High Priority</option>
 </select>
+
 
 <div class="full">
 
@@ -307,6 +294,8 @@ value="{{ e.user.id }}">
 
 </div>
 
+
+
 <div class="full">
 
 <label class="form-label">Customer</label>
@@ -316,13 +305,13 @@ value="{{ e.user.id }}">
 <option value="">No Customer</option>
 
 {% for c in customers %}
-
 <option value="{{ c.id }}">{{ c.name }}</option>
 {% endfor %}
 
 </select>
 
 </div>
+
 
 <input type="date"
 name="due_date"
@@ -349,94 +338,51 @@ Assign Task
 
 </div>
 
+
+
+<!-- REJECT MODAL -->
+
+<div id="rejectModal" class="task-modal">
+
+<div class="task-modal-content">
+
+<div class="modal-header">
+<h3>Reject Task</h3>
+<span class="close-btn" onclick="closeRejectModal()">&times;</span>
+</div>
+
+<form method="post" id="rejectForm">
+
+{% csrf_token %}
+
+<label>Reject Reason</label>
+
+<textarea
+name="reject_note"
+required
+placeholder="Write reason..."
+style="width:100%;height:80px;margin-bottom:15px;">
+</textarea>
+
+<button class="btn btn-danger">
+Reject Task
+</button>
+
+</form>
+
+</div>
+
+</div>
+
 {% endblock %}
+
+
 
 {% block extra_js %}
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
-
-document.addEventListener("DOMContentLoaded",function(){
-
-let selectedDates=[];
-
-flatpickr("#dateRange",{
-mode:"range",
-dateFormat:"Y-m-d",
-onChange:function(dates){
-selectedDates=dates;
-}
-});
-
-window.applyFilter=function(){
-
-if(selectedDates.length===0) return;
-
-let start=selectedDates[0].toISOString().split('T')[0];
-let end=start;
-
-if(selectedDates.length===2){
-end=selectedDates[1].toISOString().split('T')[0];
-}
-
-window.location.href="?start="+start+"&end="+end;
-
-};
-
-document.getElementById("todayBtn").addEventListener("click",function(e){
-
-e.preventDefault();
-
-let d=new Date();
-
-let today =
-d.getFullYear()+"-"+
-String(d.getMonth()+1).padStart(2,"0")+"-"+
-String(d.getDate()).padStart(2,"0");
-
-window.location.href="?start="+today+"&end="+today;
-
-});
-
-
-const tabs=document.querySelectorAll(".tab");
-const rows=document.querySelectorAll("#taskTable tbody tr");
-
-tabs.forEach(tab=>{
-tab.addEventListener("click",()=>{
-
-tabs.forEach(t=>t.classList.remove("active"));
-tab.classList.add("active");
-
-const status=tab.dataset.status;
-
-rows.forEach(row=>{
-if(status==="all" || row.dataset.status===status){
-row.style.display="";
-}else{
-row.style.display="none";
-}
-});
-
-});
-});
-
-
-document.getElementById("taskSearch").addEventListener("keyup",function(){
-
-let value=this.value.toLowerCase();
-
-rows.forEach(row=>{
-row.textContent.toLowerCase().includes(value)
-? row.style.display=""
-: row.style.display="none";
-});
-
-});
-
-});
-
 
 function openTaskModal(){
 document.getElementById("taskModal").style.display="flex";
@@ -446,33 +392,37 @@ function closeTaskModal(){
 document.getElementById("taskModal").style.display="none";
 }
 
+
+function openRejectModal(id){
+
+let modal=document.getElementById("rejectModal");
+let form=document.getElementById("rejectForm");
+
+form.action="/tasks/"+id+"/reject/";
+
+modal.style.display="flex";
+
+}
+
+function closeRejectModal(){
+document.getElementById("rejectModal").style.display="none";
+}
+
+
 window.onclick=function(e){
-let modal=document.getElementById("taskModal");
-if(e.target==modal){
-modal.style.display="none";
-}
-}
 
-function selectAllEmployees(){
-document.querySelectorAll("input[name='employees']")
-.forEach(e=>e.checked=true);
+let taskModal=document.getElementById("taskModal");
+let rejectModal=document.getElementById("rejectModal");
+
+if(e.target==taskModal){
+taskModal.style.display="none";
 }
 
-document.addEventListener("keyup",function(e){
-
-if(e.target.id==="empSearch"){
-
-let value=e.target.value.toLowerCase();
-
-document.querySelectorAll(".employee-item").forEach(item=>{
-item.textContent.toLowerCase().includes(value)
-? item.style.display=""
-: item.style.display="none";
-});
-
+if(e.target==rejectModal){
+rejectModal.style.display="none";
 }
 
-});
+}
 
 </script>
 

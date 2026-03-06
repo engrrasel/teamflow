@@ -377,19 +377,21 @@ def leaderboard_view(request):
 @login_required
 def reject_task(request, assignment_id):
 
-    assignment = get_object_or_404(
-        TaskAssignment,
-        id=assignment_id
-    )
+    assignment = get_object_or_404(TaskAssignment, id=assignment_id)
 
-    note = request.POST.get("reject_note")
+    if request.method == "POST":
 
-    assignment.reject(request.user, note)
+        reason = request.POST.get("reject_note")
+
+        assignment.status = "rejected"
+        assignment.reject_note = reason
+
+        assignment.save()
 
     return redirect("task_list")
 
 
-from django.utils import timezone
+
 
 @login_required
 def resubmit_task(request, assignment_id):
