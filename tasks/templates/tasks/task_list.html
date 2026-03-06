@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block extra_css %}
-
 <link rel="stylesheet" href="{% static 'css/task.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
@@ -28,8 +27,8 @@ My Tasks
 </a>
 
 </div>
-
 </div>
+
 
 <!-- STATS -->
 
@@ -37,7 +36,7 @@ My Tasks
 
 <div class="stat-card">
 <span>Total</span>
-<strong>{{ tasks|length }}</strong>
+<strong>{{ total_count }}</strong>
 </div>
 
 <div class="stat-card pending">
@@ -56,6 +55,7 @@ My Tasks
 </div>
 
 </div>
+
 
 <!-- TOOLBAR -->
 
@@ -86,7 +86,8 @@ Today
 
 </div>
 
-<!-- TABLE -->
+
+<!-- TASK TABLE -->
 
 <div class="emp-card">
 
@@ -107,70 +108,72 @@ Today
 
 <tbody>
 
-{% for t in tasks %}
+{% for task in tasks %}
+    
+    {% for a in task.assignments.all %}
 
-<tr data-status="{{ t.status }}">
+<tr data-status="{{ a.status }}">
 
-<td>{{ t.title }}</td>
+<td>{{ task.title }}</td>
 
-<td>{{ t.employee }}</td>
+<td>{{ a.employee }}</td>
 
 <td>
-{% if t.customer %}
-{{ t.customer }}
+{% if task.customer %}
+{{ task.customer }}
 {% else %}
 -
 {% endif %}
 </td>
 
-<td>{{ t.created_at|date:"d M Y" }}</td>
+<td>{{ task.created_at|date:"d M Y" }}</td>
 
 <td>
-{% if t.due_date %}
-{{ t.due_date|date:"d M Y" }}
+{% if task.due_date %}
+{{ task.due_date|date:"d M Y" }}
 {% else %}
 -
 {% endif %}
 </td>
 
 <td>
-<span class="status status-{{ t.status }}">
-{{ t.get_status_display }}
+<span class="status status-{{ a.status }}">
+{{ a.get_status_display }}
 </span>
 </td>
 
 <td class="points">
 
 <span class="point-value">
-{{ t.calculate_points }}
+{{ a.calculate_points }}
 </span>
 
-{% if t.status != "approved" %} <span class="approx">(approx)</span>
-{% endif %}
-
-{% if t.calculate_penalty > 0 %} <span class="penalty">-{{ t.calculate_penalty }}</span>
+{% if a.status != "approved" %}
+<span class="approx">(approx)</span>
 {% endif %}
 
 </td>
 
 <td class="actions">
 
-<a href="{% url 'task_edit' t.id %}" class="edit-link">
+<a href="{% url 'task_edit' task.id %}" class="edit-link">
 Edit
 </a>
 
 <span class="divider">|</span>
 
-<a href="{% url 'task_delete' t.id %}"
+<a href="{% url 'task_delete' task.id %}"
 class="delete-link"
 onclick="return confirm('Delete this task?')">
-Delete </a>
+Delete
+</a>
 
-{% if t.status == "submitted" %}
+{% if a.status == "submitted" %}
 
 <span class="divider">|</span>
 
-<a href="{% url 'approve_task' t.id %}" class="btn btn-success btn-sm">
+<a href="{% url 'approve_task' a.id %}"
+class="btn btn-success btn-sm">
 Approve
 </a>
 
@@ -179,6 +182,8 @@ Approve
 </td>
 
 </tr>
+
+    {% endfor %}
 
 {% empty %}
 
@@ -195,6 +200,7 @@ No tasks found
 </table>
 
 </div>
+
 
 <!-- ADD TASK MODAL -->
 
@@ -227,13 +233,12 @@ No tasks found
 <option value="high">High Priority</option>
 </select>
 
+
 <!-- EMPLOYEE PICKER -->
 
 <div class="full">
 
-<label class="form-label">
-Employees
-</label>
+<label class="form-label">Employees</label>
 
 <div class="employee-picker">
 
@@ -279,20 +284,18 @@ value="{{ e.user.id }}">
 
 </div>
 
+
 <!-- CUSTOMER -->
 
 <div class="full">
 
-<label class="form-label">
-Customer
-</label>
+<label class="form-label">Customer</label>
 
 <select name="customer">
 
 <option value="">No Customer</option>
 
 {% for c in customers %}
-
 <option value="{{ c.id }}">{{ c.name }}</option>
 {% endfor %}
 
@@ -306,7 +309,7 @@ value="{% now 'Y-m-d' %}">
 
 <input type="number"
 name="custom_points"
-step="0.1"
+step="1"
 min="0"
 value="1"
 placeholder="Points">
@@ -327,6 +330,7 @@ Assign Task
 
 {% endblock %}
 
+
 {% block extra_js %}
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -345,7 +349,6 @@ selectedDates=dates;
 }
 });
 
-
 window.applyFilter=function(){
 
 if(selectedDates.length===0) return;
@@ -361,16 +364,15 @@ window.location.href="?start="+start+"&end="+end;
 
 };
 
-
 document.getElementById("todayBtn").addEventListener("click",function(e){
 
 e.preventDefault();
 
-let d = new Date();
+let d=new Date();
 
 let today =
-d.getFullYear() + "-" +
-String(d.getMonth()+1).padStart(2,"0") + "-" +
+d.getFullYear()+"-"+
+String(d.getMonth()+1).padStart(2,"0")+"-"+
 String(d.getDate()).padStart(2,"0");
 
 window.location.href="?start="+today+"&end="+today;
@@ -431,12 +433,10 @@ modal.style.display="none";
 }
 }
 
-
 function selectAllEmployees(){
 document.querySelectorAll("input[name='employees']")
 .forEach(e=>e.checked=true);
 }
-
 
 document.addEventListener("keyup",function(e){
 

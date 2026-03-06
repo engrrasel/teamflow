@@ -4,17 +4,10 @@ from django.utils import timezone
 
 
 # =========================================
-# TASK MODEL
+# TASK (MASTER TASK)
 # =========================================
 
 class Task(models.Model):
-
-    STATUS_CHOICES = (
-        ("pending", "Pending"),
-        ("submitted", "Submitted"),
-        ("approved", "Approved"),
-        ("rejected", "Rejected"),
-    )
 
     TASK_TYPE = (
         ("visit", "Visit"),
@@ -34,12 +27,6 @@ class Task(models.Model):
         "company.Company",
         on_delete=models.CASCADE,
         related_name="tasks"
-    )
-
-    employee = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="assigned_tasks"
     )
 
     created_by = models.ForeignKey(
@@ -72,9 +59,51 @@ class Task(models.Model):
         related_name="tasks"
     )
 
+    description = models.TextField(blank=True)
+
     due_date = models.DateField(
         null=True,
         blank=True
+    )
+
+    assign_date = models.DateField(auto_now_add=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["company"]),
+            models.Index(fields=["created_at"]),
+        ]
+
+    def __str__(self):
+        return self.title
+
+
+# =========================================
+# TASK ASSIGNMENT (EMPLOYEE SPECIFIC)
+# =========================================
+
+class TaskAssignment(models.Model):
+
+    STATUS_CHOICES = (
+        ("pending", "Pending"),
+        ("submitted", "Submitted"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    )
+
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name="assignments"
+    )
+
+    employee = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="task_assignments"
     )
 
     status = models.CharField(
@@ -93,7 +122,7 @@ class Task(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="approved_tasks"
+        related_name="approved_assignments"
     )
 
     approved_at = models.DateTimeField(
@@ -101,21 +130,20 @@ class Task(models.Model):
         blank=True
     )
 
-    # admin manual override
     custom_points = models.FloatField(
         null=True,
         blank=True
     )
 
-    assign_date = models.DateField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        unique_together = ("task", "employee")
+
         indexes = [
-            models.Index(fields=["status"]),
             models.Index(fields=["employee"]),
-            models.Index(fields=["company", "status"]),
+            models.Index(fields=["status"]),
+            models.Index(fields=["employee", "status"]),
         ]
 
     # =========================================
@@ -166,7 +194,6 @@ class Task(models.Model):
 
     def calculate_points(self):
 
-        # admin override
         if self.custom_points is not None:
             return self.custom_points
 
@@ -179,32 +206,29 @@ class Task(models.Model):
             "high": 2
         }
 
-        base_point = priority_points.get(self.priority, 1)
+        base_point = priority_points.get(self.task.priority, 1)
 
-        if not self.due_date:
+        if not self.task.due_date:
             return base_point
 
         submit_date = self.submitted_at.date()
 
-        if submit_date <= self.due_date:
+        if submit_date <= self.task.due_date:
             return base_point
 
-        delay_days = (submit_date - self.due_date).days
+        delay_days = (submit_date - self.task.due_date).days
 
-        # ১ দিন লেট
         if delay_days == 1:
             return base_point * 0.5
 
-        # ২ দিন লেট
         if delay_days == 2:
             return 0
 
-        # ৩ দিন থেকে প্রতিদিন -1
         return -(delay_days - 2)
 
 
     def __str__(self):
-        return f"{self.employee} → {self.title}"
+        return f"{self.employee} → {self.task.title}"
 
 
 # =========================================
@@ -213,8 +237,8 @@ class Task(models.Model):
 
 class VisitReport(models.Model):
 
-    task = models.OneToOneField(
-        Task,
+    assignment = models.OneToOneField(
+        TaskAssignment,
         on_delete=models.CASCADE,
         related_name="visit_report"
     )
@@ -223,8 +247,10 @@ class VisitReport(models.Model):
 
     note = models.TextField(blank=True)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
-        return f"Visit Report - {self.task}"
+        return f"Visit Report - {self.assignment}"
 
 
 # =========================================
@@ -233,8 +259,8 @@ class VisitReport(models.Model):
 
 class SalesOrder(models.Model):
 
-    task = models.ForeignKey(
-        Task,
+    assignment = models.ForeignKey(
+        TaskAssignment,
         on_delete=models.CASCADE,
         related_name="orders"
     )
@@ -247,7 +273,7 @@ class SalesOrder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Order {self.amount} - {self.task}"
+        return f"Order {self.amount} - {self.assignment}"
 
 
 # =========================================
@@ -256,8 +282,8 @@ class SalesOrder(models.Model):
 
 class Collection(models.Model):
 
-    task = models.ForeignKey(
-        Task,
+    assignment = models.ForeignKey(
+        TaskAssignment,
         on_delete=models.CASCADE,
         related_name="collections"
     )
@@ -270,4 +296,4 @@ class Collection(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Collection {self.amount} - {self.task}"
+        return f"Collection {self.amount} - {self.assignment}"

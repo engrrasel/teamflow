@@ -3,6 +3,7 @@ from locations.models import Division, District, Thana, PostOffice
 
 
 def load_bd_master():
+
     # -------- Divisions --------
     with open('locations/data/bd-divisions.json', encoding='utf-8') as f:
         divisions = json.load(f)["divisions"]
@@ -42,19 +43,19 @@ def load_bd_master():
         thana_map[u["id"]] = obj
 
     # -------- Post Offices --------
-# -------- Post Offices --------
-with open('locations/data/bd-postcodes.json', encoding='utf-8') as f:
-    data = json.load(f)["postcodes"]
+    with open('locations/data/bd-postcodes.json', encoding='utf-8') as f:
+        data = json.load(f)["postcodes"]
 
-for p in data:
-    upazila_name = p["upazila"]
+    for p in data:
+        upazila_name = p["upazila"]
 
-    # name দিয়ে thana খুঁজবো
-    thana = Thana.objects.filter(name__iexact=upazila_name).first()
+        thana = Thana.objects.filter(name__iexact=upazila_name).first()
 
-    if thana:
-        PostOffice.objects.get_or_create(
-            name=p["postOffice"],
-            post_code=p["postCode"],
-            thana=thana
-        )
+        if thana:
+            PostOffice.objects.get_or_create(
+                name=p["postOffice"],
+                post_code=p["postCode"],
+                thana=thana
+            )
+
+    print("✔ Bangladesh address data loaded successfully")
