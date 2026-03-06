@@ -214,6 +214,10 @@ def task_add_view(request):
     return redirect("task_list")
 
 
+from django.contrib.auth.decorators import login_required
+from django.utils.dateparse import parse_date
+from django.shortcuts import render
+
 @login_required
 def task_list_view(request):
 
@@ -228,6 +232,17 @@ def task_list_view(request):
         "assignments",
         "assignments__employee"
     )
+
+    # DATE FILTER
+    start = request.GET.get("start")
+    end = request.GET.get("end")
+
+    if start and end:
+        start_date = parse_date(start)
+        end_date = parse_date(end)
+
+        if start_date and end_date:
+            tasks = tasks.filter(created_at__date__range=(start_date, end_date))
 
     employees = Membership.objects.filter(
         company=company,
@@ -251,7 +266,6 @@ def task_list_view(request):
     }
 
     return render(request, "tasks/task_list.html", context)
-
 
 @login_required
 def submit_task(request, assignment_id):

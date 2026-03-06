@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/task.css' %}">
+<link rel="stylesheet" href="{% static 'tasks/css/task.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
 
@@ -30,7 +30,6 @@ My Tasks
 </div>
 
 
-
 <div class="task-stats">
 
 <div class="stat-card">
@@ -54,7 +53,6 @@ My Tasks
 </div>
 
 </div>
-
 
 
 <div class="task-toolbar">
@@ -84,7 +82,6 @@ Today
 </div>
 
 </div>
-
 
 
 <div class="emp-card">
@@ -134,12 +131,10 @@ Today
 </td>
 
 <td>
-
 <span class="status status-{{ a.status }}"
 title="{% if a.status == 'rejected' %}{{ a.reject_note }}{% endif %}">
 {{ a.get_status_display }}
 </span>
-
 </td>
 
 <td class="points">
@@ -168,7 +163,6 @@ class="delete-link"
 onclick="return confirm('Delete this task?')">
 <i class="fa-solid fa-trash"></i>
 </a>
-
 
 {% if a.status == "submitted" %}
 
@@ -207,7 +201,6 @@ No tasks found
 </table>
 
 </div>
-
 
 
 <!-- ADD TASK MODAL -->
@@ -295,7 +288,6 @@ value="{{ e.user.id }}">
 </div>
 
 
-
 <div class="full">
 
 <label class="form-label">Customer</label>
@@ -311,7 +303,6 @@ value="{{ e.user.id }}">
 </select>
 
 </div>
-
 
 <input type="date"
 name="due_date"
@@ -337,7 +328,6 @@ Assign Task
 </div>
 
 </div>
-
 
 
 <!-- REJECT MODAL -->
@@ -377,10 +367,10 @@ Reject Task
 {% endblock %}
 
 
-
 {% block extra_js %}
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="{% static 'tasks/js/tasks.js' %}"></script>
 
 <script>
 
@@ -391,7 +381,6 @@ document.getElementById("taskModal").style.display="flex";
 function closeTaskModal(){
 document.getElementById("taskModal").style.display="none";
 }
-
 
 function openRejectModal(id){
 
@@ -407,7 +396,6 @@ modal.style.display="flex";
 function closeRejectModal(){
 document.getElementById("rejectModal").style.display="none";
 }
-
 
 window.onclick=function(e){
 
