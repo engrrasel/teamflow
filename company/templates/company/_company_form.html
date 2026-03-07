@@ -1,64 +1,46 @@
-<div class="form-row">
+<div class="form-group">
 <label>Company Name</label>
 {{ form.name }}
 </div>
 
-<div class="form-row">
+<div class="form-group">
 <label>Address</label>
 {{ form.address }}
 </div>
 
-<div class="form-row">
+<div class="form-group">
 <label>Phone</label>
 {{ form.phone }}
 </div>
 
-<hr>
+<hr class="section-divider">
 
-<h3>Weekend Setup</h3>
+<div class="form-group">
+<label>Weekend Setup</label>
 
 <div class="weekend-box">
 
-<label>
-<input type="checkbox" name="weekdays" value="4"
-{% if 4 in weekend_days %}checked{% endif %}>
-Friday
-</label>
+<label><input type="checkbox" name="weekdays" value="4"
+{% if 4 in weekend_days %}checked{% endif %}> Friday</label>
 
-<label>
-<input type="checkbox" name="weekdays" value="5"
-{% if 5 in weekend_days %}checked{% endif %}>
-Saturday
-</label>
+<label><input type="checkbox" name="weekdays" value="5"
+{% if 5 in weekend_days %}checked{% endif %}> Saturday</label>
 
-<label>
-<input type="checkbox" name="weekdays" value="6"
-{% if 6 in weekend_days %}checked{% endif %}>
-Sunday
-</label>
+<label><input type="checkbox" name="weekdays" value="6"
+{% if 6 in weekend_days %}checked{% endif %}> Sunday</label>
 
-<label>
-<input type="checkbox" name="weekdays" value="0"
-{% if 0 in weekend_days %}checked{% endif %}>
-Monday
-</label>
+<label><input type="checkbox" name="weekdays" value="0"
+{% if 0 in weekend_days %}checked{% endif %}> Monday</label>
 
-<label>
-<input type="checkbox" name="weekdays" value="1"
-{% if 1 in weekend_days %}checked{% endif %}>
-Tuesday
-</label>
+<label><input type="checkbox" name="weekdays" value="1"
+{% if 1 in weekend_days %}checked{% endif %}> Tuesday</label>
 
-<label>
-<input type="checkbox" name="weekdays" value="2"
-{% if 2 in weekend_days %}checked{% endif %}>
-Wednesday
-</label>
+<label><input type="checkbox" name="weekdays" value="2"
+{% if 2 in weekend_days %}checked{% endif %}> Wednesday</label>
 
-<label>
-<input type="checkbox" name="weekdays" value="3"
-{% if 3 in weekend_days %}checked{% endif %}>
-Thursday
-</label>
+<label><input type="checkbox" name="weekdays" value="3"
+{% if 3 in weekend_days %}checked{% endif %}> Thursday</label>
+
+</div>
 
 </div>

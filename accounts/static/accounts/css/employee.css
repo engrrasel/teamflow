@@ -62,3 +62,62 @@ align-items:center;
 gap:6px;
 font-size:14px;
 }
+
+.emp-edit-card{
+max-width:640px;
+margin:auto;
+padding:28px;
+}
+
+.section-divider{
+margin:25px 0;
+border:0;
+border-top:1px solid #e5e7eb;
+}
+
+.section-title{
+font-weight:600;
+margin-bottom:6px;
+}
+
+.form-error{
+color:#dc2626;
+margin-bottom:15px;
+}
+
+.form-actions{
+margin-top:25px;
+}
+
+.back-link{
+margin-top:18px;
+}
+
+.weekend-box{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:14px 25px;
+margin-top:8px;
+}
+
+.weekend-box label{
+display:flex;
+align-items:center;
+gap:6px;
+font-size:14px;
+}
+
+.form-group{
+margin-bottom:18px;
+}
+
+.form-group label{
+display:block;
+margin-bottom:6px;
+font-weight:500;
+}
+
+.form-hint{
+color:#6b7280;
+font-size:12px;
+}

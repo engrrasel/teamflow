@@ -1,24 +1,35 @@
 {% extends "base/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'company/css/company.css' %}">
+{% endblock %}
 
 {% block content %}
 
-<div class="card">
+<div class="settings-container">
 
+<div class="settings-card">
+
+<div class="settings-header">
 <h2>Edit Company</h2>
+<p>Update company information and default weekend</p>
+</div>
 
 <form method="post">
-
 {% csrf_token %}
 
 {% include "company/_company_form.html" %}
 
-<br>
-
+<div class="form-actions">
 <button type="submit" class="primary-btn">
 Save Changes
 </button>
+</div>
 
 </form>
+
+</div>
 
 </div>
 

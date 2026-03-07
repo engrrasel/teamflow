@@ -1,10 +1,20 @@
 {% extends "base/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'company/css/company.css' %}">
+{% endblock %}
 
 {% block content %}
 
-<div class="card">
+<div class="settings-container">
 
-<h2>Create Your Company</h2>
+<div class="settings-card">
+
+<div class="settings-header">
+<h2>Create Company</h2>
+<p>Create your company and set default weekend</p>
+</div>
 
 <form method="post">
 
@@ -12,13 +22,15 @@
 
 {% include "company/_company_form.html" %}
 
-<br>
-
+<div class="form-actions">
 <button type="submit" class="primary-btn">
 Create Company
 </button>
+</div>
 
 </form>
+
+</div>
 
 </div>
 
