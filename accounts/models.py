@@ -93,3 +93,25 @@ class Membership(models.Model):
 
     def __str__(self):
         return f"{self.user.email} → {self.company.name} ({self.role})"
+    
+
+
+class EmployeeWeekend(models.Model):
+
+    WEEKDAYS = (
+        (0,"Monday"),
+        (1,"Tuesday"),
+        (2,"Wednesday"),
+        (3,"Thursday"),
+        (4,"Friday"),
+        (5,"Saturday"),
+        (6,"Sunday"),
+    )
+
+    employee = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="weekend_override"
+    )
+
+    weekday = models.IntegerField(choices=WEEKDAYS)

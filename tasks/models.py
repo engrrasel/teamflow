@@ -6,6 +6,9 @@ from django.utils import timezone
 # =========================================
 # TASK (MASTER TASK)
 # =========================================
+from django.db import models
+from django.conf import settings
+
 
 class Task(models.Model):
 
@@ -21,6 +24,14 @@ class Task(models.Model):
         ("low", "Low"),
         ("medium", "Medium"),
         ("high", "High"),
+    )
+
+    REPEAT_CHOICES = (
+        ("none", "One Time"),
+        ("daily", "Daily"),
+        ("weekly", "Weekly"),
+        ("15days", "Every 15 Days"),
+        ("monthly", "Monthly"),
     )
 
     company = models.ForeignKey(
@@ -66,6 +77,21 @@ class Task(models.Model):
     assign_date = models.DateField(auto_now_add=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    # NEW FIELDS
+    repeat_type = models.CharField(
+        max_length=20,
+        choices=REPEAT_CHOICES,
+        default="none"
+    )
+
+    next_run = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Next date this task will auto appear"
+    )
+
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         ordering = ["-created_at"]

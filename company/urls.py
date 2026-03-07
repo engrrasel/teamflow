@@ -14,6 +14,7 @@ urlpatterns = [
     # AJAX designation create
     path('ajax/designation/create/', views.create_designation_ajax, name='designation_ajax_create'),
 
+    path('edit/', views.company_edit_view, name='company_edit'),
 
     path('groups/<int:pk>/edit/', views.group_edit_view, name='group_edit'),
     path('groups/<int:pk>/delete/', views.group_delete_view, name='group_delete'),
@@ -21,4 +22,12 @@ urlpatterns = [
     # Groups
     path('groups/', views.group_list_view, name='group_list'),
     path('groups/add/', views.group_create_view, name='group_add'),
+
+
+    # Weekend setup
+    path('weekend/', views.company_weekend_view, name='company_weekend'),
+
+    # Holiday setup
+    path('holidays/', views.company_holiday_view, name='company_holiday'),
+
 ]

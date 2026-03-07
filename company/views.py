@@ -10,6 +10,7 @@ from .forms import (
 from .models import Designation, DesignationGroup
 from accounts.models import Membership
 
+from .models import CompanyWeekend
 
 # ---------- Helper ----------
 def get_membership(request):
@@ -17,27 +18,62 @@ def get_membership(request):
 
 
 # ---------- Company ----------
+from django.contrib import messages
+
+from django.contrib import messages
+from .models import CompanyWeekend
+from django.contrib import messages
+from .models import CompanyWeekend
+
 @login_required
 def create_company_view(request):
-    if get_membership(request):
-        return redirect('/dashboard/')
+
+    membership = get_membership(request)
+
+    # যদি already company থাকে → dashboard
+    if membership:
+        return redirect("dashboard")
 
     form = CompanyCreateForm(request.POST or None)
 
-    if request.method == 'POST' and form.is_valid():
-        company = form.save()
+    if request.method == "POST":
 
-        Membership.objects.create(
-            user=request.user,
-            company=company,
-            role='company_admin'
-        )
+        if form.is_valid():
 
-        return redirect('/dashboard/')
+            company = form.save()
 
-    return render(request, 'company/create_company.html', {'form': form})
+            # company admin create
+            Membership.objects.create(
+                user=request.user,
+                company=company,
+                role="company_admin"
+            )
 
+            # 🔽 weekend save
+            weekdays = request.POST.getlist("weekdays")
 
+            for w in weekdays:
+                CompanyWeekend.objects.create(
+                    company=company,
+                    weekday=int(w)
+                )
+
+            # session এ company সেট
+            request.session["company_id"] = company.id
+
+            # success message
+            messages.success(request, "Company created successfully!")
+
+            return redirect("dashboard")
+
+    return render(
+        request,
+        "company/create_company.html",
+        {
+            "form": form,
+            "weekend_days": []   # ✔ template এর সাথে match
+        }
+    )
 # ---------- Designation ----------
 @login_required
 def designation_list_view(request):
@@ -256,3 +292,107 @@ def group_delete_view(request, pk):
 
     group.delete()
     return redirect('group_list')
+
+
+
+@login_required
+def company_weekend_view(request):
+
+    company = request.membership.company
+
+    if request.method == "POST":
+
+        weekdays = request.POST.getlist("weekdays")
+
+        CompanyWeekend.objects.filter(company=company).delete()
+
+        for w in weekdays:
+            CompanyWeekend.objects.create(
+                company=company,
+                weekday=int(w)
+            )
+
+        return redirect("company_weekend")
+
+    weekends = CompanyWeekend.objects.filter(company=company)
+
+    return render(
+        request,
+        "company/weekend_setup.html",
+        {"weekends": weekends}
+    )
+
+from .models import CompanyHoliday
+
+@login_required
+def company_holiday_view(request):
+
+    company = request.membership.company
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+        date = request.POST.get("date")
+
+        CompanyHoliday.objects.create(
+            company=company,
+            name=name,
+            date=date
+        )
+
+        return redirect("company_holiday")
+
+    holidays = CompanyHoliday.objects.filter(company=company)
+
+    return render(
+        request,
+        "company/holiday_setup.html",
+        {"holidays":holidays}
+    )
+
+from .models import CompanyWeekend
+
+@login_required
+def company_edit_view(request):
+
+    membership = get_membership(request)
+
+    if not membership:
+        return redirect("create_company")
+
+    company = membership.company
+
+    form = CompanyCreateForm(
+        request.POST or None,
+        instance=company
+    )
+
+    if request.method == "POST" and form.is_valid():
+
+        form.save()
+
+        # weekend update
+        weekdays = request.POST.getlist("weekdays")
+
+        CompanyWeekend.objects.filter(company=company).delete()
+
+        for w in weekdays:
+            CompanyWeekend.objects.create(
+                company=company,
+                weekday=int(w)
+            )
+
+        return redirect("dashboard")
+
+    # 🔥 template এর জন্য শুধু weekday list পাঠাচ্ছি
+    weekends = CompanyWeekend.objects.filter(company=company)
+    weekend_days = [w.weekday for w in weekends]
+
+    return render(
+        request,
+        "company/company_edit.html",
+        {
+            "form": form,
+            "weekend_days": weekend_days
+        }
+    )

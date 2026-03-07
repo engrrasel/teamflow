@@ -30,3 +30,44 @@ class Designation(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.group.name})"
+
+
+
+class CompanyWeekend(models.Model):
+
+    WEEKDAYS = (
+        (0,"Monday"),
+        (1,"Tuesday"),
+        (2,"Wednesday"),
+        (3,"Thursday"),
+        (4,"Friday"),
+        (5,"Saturday"),
+        (6,"Sunday"),
+    )
+
+    company = models.ForeignKey(
+        "company.Company",
+        on_delete=models.CASCADE,
+        related_name="weekends"
+    )
+
+    weekday = models.IntegerField(choices=WEEKDAYS)
+
+    def __str__(self):
+        return f"{self.company} - {self.get_weekday_display()}"
+    
+
+class CompanyHoliday(models.Model):
+
+    company = models.ForeignKey(
+        "company.Company",
+        on_delete=models.CASCADE,
+        related_name="holidays"
+    )
+
+    name = models.CharField(max_length=100)
+
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.name} - {self.date}"

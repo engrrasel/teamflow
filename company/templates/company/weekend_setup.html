@@ -1,0 +1,38 @@
+<h3>Weekend Setup</h3>
+
+<form method="post">
+{% csrf_token %}
+
+<label>
+<input type="checkbox" name="weekdays" value="4"> Friday
+</label>
+
+<label>
+<input type="checkbox" name="weekdays" value="5"> Saturday
+</label>
+
+<label>
+<input type="checkbox" name="weekdays" value="6"> Sunday
+</label>
+
+<label>
+<input type="checkbox" name="weekdays" value="0"> Monday
+</label>
+
+<label>
+<input type="checkbox" name="weekdays" value="1"> Tuesday
+</label>
+
+<label>
+<input type="checkbox" name="weekdays" value="2"> Wednesday
+</label>
+
+<label>
+<input type="checkbox" name="weekdays" value="3"> Thursday
+</label>
+
+<br><br>
+
+<button type="submit">Save Weekend</button>
+
+</form>

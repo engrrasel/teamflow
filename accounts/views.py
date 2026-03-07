@@ -7,6 +7,7 @@ from accounts.services import can_manage_company
 
 from django.http import HttpResponseForbidden
 
+from .models import EmployeeWeekend
 
 from .forms import EmployeeFullEditForm
 from .forms import EmployeeEditForm
@@ -172,14 +173,18 @@ def employee_list_view(request):
 
 @login_required
 def employee_create_view(request):
+
     if not request.membership:
         return redirect('/company/create/')
 
     company = request.membership.company
 
     if request.method == "POST":
+
         form = EmployeeInviteForm(request.POST, company=company)
+
         if form.is_valid():
+
             email = form.cleaned_data['email']
             designation = form.cleaned_data['designation']
 
@@ -189,14 +194,28 @@ def employee_create_view(request):
                 user.set_password(settings.DEFAULT_INVITE_PASSWORD)
                 user.save()
 
-            Membership.objects.create(
+            # membership create
+            membership = Membership.objects.create(
                 user=user,
                 company=company,
                 role='employee',
                 designation=designation
             )
 
+            # 🔽 weekend save
+            weekdays = request.POST.getlist("weekdays")
+
+            if weekdays:
+                from .models import EmployeeWeekend
+
+                for w in weekdays:
+                    EmployeeWeekend.objects.create(
+                        employee=user,
+                        weekday=int(w)
+                    )
+
             return redirect("employee_list")
+
     else:
         form = EmployeeInviteForm(company=company)
 
@@ -205,12 +224,14 @@ def employee_create_view(request):
     })
 
 
-
-
 from .forms import EmployeeFullEditForm
+from .models import EmployeeWeekend
+from .models import EmployeeWeekend
+from company.models import CompanyWeekend
 
 @login_required
 def employee_edit_view(request, pk):
+
     if not request.membership:
         return redirect('/company/create/')
 
@@ -228,21 +249,44 @@ def employee_edit_view(request, pk):
         company=company
     )
 
+    user = membership.user
+
     if request.method == "POST" and form.is_valid():
-        # 🔽 Update User
-        user = membership.user
+
+        # update user
         user.name = form.cleaned_data['name']
         user.email = form.cleaned_data['email']
         user.save()
 
-        # 🔽 Update Membership
         membership.designation = form.cleaned_data['designation']
         membership.save()
 
+        # update employee weekend
+        weekdays = request.POST.getlist("weekdays")
+
+        EmployeeWeekend.objects.filter(employee=user).delete()
+
+        for w in weekdays:
+            EmployeeWeekend.objects.create(
+                employee=user,
+                weekday=int(w)
+            )
+
         return redirect('employee_list')
 
+    # 🔥 employee weekend
+    emp_weekends = EmployeeWeekend.objects.filter(employee=user)
+
+    if emp_weekends.exists():
+        weekend_days = [w.weekday for w in emp_weekends]
+    else:
+        # 🔥 company weekend fallback
+        company_weekends = CompanyWeekend.objects.filter(company=company)
+        weekend_days = [w.weekday for w in company_weekends]
+
     return render(request, 'accounts/employee_edit.html', {
-        'form': form
+        'form': form,
+        'weekend_days': weekend_days
     })
 
 
@@ -261,3 +305,31 @@ def employee_delete_view(request, pk):
 
     membership.delete()
     return redirect('employee_list')
+
+
+
+
+@login_required
+def employee_weekend_view(request, user_id):
+
+    if request.method == "POST":
+
+        weekdays = request.POST.getlist("weekdays")
+
+        EmployeeWeekend.objects.filter(employee_id=user_id).delete()
+
+        for w in weekdays:
+            EmployeeWeekend.objects.create(
+                employee_id=user_id,
+                weekday=int(w)
+            )
+
+        return redirect("employee_list")
+
+    weekends = EmployeeWeekend.objects.filter(employee_id=user_id)
+
+    return render(
+        request,
+        "accounts/employee_weekend.html",
+        {"weekends":weekends}
+    )

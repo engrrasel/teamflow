@@ -1,0 +1,26 @@
+<h3>Holiday Calendar</h3>
+
+<form method="post">
+{% csrf_token %}
+
+<input type="text" name="name" placeholder="Holiday Name">
+
+<input type="date" name="date">
+
+<button type="submit">Add Holiday</button>
+
+</form>
+
+<hr>
+
+<h4>Holiday List</h4>
+
+<ul>
+
+{% for h in holidays %}
+
+<li>{{ h.name }} - {{ h.date }}</li>
+
+{% endfor %}
+
+</ul>

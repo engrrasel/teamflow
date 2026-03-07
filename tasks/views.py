@@ -6,6 +6,8 @@ from .models import Task, TaskAssignment, SalesOrder, Collection, EmployeeLocati
 from customers.models import Customer
 from accounts.models import Membership
 
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -217,12 +219,52 @@ def task_add_view(request):
 from django.contrib.auth.decorators import login_required
 from django.utils.dateparse import parse_date
 from django.shortcuts import render
-
 @login_required
 def task_list_view(request):
 
     company = request.membership.company
 
+    # -----------------------------
+    # AUTO GENERATE RECURRING TASKS
+    # -----------------------------
+    today = timezone.localdate()
+
+    recurring_tasks = Task.objects.filter(
+        company=company,
+        repeat_type__in=["daily", "weekly", "15days", "monthly"],
+        next_run=today,
+        is_active=True
+    ).prefetch_related("assignments")
+
+    from datetime import timedelta
+
+    for task in recurring_tasks:
+
+        for a in task.assignments.all():
+
+            TaskAssignment.objects.create(
+                task=task,
+                employee=a.employee,
+                custom_points=a.custom_points
+            )
+
+        if task.repeat_type == "daily":
+            task.next_run = today + timedelta(days=1)
+
+        elif task.repeat_type == "weekly":
+            task.next_run = today + timedelta(days=7)
+
+        elif task.repeat_type == "15days":
+            task.next_run = today + timedelta(days=15)
+
+        elif task.repeat_type == "monthly":
+            task.next_run = today + timedelta(days=30)
+
+        task.save()
+
+    # -----------------------------
+    # TASK LIST
+    # -----------------------------
     tasks = Task.objects.filter(
         company=company
     ).select_related(
@@ -233,7 +275,9 @@ def task_list_view(request):
         "assignments__employee"
     )
 
+    # -----------------------------
     # DATE FILTER
+    # -----------------------------
     start = request.GET.get("start")
     end = request.GET.get("end")
 
@@ -266,6 +310,7 @@ def task_list_view(request):
     }
 
     return render(request, "tasks/task_list.html", context)
+
 
 @login_required
 def submit_task(request, assignment_id):
@@ -422,3 +467,42 @@ def resubmit_task(request, assignment_id):
         assignment.resubmit(note)
 
     return redirect("task_list")
+
+
+
+def generate_recurring_tasks(company):
+
+    today = timezone.localdate()
+
+    tasks = Task.objects.filter(
+        company=company,
+        repeat_type__in=["daily", "weekly", "15days", "monthly"],
+        next_run=today,
+        is_active=True
+    ).prefetch_related("assignments")
+
+    for task in tasks:
+
+        # নতুন assignment create
+        for a in task.assignments.all():
+
+            TaskAssignment.objects.create(
+                task=task,
+                employee=a.employee,
+                custom_points=a.custom_points
+            )
+
+        # next run update
+        if task.repeat_type == "daily":
+            task.next_run = today + timedelta(days=1)
+
+        elif task.repeat_type == "weekly":
+            task.next_run = today + timedelta(days=7)
+
+        elif task.repeat_type == "15days":
+            task.next_run = today + timedelta(days=15)
+
+        elif task.repeat_type == "monthly":
+            task.next_run = today + timedelta(days=30)
+
+        task.save()
