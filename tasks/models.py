@@ -99,7 +99,6 @@ class Task(models.Model):
 # =========================================
 # TASK ASSIGNMENT
 # =========================================
-
 class TaskAssignment(models.Model):
 
     STATUS_CHOICES = (
@@ -151,12 +150,23 @@ class TaskAssignment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+
         constraints = [
             models.UniqueConstraint(
                 fields=["task", "employee", "assignment_date"],
                 name="unique_task_employee_date"
             )
         ]
+
+        # 🔹 Performance indexes
+        indexes = [
+            models.Index(fields=["employee", "assignment_date"]),
+            models.Index(fields=["task", "assignment_date"]),
+            models.Index(fields=["status", "assignment_date"]),
+        ]
+
+        # 🔹 Default ordering
+        ordering = ["-assignment_date", "-created_at"]
 
     # =========================================
     # WORKFLOW METHODS
@@ -210,51 +220,6 @@ class TaskAssignment(models.Model):
 
         self.save()
         return True
-
-
-    # =========================================
-    # POINT CALCULATION
-    # =========================================
-
-    def calculate_points(self):
-
-        if self.custom_points is not None:
-            return self.custom_points
-
-        if not self.submitted_at:
-            return 0
-
-        priority_points = {
-            "low": 1,
-            "medium": 1.5,
-            "high": 2
-        }
-
-        base_point = priority_points.get(self.task.priority, 1)
-
-        if not self.task.due_date:
-            return base_point
-
-        submit_date = self.submitted_at.date()
-
-        if submit_date <= self.task.due_date:
-            return base_point
-
-        delay_days = (submit_date - self.task.due_date).days
-
-        if delay_days == 1:
-            return base_point * 0.5
-
-        if delay_days == 2:
-            return 0
-
-        return -(delay_days - 2)
-
-
-    def __str__(self):
-        return f"{self.employee} → {self.task.title}"
-
-
 # =========================================
 # SALES ORDER
 # =========================================

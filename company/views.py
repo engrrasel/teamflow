@@ -1,21 +1,25 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.contrib import messages
 
-from itertools import groupby
-from .models import CompanyHoliday
 from django.utils.dateparse import parse_date
-from datetime import timedelta
 
 from .forms import (
     CompanyCreateForm,
     DesignationForm,
     DesignationGroupForm,
 )
-from .models import Designation, DesignationGroup
+
+from .models import (
+    Designation,
+    DesignationGroup,
+    CompanyWeekend,
+    CompanyHoliday
+)
+
 from accounts.models import Membership
 
-from .models import CompanyWeekend
 
 # ---------- Helper ----------
 def get_membership(request):
@@ -23,19 +27,11 @@ def get_membership(request):
 
 
 # ---------- Company ----------
-from django.contrib import messages
-
-from django.contrib import messages
-from .models import CompanyWeekend
-from django.contrib import messages
-from .models import CompanyWeekend
-
 @login_required
 def create_company_view(request):
 
     membership = get_membership(request)
 
-    # যদি already company থাকে → dashboard
     if membership:
         return redirect("dashboard")
 
@@ -47,14 +43,12 @@ def create_company_view(request):
 
             company = form.save()
 
-            # company admin create
             Membership.objects.create(
                 user=request.user,
                 company=company,
                 role="company_admin"
             )
 
-            # 🔽 weekend save
             weekdays = request.POST.getlist("weekdays")
 
             for w in weekdays:
@@ -63,10 +57,8 @@ def create_company_view(request):
                     weekday=int(w)
                 )
 
-            # session এ company সেট
             request.session["company_id"] = company.id
 
-            # success message
             messages.success(request, "Company created successfully!")
 
             return redirect("dashboard")
@@ -76,19 +68,22 @@ def create_company_view(request):
         "company/create_company.html",
         {
             "form": form,
-            "weekend_days": []   # ✔ template এর সাথে match
+            "weekend_days": []
         }
     )
+
+
 # ---------- Designation ----------
 @login_required
 def designation_list_view(request):
+
     membership = get_membership(request)
+
     if not membership:
         return redirect('create_company')
 
     company = membership.company
 
-    # 🔽 NEW
     form = DesignationForm(request.POST or None, company=company)
 
     if request.method == "POST" and form.is_valid():
@@ -103,13 +98,15 @@ def designation_list_view(request):
 
     return render(request, "company/designation_list.html", {
         "designations": designations,
-        "form": form,   # 🔽 পাঠালাম
+        "form": form,
     })
 
 
 @login_required
 def designation_create_view(request):
+
     membership = get_membership(request)
+
     if not membership:
         return redirect('create_company')
 
@@ -127,7 +124,9 @@ def designation_create_view(request):
 
 @login_required
 def designation_edit_view(request, pk):
+
     membership = get_membership(request)
+
     if not membership:
         return redirect('create_company')
 
@@ -152,7 +151,9 @@ def designation_edit_view(request, pk):
 
 @login_required
 def designation_delete_view(request, pk):
+
     membership = get_membership(request)
+
     if not membership:
         return redirect('create_company')
 
@@ -163,21 +164,25 @@ def designation_delete_view(request, pk):
     )
 
     designation.delete()
+
     return redirect('designation_list')
 
 
 # ---------- Designation AJAX ----------
 @login_required
 def create_designation_ajax(request):
+
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request"}, status=400)
 
     membership = get_membership(request)
+
     if not membership:
         return JsonResponse({"error": "No company"}, status=400)
 
     group_name = request.POST.get("group", "").strip()
     designation_name = request.POST.get("designation", "").strip()
+
     company = membership.company
 
     group = DesignationGroup.objects.filter(
@@ -186,6 +191,7 @@ def create_designation_ajax(request):
     ).first()
 
     if not group:
+
         group = DesignationGroup.objects.create(
             name=group_name,
             company=company
@@ -197,6 +203,7 @@ def create_designation_ajax(request):
     ).first()
 
     if not designation:
+
         designation = Designation.objects.create(
             name=designation_name,
             group=group
@@ -212,7 +219,9 @@ def create_designation_ajax(request):
 # ---------- Groups ----------
 @login_required
 def group_list_view(request):
+
     membership = get_membership(request)
+
     if not membership:
         return redirect('create_company')
 
@@ -224,23 +233,26 @@ def group_list_view(request):
     )
 
     if request.method == "POST" and form.is_valid():
+
         group = form.save(commit=False)
         group.company = company
         group.save()
+
         return redirect('group_list')
 
     groups = DesignationGroup.objects.filter(company=company)
 
     return render(request, "company/group_list.html", {
         "groups": groups,
-        "form": form,   # 🔽 পাঠালাম
+        "form": form,
     })
-
 
 
 @login_required
 def group_create_view(request):
+
     membership = get_membership(request)
+
     if not membership:
         return redirect('create_company')
 
@@ -250,9 +262,11 @@ def group_create_view(request):
     )
 
     if request.method == "POST" and form.is_valid():
+
         group = form.save(commit=False)
-        group.company = membership.company   # ✅ MUST
+        group.company = membership.company
         group.save()
+
         return redirect("group_list")
 
     return render(request, "company/group_add.html", {"form": form})
@@ -260,7 +274,9 @@ def group_create_view(request):
 
 @login_required
 def group_edit_view(request, pk):
+
     membership = get_membership(request)
+
     if not membership:
         return redirect('create_company')
 
@@ -285,7 +301,9 @@ def group_edit_view(request, pk):
 
 @login_required
 def group_delete_view(request, pk):
+
     membership = get_membership(request)
+
     if not membership:
         return redirect('create_company')
 
@@ -296,10 +314,11 @@ def group_delete_view(request, pk):
     )
 
     group.delete()
+
     return redirect('group_list')
 
 
-
+# ---------- Weekend ----------
 @login_required
 def company_weekend_view(request):
 
@@ -312,6 +331,7 @@ def company_weekend_view(request):
         CompanyWeekend.objects.filter(company=company).delete()
 
         for w in weekdays:
+
             CompanyWeekend.objects.create(
                 company=company,
                 weekday=int(w)
@@ -328,9 +348,7 @@ def company_weekend_view(request):
     )
 
 
-
-
-
+# ---------- Holiday ----------
 @login_required
 def company_holiday_view(request):
 
@@ -339,51 +357,46 @@ def company_holiday_view(request):
     if request.method == "POST":
 
         name = request.POST.get("name")
+
         start_date = parse_date(request.POST.get("start_date"))
         end_date = parse_date(request.POST.get("end_date")) or start_date
 
-        current = start_date
-
-        while current <= end_date:
-
-            CompanyHoliday.objects.get_or_create(
-                company=company,
-                date=current,
-                defaults={"name": name}
-            )
-
-            current += timedelta(days=1)
+        CompanyHoliday.objects.create(
+            company=company,
+            name=name,
+            start_date=start_date,
+            end_date=end_date
+        )
 
         return redirect("company_holiday")
 
     holidays = CompanyHoliday.objects.filter(
         company=company
-    ).order_by("name", "date")
-
-    grouped = []
-
-    for name, items in groupby(holidays, key=lambda x: x.name):
-
-        items = list(items)
-
-        start = items[0].date
-        end = items[-1].date
-
-        grouped.append({
-            "id": items[0].id,
-            "name": name,
-            "start": start,
-            "end": end
-        })
+    ).order_by("start_date")
 
     return render(
         request,
         "company/holiday_setup.html",
-        {"holidays": grouped}
+        {"holidays": holidays}
     )
 
-from .models import CompanyWeekend
 
+@login_required
+def delete_company_holiday(request):
+
+    company = request.membership.company
+
+    holiday_id = request.GET.get("id")
+
+    CompanyHoliday.objects.filter(
+        company=company,
+        id=holiday_id
+    ).delete()
+
+    return redirect("company_holiday")
+
+
+# ---------- Company Edit ----------
 @login_required
 def company_edit_view(request):
 
@@ -403,12 +416,12 @@ def company_edit_view(request):
 
         form.save()
 
-        # weekend update
         weekdays = request.POST.getlist("weekdays")
 
         CompanyWeekend.objects.filter(company=company).delete()
 
         for w in weekdays:
+
             CompanyWeekend.objects.create(
                 company=company,
                 weekday=int(w)
@@ -416,8 +429,8 @@ def company_edit_view(request):
 
         return redirect("dashboard")
 
-    # 🔥 template এর জন্য শুধু weekday list পাঠাচ্ছি
     weekends = CompanyWeekend.objects.filter(company=company)
+
     weekend_days = [w.weekday for w in weekends]
 
     return render(
@@ -430,26 +443,7 @@ def company_edit_view(request):
     )
 
 
-@login_required
-def delete_company_holiday(request):
-
-    company = request.membership.company
-
-    name = request.GET.get("name")
-    start = request.GET.get("start")
-    end = request.GET.get("end")
-
-    start = parse_date(start)
-    end = parse_date(end)
-
-    CompanyHoliday.objects.filter(
-        company=company,
-        name=name,
-        date__range=(start, end)
-    ).delete()
-
-    return redirect("company_holiday")
-
+# ---------- Settings ----------
 @login_required
 def company_settings_view(request):
 

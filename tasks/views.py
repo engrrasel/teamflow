@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.db import transaction
 
 from .models import Task, TaskAssignment, SalesOrder, Collection, EmployeeLocation
 from customers.models import Customer
@@ -22,11 +23,16 @@ User = get_user_model()
 @login_required
 def my_tasks_view(request):
 
-    assignments = TaskAssignment.objects.filter(
-        employee=request.user
-    ).select_related(
-        "task",
-        "task__customer"
+    today = timezone.localdate()
+
+    assignments = (
+        TaskAssignment.objects
+        .filter(employee=request.user, assignment_date=today)
+        .select_related(
+            "task",
+            "task__customer"
+        )
+        .order_by("status", "task__title")
     )
 
     return render(
@@ -34,7 +40,6 @@ def my_tasks_view(request):
         "tasks/my_tasks.html",
         {"assignments": assignments}
     )
-
 
 # =====================================
 # CHECK IN
@@ -186,9 +191,8 @@ def task_add_view(request):
         repeat_type = request.POST.get("repeat_type", "none")
 
         customer_id = request.POST.get("customer")
-        employees = request.POST.getlist("employees")
+        employee_ids = request.POST.getlist("employees")
 
-        # custom points
         custom_points = request.POST.get("custom_points")
 
         try:
@@ -207,29 +211,53 @@ def task_add_view(request):
 
         today = timezone.localdate()
 
-        task = Task.objects.create(
-            company=company,
-            title=title,
-            task_type=task_type,
-            due_date=due_date or None,
-            customer=customer,
-            created_by=request.user,
-            repeat_type=repeat_type,
-            next_run=today if repeat_type != "none" else None
-        )
+        with transaction.atomic():
 
-        for emp_id in employees:
-
-            employee = get_object_or_404(User, id=emp_id)
-
-            TaskAssignment.objects.create(
-                task=task,
-                employee=employee,
-                custom_points=custom_points,
-                assignment_date=today
+            task = Task.objects.create(
+                company=company,
+                title=title,
+                task_type=task_type,
+                due_date=due_date or None,
+                customer=customer,
+                created_by=request.user,
+                repeat_type=repeat_type,
+                next_run=today if repeat_type != "none" else None
             )
 
-    return redirect("task_list")
+            assignments = []
+
+            for emp_id in employee_ids:
+
+                employee = get_object_or_404(User, id=emp_id)
+
+                assignments.append(
+                    TaskAssignment(
+                        task=task,
+                        employee=employee,
+                        custom_points=custom_points,
+                        assignment_date=today
+                    )
+                )
+
+            TaskAssignment.objects.bulk_create(assignments)
+
+        return redirect("task_list")
+
+    employees = Membership.objects.filter(
+        company=company,
+        role="employee"
+    ).select_related("user")
+
+    customers = Customer.objects.filter(company=company)
+
+    return render(
+        request,
+        "tasks/task_add.html",
+        {
+            "employees": employees,
+            "customers": customers
+        }
+    )
 
 
 # =====================================
@@ -339,7 +367,11 @@ def approve_task(request, assignment_id):
 @login_required
 def task_edit_view(request, task_id):
 
-    task = get_object_or_404(Task, id=task_id)
+    task = get_object_or_404(
+        Task,
+        id=task_id,
+        company=request.membership.company
+    )
 
     if request.method == "POST":
 
@@ -383,7 +415,12 @@ def task_edit_view(request, task_id):
 @login_required
 def task_delete_view(request, task_id):
 
-    task = get_object_or_404(Task, id=task_id)
+    task = get_object_or_404(
+        Task,
+        id=task_id,
+        company=request.membership.company
+    )
+
     task.delete()
 
     return redirect("task_list")
@@ -439,6 +476,7 @@ def leaderboard_view(request):
         {"leaderboard": leaderboard}
     )
 
+
 # =====================================
 # REJECT TASK
 # =====================================
@@ -486,64 +524,93 @@ def resubmit_task(request, assignment_id):
 # GENERATE RECURRING TASKS
 # =====================================
 
+
 def generate_recurring_tasks(company):
 
     today = timezone.localdate()
 
-    if CompanyHoliday.objects.filter(company=company, date=today).exists():
-        return
-
+    # company weekends
     company_weekends = set(
         CompanyWeekend.objects.filter(company=company)
         .values_list("weekday", flat=True)
     )
 
+    # employee weekend map
+    employee_weekends = {}
+
+    for ew in EmployeeWeekend.objects.filter(
+        employee__membership__company=company
+    ):
+        employee_weekends.setdefault(
+            ew.employee_id, set()
+        ).add(ew.weekday)
+
+    # holiday list (single query)
+    holidays = list(
+        CompanyHoliday.objects.filter(company=company)
+        .values("start_date", "end_date")
+    )
+
     tasks = Task.objects.filter(
         company=company,
-        repeat_type__in=["daily","weekly","15days","monthly"],
-        next_run=today,
+        repeat_type__in=["daily", "weekly", "15days", "monthly"],
+        next_run__lte=today,
         is_active=True
-    ).prefetch_related("assignments","assignments__employee")
+    ).prefetch_related("assignments", "assignments__employee")
 
     new_assignments = []
 
     for task in tasks:
 
-        for a in task.assignments.all():
+        run_date = task.next_run
 
-            employee = a.employee
+        while run_date <= today:
 
-            emp_weekends = set(
-                EmployeeWeekend.objects.filter(employee=employee)
-                .values_list("weekday", flat=True)
+            # holiday check without extra query
+            is_holiday = any(
+                h["start_date"] <= run_date <= h["end_date"]
+                for h in holidays
             )
 
-            weekend_days = emp_weekends or company_weekends
-
-            if today.weekday() in weekend_days:
+            if is_holiday:
+                run_date += timedelta(days=1)
                 continue
 
-            new_assignments.append(
-                TaskAssignment(
-                    task=task,
-                    employee=employee,
-                    custom_points=a.custom_points,
-                    assignment_date=today
+            for a in task.assignments.all():
+
+                employee = a.employee
+
+                weekend_days = employee_weekends.get(
+                    employee.id,
+                    company_weekends
                 )
-            )
 
-        if task.repeat_type == "daily":
-            task.next_run = today + timedelta(days=1)
+                if run_date.weekday() in weekend_days:
+                    continue
 
-        elif task.repeat_type == "weekly":
-            task.next_run = today + timedelta(days=7)
+                new_assignments.append(
+                    TaskAssignment(
+                        task=task,
+                        employee=employee,
+                        custom_points=a.custom_points,
+                        assignment_date=run_date
+                    )
+                )
 
-        elif task.repeat_type == "15days":
-            task.next_run = today + timedelta(days=15)
+            # calculate next run
+            if task.repeat_type == "daily":
+                run_date += timedelta(days=1)
 
-        elif task.repeat_type == "monthly":
-            task.next_run = today + timedelta(days=30)
+            elif task.repeat_type == "weekly":
+                run_date += timedelta(days=7)
 
+            elif task.repeat_type == "15days":
+                run_date += timedelta(days=15)
+
+            elif task.repeat_type == "monthly":
+                run_date += timedelta(days=30)
+
+        task.next_run = run_date
         task.save(update_fields=["next_run"])
 
     TaskAssignment.objects.bulk_create(

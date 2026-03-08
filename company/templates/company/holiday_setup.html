@@ -76,18 +76,26 @@ Add Holiday
 <td>{{ h.name }}</td>
 
 <td>
-{% if h.start == h.end %}
-{{ h.start|date:"d M Y" }}
+
+{% if h.start_date == h.end_date %}
+
+{{ h.start_date|date:"d M Y" }}
+
 {% else %}
-{{ h.start|date:"d M" }} - {{ h.end|date:"d M Y" }}
+
+{{ h.start_date|date:"d M Y" }} - {{ h.end_date|date:"d M Y" }}
+
 {% endif %}
+
 </td>
 
 <td>
-<a href="{% url 'delete_company_holiday' %}?name={{ h.name }}&start={{ h.start|date:'Y-m-d' }}&end={{ h.end|date:'Y-m-d' }}"
+
+<a href="{% url 'delete_company_holiday' %}?id={{ h.id }}"
    class="btn-delete">
 Delete
 </a>
+
 </td>
 
 </tr>
