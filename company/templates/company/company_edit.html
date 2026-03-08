@@ -9,6 +9,7 @@
 
 <div class="settings-container">
 
+<!-- COMPANY EDIT -->
 <div class="settings-card">
 
 <div class="settings-header">
@@ -28,6 +29,81 @@ Save Changes
 </div>
 
 </form>
+
+</div>
+
+
+<!-- HOLIDAY SETUP -->
+<div class="settings-card">
+
+<div class="settings-header">
+<h2>Holiday Setup</h2>
+<p>Tasks will not generate on these holidays</p>
+</div>
+
+<form method="post" action="{% url 'company_holiday' %}">
+{% csrf_token %}
+
+<div class="form-group">
+<label>Holiday Name</label>
+<input type="text" name="name" placeholder="Example: Victory Day" required>
+</div>
+
+<div class="form-group">
+<label>Holiday Date</label>
+<input type="date" name="date" required>
+</div>
+
+<div class="form-actions">
+<button type="submit" class="primary-btn">
+Add Holiday
+</button>
+</div>
+
+</form>
+
+<hr>
+
+<h3>Holiday List</h3>
+
+<table class="settings-table">
+
+<thead>
+<tr>
+<th>Name</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for h in holidays %}
+
+<tr>
+
+<td>{{ h.name }}</td>
+<td>{{ h.date|date:"d M Y" }}</td>
+
+<td>
+<a href="{% url 'delete_company_holiday' h.id %}" class="danger-btn">
+Delete
+</a>
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="3">No holidays added</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
 
 </div>
 

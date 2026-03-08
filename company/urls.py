@@ -23,11 +23,18 @@ urlpatterns = [
     path('groups/', views.group_list_view, name='group_list'),
     path('groups/add/', views.group_create_view, name='group_add'),
 
-
+    path("settings/", views.company_settings_view, name="company_settings"),
     # Weekend setup
     path('weekend/', views.company_weekend_view, name='company_weekend'),
 
     # Holiday setup
-    path('holidays/', views.company_holiday_view, name='company_holiday'),
+    path("holiday/", views.company_holiday_view, name="company_holiday"),
+    path(
+        "holiday/delete/",
+        views.delete_company_holiday,
+        name="delete_company_holiday"
+    )
 
 ]
+
+

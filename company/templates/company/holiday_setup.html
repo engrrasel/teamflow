@@ -1,26 +1,111 @@
-<h3>Holiday Calendar</h3>
+{% extends "base/base.html" %}
+{% load static %}
 
-<form method="post">
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'company/css/company.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-card">
+
+<div class="card-header">
+<h2>Holiday Calendar</h2>
+<p>Manage company holidays</p>
+</div>
+
+<div class="card-body">
+
+<form method="post" class="holiday-form">
 {% csrf_token %}
 
-<input type="text" name="name" placeholder="Holiday Name">
+<div class="form-grid">
 
-<input type="date" name="date">
+<div class="form-group">
+<label>Holiday Name</label>
+<input type="text" name="name" placeholder="Example: Eid-ul-Fitr" required>
+</div>
 
-<button type="submit">Add Holiday</button>
+<div class="form-group">
+<label>Start Date</label>
+<input type="date" name="start_date" required>
+</div>
+
+<div class="form-group">
+<label>End Date</label>
+<input type="date" name="end_date">
+</div>
+
+</div>
+
+<button type="submit" class="btn-primary">
+Add Holiday
+</button>
 
 </form>
 
-<hr>
+</div>
 
-<h4>Holiday List</h4>
+</div>
 
-<ul>
+
+<div class="page-card">
+
+<div class="card-header">
+<h3>Holiday List</h3>
+</div>
+
+<div class="card-body">
+
+<table class="holiday-table">
+
+<thead>
+<tr>
+<th>Name</th>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
 
 {% for h in holidays %}
 
-<li>{{ h.name }} - {{ h.date }}</li>
+<tr>
+
+<td>{{ h.name }}</td>
+
+<td>
+{% if h.start == h.end %}
+{{ h.start|date:"d M Y" }}
+{% else %}
+{{ h.start|date:"d M" }} - {{ h.end|date:"d M Y" }}
+{% endif %}
+</td>
+
+<td>
+<a href="{% url 'delete_company_holiday' %}?name={{ h.name }}&start={{ h.start|date:'Y-m-d' }}&end={{ h.end|date:'Y-m-d' }}"
+   class="btn-delete">
+Delete
+</a>
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="3">No holidays added</td>
+</tr>
 
 {% endfor %}
 
-</ul>
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

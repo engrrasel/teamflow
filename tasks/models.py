@@ -6,9 +6,6 @@ from django.utils import timezone
 # =========================================
 # TASK (MASTER TASK)
 # =========================================
-from django.db import models
-from django.conf import settings
-
 
 class Task(models.Model):
 
@@ -78,7 +75,6 @@ class Task(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # NEW FIELDS
     repeat_type = models.CharField(
         max_length=20,
         choices=REPEAT_CHOICES,
@@ -126,10 +122,13 @@ class TaskAssignment(models.Model):
         related_name="task_assignments"
     )
 
+    assignment_date = models.DateField(db_index=True)
+
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
-        default="pending"
+        default="pending",
+        db_index=True
     )
 
     submitted_at = models.DateTimeField(null=True, blank=True)
@@ -146,46 +145,46 @@ class TaskAssignment(models.Model):
 
     custom_points = models.FloatField(null=True, blank=True)
 
-    # -------- NEW --------
     reject_note = models.TextField(blank=True, null=True)
     resubmit_note = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("task", "employee")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["task", "employee", "assignment_date"],
+                name="unique_task_employee_date"
+            )
+        ]
 
     # =========================================
     # WORKFLOW METHODS
     # =========================================
 
     def submit(self):
-
         if self.status != "checked_in":
             return False
 
         self.status = "submitted"
         self.submitted_at = timezone.now()
-        self.save()
-
+        self.save(update_fields=["status", "submitted_at"])
         return True
 
 
     def approve(self, admin_user):
-
         if self.status != "submitted":
             return False
 
         self.status = "approved"
         self.approved_by = admin_user
         self.approved_at = timezone.now()
-        self.save()
 
+        self.save(update_fields=["status", "approved_by", "approved_at"])
         return True
 
 
     def reject(self, admin_user, note=None):
-
         if self.status != "submitted":
             return False
 
@@ -194,28 +193,22 @@ class TaskAssignment(models.Model):
         self.approved_by = admin_user
         self.approved_at = timezone.now()
 
-        self.save()
-
+        self.save(update_fields=["status", "reject_note", "approved_by", "approved_at"])
         return True
 
 
     def resubmit(self, note=None):
-
         if self.status != "rejected":
             return False
 
-        # employee আবার কাজ শুরু করতে পারবে
         self.status = "checked_in"
-
         self.resubmit_note = note
 
-        # previous submit clear
         self.submitted_at = None
         self.approved_at = None
         self.approved_by = None
 
         self.save()
-
         return True
 
 
@@ -274,10 +267,7 @@ class SalesOrder(models.Model):
         related_name="orders"
     )
 
-    amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2
-    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -297,10 +287,7 @@ class Collection(models.Model):
         related_name="collections"
     )
 
-    amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2
-    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -323,7 +310,7 @@ class EmployeeLocation(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
 
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True, db_index=True)
 
     def __str__(self):
         return f"{self.employee} ({self.latitude},{self.longitude})"

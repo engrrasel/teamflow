@@ -2,6 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
+from itertools import groupby
+from .models import CompanyHoliday
+from django.utils.dateparse import parse_date
+from datetime import timedelta
+
 from .forms import (
     CompanyCreateForm,
     DesignationForm,
@@ -322,7 +327,9 @@ def company_weekend_view(request):
         {"weekends": weekends}
     )
 
-from .models import CompanyHoliday
+
+
+
 
 @login_required
 def company_holiday_view(request):
@@ -332,22 +339,47 @@ def company_holiday_view(request):
     if request.method == "POST":
 
         name = request.POST.get("name")
-        date = request.POST.get("date")
+        start_date = parse_date(request.POST.get("start_date"))
+        end_date = parse_date(request.POST.get("end_date")) or start_date
 
-        CompanyHoliday.objects.create(
-            company=company,
-            name=name,
-            date=date
-        )
+        current = start_date
+
+        while current <= end_date:
+
+            CompanyHoliday.objects.get_or_create(
+                company=company,
+                date=current,
+                defaults={"name": name}
+            )
+
+            current += timedelta(days=1)
 
         return redirect("company_holiday")
 
-    holidays = CompanyHoliday.objects.filter(company=company)
+    holidays = CompanyHoliday.objects.filter(
+        company=company
+    ).order_by("name", "date")
+
+    grouped = []
+
+    for name, items in groupby(holidays, key=lambda x: x.name):
+
+        items = list(items)
+
+        start = items[0].date
+        end = items[-1].date
+
+        grouped.append({
+            "id": items[0].id,
+            "name": name,
+            "start": start,
+            "end": end
+        })
 
     return render(
         request,
         "company/holiday_setup.html",
-        {"holidays":holidays}
+        {"holidays": grouped}
     )
 
 from .models import CompanyWeekend
@@ -395,4 +427,33 @@ def company_edit_view(request):
             "form": form,
             "weekend_days": weekend_days
         }
+    )
+
+
+@login_required
+def delete_company_holiday(request):
+
+    company = request.membership.company
+
+    name = request.GET.get("name")
+    start = request.GET.get("start")
+    end = request.GET.get("end")
+
+    start = parse_date(start)
+    end = parse_date(end)
+
+    CompanyHoliday.objects.filter(
+        company=company,
+        name=name,
+        date__range=(start, end)
+    ).delete()
+
+    return redirect("company_holiday")
+
+@login_required
+def company_settings_view(request):
+
+    return render(
+        request,
+        "company/settings.html"
     )

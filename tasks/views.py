@@ -1,21 +1,24 @@
+from datetime import timedelta
+
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.utils.dateparse import parse_date
+from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 from .models import Task, TaskAssignment, SalesOrder, Collection, EmployeeLocation
 from customers.models import Customer
-from accounts.models import Membership
+from accounts.models import Membership, EmployeeWeekend
+from company.models import CompanyWeekend, CompanyHoliday
 
-from datetime import timedelta
-
-from django.contrib.auth import get_user_model
 User = get_user_model()
 
-from django.utils import timezone
 
-# -----------------------------
-# MY TASKS (EMPLOYEE DASHBOARD)
-# -----------------------------
+# =====================================
+# EMPLOYEE TASK DASHBOARD
+# =====================================
+
 @login_required
 def my_tasks_view(request):
 
@@ -33,9 +36,10 @@ def my_tasks_view(request):
     )
 
 
-# -----------------------------
-# CHECK-IN
-# -----------------------------
+# =====================================
+# CHECK IN
+# =====================================
+
 @login_required
 def check_in_view(request, assignment_id):
 
@@ -51,9 +55,10 @@ def check_in_view(request, assignment_id):
     return redirect("my_tasks")
 
 
-# -----------------------------
+# =====================================
 # ADD ORDER
-# -----------------------------
+# =====================================
+
 @login_required
 def add_order_view(request, assignment_id):
 
@@ -77,9 +82,10 @@ def add_order_view(request, assignment_id):
     return redirect("my_tasks")
 
 
-# -----------------------------
+# =====================================
 # ADD COLLECTION
-# -----------------------------
+# =====================================
+
 @login_required
 def add_collection_view(request, assignment_id):
 
@@ -103,9 +109,10 @@ def add_collection_view(request, assignment_id):
     return redirect("my_tasks")
 
 
-# -----------------------------
+# =====================================
 # LIVE EMPLOYEE MAP
-# -----------------------------
+# =====================================
+
 @login_required
 def live_employee_map(request):
 
@@ -127,9 +134,10 @@ def live_employee_map(request):
     )
 
 
-# -----------------------------
+# =====================================
 # UPDATE EMPLOYEE LOCATION
-# -----------------------------
+# =====================================
+
 @login_required
 def update_employee_location(request):
 
@@ -155,6 +163,11 @@ def update_employee_location(request):
 
     return JsonResponse({"status": "ok"})
 
+
+# =====================================
+# ADD TASK
+# =====================================
+
 @login_required
 def task_add_view(request):
 
@@ -170,18 +183,18 @@ def task_add_view(request):
         title = request.POST.get("title")
         task_type = request.POST.get("task_type")
         due_date = request.POST.get("due_date")
+        repeat_type = request.POST.get("repeat_type", "none")
 
         customer_id = request.POST.get("customer")
         employees = request.POST.getlist("employees")
 
-        # -------- CUSTOM POINTS --------
+        # custom points
         custom_points = request.POST.get("custom_points")
 
         try:
             custom_points = float(custom_points)
         except (TypeError, ValueError):
             custom_points = None
-        # --------------------------------
 
         customer = None
 
@@ -192,17 +205,19 @@ def task_add_view(request):
                 company=company
             )
 
-        # -------- CREATE TASK --------
+        today = timezone.localdate()
+
         task = Task.objects.create(
             company=company,
             title=title,
             task_type=task_type,
             due_date=due_date or None,
             customer=customer,
-            created_by=request.user
+            created_by=request.user,
+            repeat_type=repeat_type,
+            next_run=today if repeat_type != "none" else None
         )
 
-        # -------- ASSIGN EMPLOYEES --------
         for emp_id in employees:
 
             employee = get_object_or_404(User, id=emp_id)
@@ -210,61 +225,24 @@ def task_add_view(request):
             TaskAssignment.objects.create(
                 task=task,
                 employee=employee,
-                custom_points=custom_points
+                custom_points=custom_points,
+                assignment_date=today
             )
 
     return redirect("task_list")
 
 
-from django.contrib.auth.decorators import login_required
-from django.utils.dateparse import parse_date
-from django.shortcuts import render
+# =====================================
+# TASK LIST
+# =====================================
+
 @login_required
 def task_list_view(request):
 
     company = request.membership.company
 
-    # -----------------------------
-    # AUTO GENERATE RECURRING TASKS
-    # -----------------------------
-    today = timezone.localdate()
+    generate_recurring_tasks(company)
 
-    recurring_tasks = Task.objects.filter(
-        company=company,
-        repeat_type__in=["daily", "weekly", "15days", "monthly"],
-        next_run=today,
-        is_active=True
-    ).prefetch_related("assignments")
-
-    from datetime import timedelta
-
-    for task in recurring_tasks:
-
-        for a in task.assignments.all():
-
-            TaskAssignment.objects.create(
-                task=task,
-                employee=a.employee,
-                custom_points=a.custom_points
-            )
-
-        if task.repeat_type == "daily":
-            task.next_run = today + timedelta(days=1)
-
-        elif task.repeat_type == "weekly":
-            task.next_run = today + timedelta(days=7)
-
-        elif task.repeat_type == "15days":
-            task.next_run = today + timedelta(days=15)
-
-        elif task.repeat_type == "monthly":
-            task.next_run = today + timedelta(days=30)
-
-        task.save()
-
-    # -----------------------------
-    # TASK LIST
-    # -----------------------------
     tasks = Task.objects.filter(
         company=company
     ).select_related(
@@ -275,18 +253,18 @@ def task_list_view(request):
         "assignments__employee"
     )
 
-    # -----------------------------
-    # DATE FILTER
-    # -----------------------------
     start = request.GET.get("start")
     end = request.GET.get("end")
 
     if start and end:
+
         start_date = parse_date(start)
         end_date = parse_date(end)
 
         if start_date and end_date:
-            tasks = tasks.filter(created_at__date__range=(start_date, end_date))
+            tasks = tasks.filter(
+                created_at__date__range=(start_date, end_date)
+            )
 
     employees = Membership.objects.filter(
         company=company,
@@ -309,8 +287,16 @@ def task_list_view(request):
         "approved_count": assignments.filter(status="approved").count(),
     }
 
-    return render(request, "tasks/task_list.html", context)
+    return render(
+        request,
+        "tasks/task_list.html",
+        context
+    )
 
+
+# =====================================
+# SUBMIT TASK
+# =====================================
 
 @login_required
 def submit_task(request, assignment_id):
@@ -324,6 +310,11 @@ def submit_task(request, assignment_id):
     assignment.submit()
 
     return redirect("my_tasks")
+
+
+# =====================================
+# APPROVE TASK
+# =====================================
 
 @login_required
 def approve_task(request, assignment_id):
@@ -340,7 +331,10 @@ def approve_task(request, assignment_id):
 
     return redirect("task_list")
 
-from django.utils import timezone
+
+# =====================================
+# EDIT TASK
+# =====================================
 
 @login_required
 def task_edit_view(request, task_id):
@@ -357,7 +351,6 @@ def task_edit_view(request, task_id):
 
         task.save()
 
-        # -------- CUSTOM POINTS UPDATE --------
         custom_points = request.POST.get("custom_points")
 
         try:
@@ -368,11 +361,9 @@ def task_edit_view(request, task_id):
         for assignment in task.assignments.all():
             assignment.custom_points = custom_points
             assignment.save()
-        # --------------------------------------
 
         return redirect("task_list")
 
-    # প্রথম assignment থেকে point দেখানোর জন্য
     assignment = task.assignments.first()
 
     return render(
@@ -383,15 +374,24 @@ def task_edit_view(request, task_id):
             "assignment": assignment
         }
     )
+
+
+# =====================================
+# DELETE TASK
+# =====================================
+
 @login_required
 def task_delete_view(request, task_id):
 
     task = get_object_or_404(Task, id=task_id)
-
     task.delete()
 
     return redirect("task_list")
 
+
+# =====================================
+# LEADERBOARD
+# =====================================
 
 @login_required
 def leaderboard_view(request):
@@ -403,21 +403,29 @@ def leaderboard_view(request):
         role="employee"
     ).select_related("user")
 
+    assignments = TaskAssignment.objects.filter(
+        task__company=company,
+        status="approved"
+    ).select_related("employee")
+
+    employee_points = {}
+
+    for a in assignments:
+
+        emp_id = a.employee_id
+
+        if emp_id not in employee_points:
+            employee_points[emp_id] = 0
+
+        employee_points[emp_id] += a.calculate_points()
+
     leaderboard = []
 
     for e in employees:
 
-        assignments = TaskAssignment.objects.filter(
-            task__company=company,
-            employee=e.user,
-            status="approved"
-        )
-
-        points = sum(a.calculate_points() for a in assignments)
-
         leaderboard.append({
             "user": e.user,
-            "points": points
+            "points": employee_points.get(e.user.id, 0)
         })
 
     leaderboard.sort(
@@ -431,12 +439,17 @@ def leaderboard_view(request):
         {"leaderboard": leaderboard}
     )
 
-
+# =====================================
+# REJECT TASK
+# =====================================
 
 @login_required
 def reject_task(request, assignment_id):
 
-    assignment = get_object_or_404(TaskAssignment, id=assignment_id)
+    assignment = get_object_or_404(
+        TaskAssignment,
+        id=assignment_id
+    )
 
     if request.method == "POST":
 
@@ -444,13 +457,14 @@ def reject_task(request, assignment_id):
 
         assignment.status = "rejected"
         assignment.reject_note = reason
-
         assignment.save()
 
     return redirect("task_list")
 
 
-
+# =====================================
+# RESUBMIT TASK
+# =====================================
 
 @login_required
 def resubmit_task(request, assignment_id):
@@ -463,36 +477,61 @@ def resubmit_task(request, assignment_id):
     if request.method == "POST":
 
         note = request.POST.get("resubmit_note")
-
         assignment.resubmit(note)
 
     return redirect("task_list")
 
 
+# =====================================
+# GENERATE RECURRING TASKS
+# =====================================
 
 def generate_recurring_tasks(company):
 
     today = timezone.localdate()
 
+    if CompanyHoliday.objects.filter(company=company, date=today).exists():
+        return
+
+    company_weekends = set(
+        CompanyWeekend.objects.filter(company=company)
+        .values_list("weekday", flat=True)
+    )
+
     tasks = Task.objects.filter(
         company=company,
-        repeat_type__in=["daily", "weekly", "15days", "monthly"],
+        repeat_type__in=["daily","weekly","15days","monthly"],
         next_run=today,
         is_active=True
-    ).prefetch_related("assignments")
+    ).prefetch_related("assignments","assignments__employee")
+
+    new_assignments = []
 
     for task in tasks:
 
-        # নতুন assignment create
         for a in task.assignments.all():
 
-            TaskAssignment.objects.create(
-                task=task,
-                employee=a.employee,
-                custom_points=a.custom_points
+            employee = a.employee
+
+            emp_weekends = set(
+                EmployeeWeekend.objects.filter(employee=employee)
+                .values_list("weekday", flat=True)
             )
 
-        # next run update
+            weekend_days = emp_weekends or company_weekends
+
+            if today.weekday() in weekend_days:
+                continue
+
+            new_assignments.append(
+                TaskAssignment(
+                    task=task,
+                    employee=employee,
+                    custom_points=a.custom_points,
+                    assignment_date=today
+                )
+            )
+
         if task.repeat_type == "daily":
             task.next_run = today + timedelta(days=1)
 
@@ -505,4 +544,9 @@ def generate_recurring_tasks(company):
         elif task.repeat_type == "monthly":
             task.next_run = today + timedelta(days=30)
 
-        task.save()
+        task.save(update_fields=["next_run"])
+
+    TaskAssignment.objects.bulk_create(
+        new_assignments,
+        ignore_conflicts=True
+    )

@@ -67,7 +67,18 @@ class CompanyHoliday(models.Model):
 
     name = models.CharField(max_length=100)
 
-    date = models.DateField()
+    date = models.DateField(db_index=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["date"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["company", "date"],
+                name="unique_company_holiday"
+            )
+        ]
 
     def __str__(self):
         return f"{self.name} - {self.date}"
