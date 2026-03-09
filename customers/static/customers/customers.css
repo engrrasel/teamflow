@@ -1,321 +1,374 @@
-/* Test CSS load */
-
-body{
-    background:yellow;
-}
-
-
-/* Card */
+/* =============================
+   CARD
+============================= */
 
 .emp-card{
-    background:#ffffff;
-    border-radius:10px;
-    padding:20px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+width:100%;
+max-width:100%;
+box-sizing:border-box;
 }
 
 
-/* Header */
+/* =============================
+   HEADER
+============================= */
 
 .emp-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:12px;
+margin-bottom:20px;
+}
+
+.header-actions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+align-items:center;
+justify-content:flex-end;
 }
 
 
-/* Buttons */
+/* =============================
+   BUTTONS
+============================= */
 
 .add-btn{
-    background:#2563eb;
-    color:white;
-    border:none;
-    padding:8px 16px;
-    border-radius:6px;
-    cursor:pointer;
+background:#2563eb;
+color:white;
+border:none;
+padding:9px 18px;
+border-radius:6px;
+cursor:pointer;
+transition:.2s;
 }
 
 .add-btn:hover{
-    background:#1d4ed8;
+background:#1d4ed8;
 }
 
 
-/* Table */
+/* =============================
+   TABLE
+============================= */
+
+.table-wrapper{
+width:100%;
+overflow-x:auto;
+overflow-y:hidden;
+}
 
 .emp-table{
-    width:100%;
-    border-collapse:collapse;
+width:100%;
+min-width:700px;
+border-collapse:collapse;
+table-layout:auto;
 }
 
 .emp-table th,
 .emp-table td{
-    padding:12px;
-    border-top:1px solid #eee;
-    text-align:left;
+padding:12px;
+border-top:1px solid #eee;
+text-align:left;
+font-size:14px;
+white-space:nowrap;
 }
 
 .emp-table tbody tr:hover{
-    background:#f9fafb;
+background:#f9fafb;
 }
 
 
-/* Modal */
+/* =============================
+   ACTION LINKS
+============================= */
+
+.action-links{
+white-space:nowrap;
+}
+
+.edit-link{
+color:#2563eb;
+text-decoration:none;
+font-weight:500;
+}
+
+.edit-link:hover{
+text-decoration:underline;
+}
+
+.delete-link{
+color:#dc2626;
+text-decoration:none;
+font-weight:500;
+}
+
+.delete-link:hover{
+text-decoration:underline;
+}
+
+.separator{
+margin:0 6px;
+color:#999;
+}
+
+
+/* =============================
+   MODAL
+============================= */
 
 .modal{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.45);
-    align-items:center;
-    justify-content:center;
-    z-index:999;
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.45);
+align-items:center;
+justify-content:center;
+z-index:999;
 }
 
 .modal.show{
-    display:flex;
+display:flex;
 }
 
 .modal-content{
-    background:white;
-    padding:25px;
-    border-radius:10px;
-    width:520px;
-    max-height:90vh;
-    overflow-y:auto;
+background:white;
+padding:25px;
+border-radius:10px;
+width:520px;
+max-width:95%;
+max-height:90vh;
+overflow-y:auto;
 }
 
 
-/* Form spacing */
-
-.modal-content p{
-    margin-bottom:12px;
-}
-
-.modal-content label{
-    font-size:13px;
-    margin-bottom:4px;
-    display:block;
-}
-
-
-/* Input */
-
-.modal-content input,
-.modal-content select{
-    width:100%;
-    padding:8px;
-    border:1px solid #ddd;
-    border-radius:6px;
-    font-size:14px;
-}
-
-.modal-content input:focus,
-.modal-content select:focus{
-    outline:none;
-    border-color:#2563eb;
-}
-
-
-/* Django error list */
-
-.errorlist{
-    color:#e53935;
-    font-size:13px;
-    margin-top:4px;
-    list-style:none;
-    padding:0;
-}
-
-.errorlist li{
-    margin:0;
-}
-
-
-/* Custom error wrapper */
-
-.form-error{
-    color:#e53935;
-    font-size:13px;
-    margin-top:4px;
-}
-
-.form-error ul{
-    margin:0;
-    padding:0;
-    list-style:none;
-}
-
-
-/* Actions */
-
-.actions{
-    display:flex;
-    gap:10px;
-    margin-top:15px;
-}
-
-.actions button{
-    padding:8px 16px;
-    border-radius:6px;
-    border:none;
-    cursor:pointer;
-}
-
-.actions button[type="submit"]{
-    background:#2563eb;
-    color:white;
-}
-
-.actions button[type="button"]{
-    background:#e5e7eb;
-}
-
-
-/* FORM GRID */
+/* =============================
+   FORM GRID
+============================= */
 
 .form-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-    margin-bottom:15px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+margin-bottom:15px;
 }
-
-
-/* FORM GROUP */
 
 .form-group label{
-    display:block;
-    font-size:13px;
-    margin-bottom:4px;
-    color:#555;
+display:block;
+font-size:13px;
+margin-bottom:4px;
+color:#555;
 }
-
-
-/* INPUT */
 
 .form-group input,
 .form-group select{
-    width:100%;
-    padding:8px;
-    border:1px solid #ddd;
-    border-radius:6px;
-    font-size:14px;
+width:100%;
+padding:8px;
+border:1px solid #ddd;
+border-radius:6px;
+font-size:14px;
 }
 
 .form-group input:focus,
 .form-group select:focus{
-    border-color:#2563eb;
-    outline:none;
+outline:none;
+border-color:#2563eb;
+box-shadow:0 0 0 2px rgba(37,99,235,0.15);
 }
 
 
-/* SECTION */
+/* =============================
+   LOCATION
+============================= */
 
-.form-section{
-    margin-top:10px;
-    margin-bottom:15px;
-}
-
-.form-section label{
-    font-weight:600;
-    font-size:13px;
-    margin-bottom:6px;
-    display:block;
+.location-box{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
 }
 
 
-/* CHECKBOX GROUP */
+/* =============================
+   CHECKBOX GROUP
+============================= */
 
 .checkbox-group ul{
-    list-style:none;
-    padding:0;
-    margin:0;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-}
-
-.checkbox-group li{
-    display:flex;
-    align-items:center;
+list-style:none;
+padding:0;
+margin:0;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px;
 }
 
 .checkbox-group label{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    cursor:pointer;
-}
-
-.checkbox-group input[type="checkbox"]{
-    width:16px;
-    height:16px;
+display:flex;
+align-items:center;
+gap:8px;
+cursor:pointer;
 }
 
 
-/* BUTTONS */
+/* =============================
+   FORM BUTTONS
+============================= */
+
+.actions{
+display:flex;
+gap:10px;
+margin-top:15px;
+flex-wrap:wrap;
+}
 
 .btn-primary{
-    background:#2563eb;
-    color:white;
-    border:none;
-    padding:8px 16px;
-    border-radius:6px;
-    cursor:pointer;
+background:#2563eb;
+color:white;
+border:none;
+padding:9px 16px;
+border-radius:6px;
+cursor:pointer;
+transition:.2s;
 }
 
 .btn-primary:hover{
-    background:#1d4ed8;
+background:#1d4ed8;
 }
 
 .btn-secondary{
-    background:#e5e7eb;
-    border:none;
-    padding:8px 16px;
-    border-radius:6px;
-    cursor:pointer;
+background:#e5e7eb;
+border:none;
+padding:9px 16px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.btn-secondary:hover{
+background:#d1d5db;
 }
 
 
-/* Action links */
+/* =============================
+   TABLET
+============================= */
 
-.action-links{
-    white-space:nowrap;
+@media (max-width:1024px){
+
+.emp-card{
+padding:18px 16px;
 }
 
-/* Edit */
-
-.edit-link{
-    color:#2563eb;
-    text-decoration:none;
-    font-weight:500;
+.emp-header{
+flex-direction:column;
+align-items:flex-start;
+gap:14px;
 }
 
-.edit-link:hover{
-    text-decoration:underline;
+.header-actions{
+width:100%;
+flex-wrap:wrap;
+gap:8px;
+}
+
+.header-actions a,
+.header-actions button{
+font-size:13px;
+padding:7px 14px;
+}
+
+.table-wrapper{
+margin-top:10px;
+}
+
+.emp-table th,
+.emp-table td{
+font-size:13px;
+padding:10px;
+}
+
+/* Hide Post Office column */
+
+.emp-table th:nth-child(6),
+.emp-table td:nth-child(6){
+display:none;
+}
+
 }
 
 
-/* Delete */
+/* =============================
+   MOBILE
+============================= */
 
-.delete-link{
-    color:#dc2626;
-    text-decoration:none;
-    font-weight:500;
+@media (max-width:768px){
+
+.emp-table th,
+.emp-table td{
+font-size:13px;
+padding:10px;
 }
 
-.delete-link:hover{
-    text-decoration:underline;
+.form-grid{
+grid-template-columns:1fr;
+}
+
+.modal-content{
+width:95%;
+}
+
+.checkbox-group ul{
+grid-template-columns:1fr;
+}
+
 }
 
 
-/* Separator */
+@media (max-width:480px){
 
-.separator{
-    margin:0 6px;
-    color:#999;
+.emp-header{
+flex-direction:column;
+align-items:flex-start;
+}
+
+.header-actions{
+width:100%;
+}
+
+.emp-header h2{
+font-size:18px;
+}
+
+.add-btn{
+padding:7px 14px;
+font-size:13px;
+}
+
+.emp-table{
+font-size:12px;
+}
+
+}
+
+
+/* =============================
+   SIDEBAR ICON SIZE
+============================= */
+
+.sidebar .nav-item i{
+font-size:18px;
+}
+
+.main-content{
+margin-left:250px;
+width:calc(100% - 250px);
+transition:.3s;
+}
+
+body.sidebar-collapsed .main-content{
+margin-left:80px;
+width:calc(100% - 80px);
 }

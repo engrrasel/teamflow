@@ -8,9 +8,11 @@
 <div class="emp-card">
 
 <div class="emp-header">
+
 <h2>Customers</h2>
 
-<div style="display:flex; gap:10px;">
+<div class="header-actions">
+
 <a href="{% url 'customer_map' %}" class="btn-outline">
 🗺 Customers Map
 </a>
@@ -27,11 +29,12 @@ Selling Products
 + Add Customer
 </button>
 
-
-
-</div>
 </div>
 
+</div>
+
+
+<div class="table-wrapper">
 
 <table class="emp-table">
 
@@ -92,7 +95,7 @@ Delete
 {% empty %}
 
 <tr>
-<td colspan="8" style="text-align:center;padding:30px;">
+<td colspan="8" class="no-data">
 No customers yet
 </td>
 </tr>
@@ -102,6 +105,8 @@ No customers yet
 </tbody>
 
 </table>
+
+</div>
 
 </div>
 
@@ -157,14 +162,11 @@ No customers yet
 
 </div>
 
-
-<!-- 📍 LOCATION -->
-
 <div class="form-group">
 
 <label>Location</label>
 
-<div style="display:flex; gap:10px;">
+<div class="location-box">
 
 <input type="text"
 id="locationDisplay"
@@ -241,60 +243,7 @@ $("#closeCustomerModal").click(function () {
 $("#customerModal").removeClass("show");
 });
 
-
-// Division → District
-$("#id_division").on("change", function () {
-
-$.get("/ajax/load-districts/", { division: this.value }, function (data) {
-
-$("#id_district").html('<option value="">Select</option>');
-
-data.forEach(d => {
-$("#id_district").append(`<option value="${d.id}">${d.name}</option>`);
 });
-
-});
-
-});
-
-
-// District → Thana
-$("#id_district").on("change", function () {
-
-$.get("/ajax/load-thanas/", { district: this.value }, function (data) {
-
-$("#id_thana").html('<option value="">Select</option>');
-
-data.forEach(t => {
-$("#id_thana").append(`<option value="${t.id}">${t.name}</option>`);
-});
-
-});
-
-});
-
-
-// Thana → Post Office
-$("#id_thana").on("change", function () {
-
-$.get("/ajax/load-post/", { thana: this.value }, function (data) {
-
-$("#id_post_office").html('<option value="">Select</option>');
-
-data.forEach(p => {
-$("#id_post_office").append(
-`<option value="${p.id}">${p.name} (${p.post_code})</option>`
-);
-});
-
-});
-
-});
-
-});
-
-
-// 📍 Get GPS Location
 
 function getLocation(){
 
@@ -313,10 +262,6 @@ document.getElementById("longitude").value = lng;
 
 document.getElementById("locationDisplay").value =
 lat + ", " + lng;
-
-}, function(){
-
-alert("Location permission denied");
 
 });
 
