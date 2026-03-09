@@ -1,128 +1,165 @@
 /* ========== Sidebar Layout ========== */
 
 .sidebar {
-    width: 250px;
-    margin: 20px;
-    border-radius: 22px;
-    background: linear-gradient(180deg, #0f172a, #0b1120);
-    color: #fff;
-    box-shadow: 0 30px 50px rgba(0,0,0,0.35);
-    transition: width 0.3s ease;
-    overflow: hidden;
+width:250px;
+margin:20px;
+border-radius:22px;
+background:linear-gradient(180deg,#0f172a,#0b1120);
+color:#fff;
+box-shadow:0 30px 50px rgba(0,0,0,0.35);
+transition:all .3s ease;
+overflow:hidden;
 
-    display: flex;
-    flex-direction: column;
+display:flex;
+flex-direction:column;
+
+z-index:2000;
 }
 
-.sidebar.collapsed {
-    width: 80px;
+/* collapsed */
+
+.sidebar.collapsed{
+width:80px;
 }
 
 
 /* ========== Brand ========== */
 
-.brand {
-    padding: 24px;
-    font-size: 20px;
-    font-weight: 600;
+.brand{
+padding:24px;
+font-size:20px;
+font-weight:600;
+position:relative;
 }
 
-.sidebar.collapsed .brand-text {
-    display: none;
+.sidebar.collapsed .brand-text{
+display:none;
 }
 
 
 /* ========== Nav Links ========== */
 
-.nav-links {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0;
-    flex: 1;
+.nav-links{
+list-style:none;
+padding:0;
+margin:10px 0;
+flex:1;
 }
 
-.nav-links li {
-    margin: 6px 12px;
+.nav-links li{
+margin:6px 12px;
 }
 
-/* 🔥 Full row clickable */
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
 
-    padding: 14px 18px;
-    border-radius: 14px;
+/* ========== Nav Item ========== */
 
-    text-decoration: none;
-    color: white;
-    transition: 0.25s ease;
+.nav-item{
+display:flex;
+align-items:center;
+gap:16px;
 
-    width: 100%;
-    box-sizing: border-box;
+padding:14px 18px;
+border-radius:14px;
+
+text-decoration:none;
+color:#fff;
+
+transition:.25s;
+
+width:100%;
+box-sizing:border-box;
 }
 
-.nav-item:hover {
-    background: rgba(255,255,255,0.08);
-    transform: translateX(4px);
+.nav-item:hover{
+background:rgba(255,255,255,0.08);
+transform:translateX(4px);
 }
 
-.nav-item i {
-    width: 24px;
-    text-align: center;
-    font-size: 18px;
+.nav-item i{
+width:24px;
+text-align:center;
+font-size:18px;
 }
 
 
 /* ========== Collapsed Mode ========== */
 
-.sidebar.collapsed .nav-item {
-    justify-content: center;
-    padding: 16px 0;
+.sidebar.collapsed .nav-item{
+justify-content:center;
+padding:16px 0;
 }
 
-.sidebar.collapsed .nav-item span {
-    display: none;
+.sidebar.collapsed .nav-item span{
+display:none;
 }
 
 
 /* ========== Footer ========== */
 
-.sidebar-footer {
-    padding: 18px;
+.sidebar-footer{
+padding:18px;
 }
 
-.logout-btn {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 16px;
-    border-radius: 12px;
-    text-decoration: none;
-    color: #fff;
-    background: rgba(255,255,255,0.06);
+.logout-btn{
+display:flex;
+align-items:center;
+gap:14px;
+padding:12px 16px;
+border-radius:12px;
+text-decoration:none;
+color:#fff;
+background:rgba(255,255,255,0.06);
 }
 
-.logout-btn:hover {
-    background: rgba(255,255,255,0.12);
+.logout-btn:hover{
+background:rgba(255,255,255,0.12);
 }
 
-.sidebar.collapsed .logout-btn span {
-    display: none;
-}
-
-/* ===== Center icons in collapsed sidebar ===== */
-
-.sidebar.collapsed .nav-links {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;   /* 🔥 vertical center */
-    align-items: center;
-    height: 100%;
-}
-
-.sidebar.collapsed .nav-links li {
-    width: 100%;
+.sidebar.collapsed .logout-btn span{
+display:none;
 }
 
 
+/* ========== Center icons in collapsed sidebar ========== */
+
+.sidebar.collapsed .nav-links{
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+height:100%;
+}
+
+.sidebar.collapsed .nav-links li{
+width:100%;
+}
+
+
+/* ================================
+   MOBILE SIDEBAR
+================================ */
+
+@media (max-width:768px){
+
+.sidebar{
+
+margin:0;          /* গুরুত্বপূর্ণ */
+border-radius:0;
+
+position:fixed;
+left:-260px;
+top:0;
+
+width:250px;
+height:100%;
+
+z-index:2000;
+transition:0.3s;
+
+}
+
+.sidebar.open{
+left:0;
+}
+
+}

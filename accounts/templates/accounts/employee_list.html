@@ -1,90 +1,139 @@
 {% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Company Employees{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'accounts/css/employee.css' %}">
+{% endblock %}
 
 {% block content %}
 
 <div class="emp-card">
 
-    <div class="emp-header">
-        <h2>Company Employees</h2>
+<div class="emp-header">
 
-        <div style="display:flex; gap:10px;">
-            <a href="{% url 'designation_list' %}" class="btn-outline">
-                Designations
-            </a>
-            <button id="addEmployeeBtn" class="add-btn">
-                + Add Employee
-            </button>
-        </div>
-    </div>
+<h2>Company Employees</h2>
 
-    <table class="emp-table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Designation</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
+<div class="header-actions">
 
-        <tbody>
-            {% for m in memberships %}
-            <tr>
-                <td>{{ m.user.name }}</td>
-                <td>{{ m.user.email }}</td>
-                <td>{{ m.designation|default:"—" }}</td>
-                <td>
-                    <a href="{% url 'employee_edit' m.id %}" class="action-link">Edit</a>
-                    <span style="margin:0 8px; color:#bbb;">|</span>
-                    <a href="{% url 'employee_delete' m.id %}"
-                       class="action-link danger"
-                       onclick="return confirm('Delete this employee?')">
-                       Delete
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<a href="{% url 'designation_list' %}" class="btn-outline">
+Designations
+</a>
+
+<button id="addEmployeeBtn" class="add-btn">
++ Add Employee
+</button>
 
 </div>
 
+</div>
 
-<!-- Modal include -->
+<div class="table-wrapper">
+
+<table class="emp-table">
+
+<thead>
+
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Designation</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for m in memberships %}
+
+<tr>
+
+<td>{{ m.user.name }}</td>
+
+<td>{{ m.user.email }}</td>
+
+<td>{{ m.designation|default:"—" }}</td>
+
+<td>
+
+<a href="{% url 'employee_edit' m.id %}" class="action-link">
+Edit
+</a>
+
+<span class="divider">|</span>
+
+<a href="{% url 'employee_delete' m.id %}"
+class="action-link danger"
+onclick="return confirm('Delete this employee?')">
+
+Delete
+
+</a>
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="4" class="no-data">
+No employees found
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
 {% include "accounts/add_employee_modal.html" %}
 
 {% endblock %}
 
-
 {% block extra_js %}
+
 <script>
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function(){
 
-    const modal = document.getElementById('employeeModal');
-    const openBtn = document.getElementById('addEmployeeBtn');
-    const closeBtn = document.getElementById('closeModal');
-    const cancelBtn = document.getElementById('cancelModal');
+const modal = document.getElementById("employeeModal");
+const openBtn = document.getElementById("addEmployeeBtn");
+const closeBtn = document.getElementById("closeModal");
+const cancelBtn = document.getElementById("cancelModal");
 
-    if(openBtn){
-        openBtn.onclick = () => modal.classList.add('show');
-    }
+if(!modal) return;
 
-    if(closeBtn){
-        closeBtn.onclick = () => modal.classList.remove('show');
-    }
+openBtn?.addEventListener("click", () => {
+modal.classList.add("show");
+});
 
-    if(cancelBtn){
-        cancelBtn.onclick = () => modal.classList.remove('show');
-    }
+closeBtn?.addEventListener("click", () => {
+modal.classList.remove("show");
+});
 
-    window.onclick = (e) => {
-        if (e.target === modal){
-            modal.classList.remove('show');
-        }
-    };
+cancelBtn?.addEventListener("click", () => {
+modal.classList.remove("show");
+});
+
+window.addEventListener("click", (e) => {
+
+if(e.target === modal){
+modal.classList.remove("show");
+}
+
+});
 
 });
 
 </script>
+
 {% endblock %}

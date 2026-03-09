@@ -148,3 +148,6 @@ LOGIN_URL = '/accounts/login/'
 
 
 DEFAULT_INVITE_PASSWORD = "12345678"
+
+
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"

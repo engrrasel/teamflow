@@ -1,100 +1,143 @@
 {% load static %}
+
 <!DOCTYPE html>
+
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Dashboard{% endblock %}</title>
 
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    {% block extra_css %}{% endblock %}
+<title>{% block title %}Dashboard{% endblock %}</title>
+
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+{% block extra_css %}{% endblock %}
 
 </head>
+
 <body>
 
 <div class="layout">
 
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="brand">
-            <span class="brand-text">TeamFlow</span>
-            <div class="toggle-btn" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </div>
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+
+    <div class="brand">
+
+        <span class="brand-text">TeamFlow</span>
+
+        <!-- Desktop collapse button -->
+        <div class="toggle-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
         </div>
 
-        <ul class="nav-links">
-
-            <li>
-                <a href="{% url 'dashboard' %}" class="nav-item">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="{% url 'employee_list' %}" class="nav-item">
-                    <i class="fas fa-users"></i>
-                    <span>Users</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="{% url 'customer_list' %}" class="nav-item">
-                    <i class="fas fa-users"></i>
-                    <span>Customers</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="{% url 'task_list' %}" class="nav-item">
-                    <i class="fas fa-tasks"></i>
-                    <span>Tasks</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Analytics</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="{% url 'company_settings' %}" class="nav-item">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
-            </li>
-
-        </ul>
-
-        <div class="sidebar-footer">
-            <a href="{% url 'logout' %}" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </a>
-        </div>
     </div>
 
-    <!-- Main -->
-    <div class="main">
-        <div class="topbar">
-            <div>{{ request.membership.company.name }}</div>
-            <div>{{ request.user.email }}</div>
-        </div>
+    <ul class="nav-links">
 
-        <div class="page">
-            {% block content %}{% endblock %}
-        </div>
+        <li>
+            <a href="{% url 'dashboard' %}" class="nav-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'employee_list' %}" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'customer_list' %}" class="nav-item">
+                <i class="fas fa-user-friends"></i>
+                <span>Customers</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'task_list' %}" class="nav-item">
+                <i class="fas fa-tasks"></i>
+                <span>Tasks</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'company_settings' %}" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+
+    </ul>
+
+    <div class="sidebar-footer">
+
+        <a href="{% url 'logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+
     </div>
 
 </div>
 
+
+<!-- MAIN AREA -->
+<div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+
+        <!-- Mobile menu button -->
+        <div class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </div>
+
+        <div class="company-name">
+            {{ request.membership.company.name }}
+        </div>
+
+        <div class="user-email">
+            {{ request.user.email }}
+        </div>
+
+    </div>
+
+
+    <!-- PAGE CONTENT -->
+    <div class="page">
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+</div>
+
+
+</div>
+
+<!-- MOBILE OVERLAY -->
+
+<div id="overlay" onclick="toggleSidebar()"></div>
+
 <script src="{% static 'js/sidebar.js' %}"></script>
-{% block extra_js %}{% endblock %}
+
+{% block extra_js %}
+{% endblock %}
 
 </body>
 </html>

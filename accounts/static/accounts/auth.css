@@ -1,136 +1,155 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',system-ui,sans-serif;
 }
 
-body {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa, #ffffff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+body{
+min-height:100vh;
+background:linear-gradient(135deg,#f5f7fa,#ffffff);
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
 }
 
 /* 🔹 Glass Card */
-.auth-box {
-    width: 100%;
-    max-width: 720px;   /* দুই কলামের জন্য বাড়ানো */
-    padding: 35px;
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(14px);
-    border-radius: 18px;
-    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    animation: fadeSlide 0.8s ease forwards;
+
+.auth-box{
+width:100%;
+max-width:720px;
+padding:35px;
+background:rgba(255,255,255,0.65);
+backdrop-filter:blur(14px);
+border-radius:18px;
+box-shadow:0 30px 50px rgba(0,0,0,0.1);
+border:1px solid rgba(255,255,255,0.4);
+animation:fadeSlide .8s ease forwards;
 }
 
-@keyframes fadeSlide {
-    from {
-        opacity: 0;
-        transform: translateY(30px) scale(0.96);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+/* animation */
+
+@keyframes fadeSlide{
+from{
+opacity:0;
+transform:translateY(30px) scale(.96);
+}
+to{
+opacity:1;
+transform:translateY(0) scale(1);
+}
 }
 
-.auth-box h2 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #222;
-    font-weight: 600;
+.auth-box h2{
+text-align:center;
+margin-bottom:25px;
+color:#222;
+font-weight:600;
 }
 
-/* 🔷 Form + Rules side by side */
-.form-layout {
-    display: grid;
-    grid-template-columns: 1fr 280px;
-    gap: 40px;
-    align-items: start;
+/* 🔷 Form + Rules */
+
+.form-layout{
+display:grid;
+grid-template-columns:1fr 280px;
+gap:40px;
+align-items:start;
 }
 
 /* 🔹 Form inputs */
-.auth-box form p {
-    margin-bottom: 16px;
+
+.auth-box form p{
+margin-bottom:16px;
 }
 
-.auth-box input {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    background: rgba(255,255,255,0.9);
-    transition: 0.25s ease;
+.auth-box input{
+width:100%;
+padding:12px 14px;
+border-radius:12px;
+border:1px solid #ddd;
+background:rgba(255,255,255,.9);
+transition:.25s ease;
 }
 
-.auth-box input:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+.auth-box input:focus{
+border-color:#6366f1;
+box-shadow:0 0 0 4px rgba(99,102,241,.15);
+outline:none;
 }
 
 /* 🔹 Button */
-.auth-box button {
-    width: 100%;
-    margin-top: 14px;
-    padding: 13px;
-    border-radius: 14px;
-    border: none;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
-    color: white;
-    cursor: pointer;
+
+.auth-box button{
+width:100%;
+margin-top:14px;
+padding:13px;
+border-radius:14px;
+border:none;
+background:linear-gradient(135deg,#6366f1,#4f46e5);
+color:white;
+cursor:pointer;
+transition:.2s;
 }
 
-/* 🔹 Rules right side */
-.rules-box {
-    padding-top: 60px; /* password field লেভেলে আনার জন্য */
+.auth-box button:hover{
+transform:translateY(-1px);
+box-shadow:0 6px 16px rgba(0,0,0,0.15);
 }
 
-/* 🔐 Password Rules layout */
-.password-rules {
-    list-style: none;
-    padding: 0;
-    font-size: 14px;
+/* 🔹 Rules */
+
+.rules-box{
+padding-top:60px;
 }
 
-.password-rules li {
-    display: grid;
-    grid-template-columns: 22px auto;
-    align-items: center;
-    margin: 12px 0;
-    color: #555;
+.password-rules{
+list-style:none;
+font-size:14px;
 }
 
-/* ❌ default */
-.password-rules li::before {
-    content: "✖";
-    color: #dc2626;
-    font-weight: bold;
-    text-align: center;
+.password-rules li{
+display:grid;
+grid-template-columns:22px auto;
+align-items:center;
+margin:12px 0;
+color:#555;
 }
 
-/* ✅ valid */
-.password-rules li.valid {
-    color: #16a34a;
+.password-rules li::before{
+content:"✖";
+color:#dc2626;
+font-weight:bold;
+text-align:center;
 }
 
-.password-rules li.valid::before {
-    content: "✔";
-    color: #16a34a;
+.password-rules li.valid{
+color:#16a34a;
+}
+
+.password-rules li.valid::before{
+content:"✔";
+color:#16a34a;
 }
 
 /* 🔹 Links */
-.auth-links {
-    margin-top: 20px;
-    text-align: center;
+
+.auth-links{
+margin-top:20px;
+text-align:center;
 }
 
-.auth-links a {
-    text-decoration: none;
-    color: #4f46e5;
+.auth-links a{
+text-decoration:none;
+color:#4f46e5;
 }
+
+.auth-links a:hover{
+text-decoration:underline;
+}
+
+/* 🔹 Modal */
+
 .modal{
 display:none;
 position:fixed;
@@ -138,7 +157,7 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.5);
+background:rgba(0,0,0,.5);
 align-items:center;
 justify-content:center;
 z-index:1000;
@@ -148,4 +167,58 @@ z-index:1000;
 display:flex;
 }
 
+/* =========================
+   MOBILE RESPONSIVE
+========================= */
 
+@media (max-width:768px){
+
+.auth-box{
+max-width:480px;
+padding:25px;
+}
+
+.form-layout{
+grid-template-columns:1fr;
+gap:20px;
+}
+
+.rules-box{
+padding-top:10px;
+}
+
+.auth-box input{
+padding:11px 12px;
+}
+
+.auth-box button{
+padding:12px;
+}
+
+}
+
+/* small phones */
+
+@media (max-width:480px){
+
+body{
+padding:40px 15px;
+align-items:flex-start;
+justify-content:center;
+}
+
+.auth-box{
+margin-top:40px;
+}
+
+}
+
+.auth-box h2{
+font-size:20px;
+}
+
+.password-rules{
+font-size:13px;
+}
+
+}

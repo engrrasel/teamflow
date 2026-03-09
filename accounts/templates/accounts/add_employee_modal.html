@@ -4,10 +4,11 @@
 
 <div class="modal-header">
 <h2>Add Employee</h2>
-<span id="closeModal" class="close-btn">&times;</span>
+<button type="button" id="closeModal" class="close-btn">&times;</button>
 </div>
 
-<form method="post" action="{% url 'employee_add' %}">
+<form method="post" action="{% url 'employee_add' %}" class="modal-form">
+
 {% csrf_token %}
 
 <div class="form-row">
@@ -20,30 +21,71 @@
 {{ form.designation }}
 </div>
 
-<label>Custom Weekend (optional)</label>
+<div class="form-row">
+
+<label class="weekend-title">
+Custom Weekend (optional)
+</label>
 
 <div class="weekend-box">
 
-<label><input type="checkbox" name="weekdays" value="0"> Mon</label>
-<label><input type="checkbox" name="weekdays" value="1"> Tue</label>
-<label><input type="checkbox" name="weekdays" value="2"> Wed</label>
-<label><input type="checkbox" name="weekdays" value="3"> Thu</label>
-<label><input type="checkbox" name="weekdays" value="4"> Fri</label>
-<label><input type="checkbox" name="weekdays" value="5"> Sat</label>
-<label><input type="checkbox" name="weekdays" value="6"> Sun</label>
+<label class="weekend-item">
+<input type="checkbox" name="weekdays" value="0">
+<span>Mon</span>
+</label>
+
+<label class="weekend-item">
+<input type="checkbox" name="weekdays" value="1">
+<span>Tue</span>
+</label>
+
+<label class="weekend-item">
+<input type="checkbox" name="weekdays" value="2">
+<span>Wed</span>
+</label>
+
+<label class="weekend-item">
+<input type="checkbox" name="weekdays" value="3">
+<span>Thu</span>
+</label>
+
+<label class="weekend-item">
+<input type="checkbox" name="weekdays" value="4">
+<span>Fri</span>
+</label>
+
+<label class="weekend-item">
+<input type="checkbox" name="weekdays" value="5">
+<span>Sat</span>
+</label>
+
+<label class="weekend-item">
+<input type="checkbox" name="weekdays" value="6">
+<span>Sun</span>
+</label>
 
 </div>
 
-<small>
-If not selected → company default weekend will apply
+<small class="hint-text">
+If nothing selected → company default weekend will apply
 </small>
 
+</div>
+
 <div class="modal-actions">
-<button type="submit" class="primary-btn">Save Employee</button>
-<button type="button" id="cancelModal">Cancel</button>
+
+<button type="submit" class="primary-btn">
+Save Employee
+</button>
+
+<button type="button" id="cancelModal" class="secondary-btn">
+Cancel
+</button>
+
 </div>
 
 </form>
 
 </div>
+
 </div>

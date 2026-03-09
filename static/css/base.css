@@ -1,390 +1,329 @@
 /* ========== Base Layout ========== */
 
-body {
-    margin: 0;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+body{
+margin:0;
+font-family:'Segoe UI',system-ui,sans-serif;
 }
 
-.layout {
-    display: flex;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #eef2f7, #f8fafc);
+.layout{
+display:flex;
+min-height:100vh;
+background:linear-gradient(135deg,#eef2f7,#f8fafc);
 }
 
-.main {
-    flex: 1;
-    padding: 25px 35px;
+.main{
+flex:1;
+padding:25px 35px;
 }
+
 
 /* ========== Topbar ========== */
 
-.topbar {
-    height: 65px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.75);
-    backdrop-filter: blur(16px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 25px;
-    margin-bottom: 25px;
+.topbar{
+height:65px;
+border-radius:16px;
+background:rgba(255,255,255,0.75);
+backdrop-filter:blur(16px);
+box-shadow:0 15px 35px rgba(0,0,0,0.08);
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 25px;
+margin-bottom:25px;
 }
 
-/* ========== Sidebar Brand ========== */
 
-.brand {
-    padding: 24px;
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    position: relative;
+/* ========== Brand ========== */
+
+.brand{
+padding:24px;
+font-size:20px;
+font-weight:600;
+letter-spacing:1px;
+position:relative;
 }
 
-.toggle-btn {
-    position: absolute;
-    right: 22px;
-    top: 22px;
-    font-size: 18px;
-    cursor: pointer;
-    opacity: 0.8;
-    transition: 0.2s;
+.toggle-btn{
+position:absolute;
+right:22px;
+top:22px;
+font-size:18px;
+cursor:pointer;
+opacity:.8;
+transition:.2s;
 }
 
-.toggle-btn:hover {
-    opacity: 1;
-    transform: scale(1.1);
+.toggle-btn:hover{
+opacity:1;
+transform:scale(1.1);
 }
 
-/* ========== Invite Card ========== */
 
-.invite-card {
-    max-width: 520px;
-    padding: 30px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+/* ========== Card ========== */
+
+.emp-card{
+background:#fff;
+padding:25px 30px;
+border-radius:14px;
+box-shadow:0 8px 25px rgba(0,0,0,0.08);
+margin-top:20px;
 }
 
-.form-group {
-    margin-bottom: 18px;
+
+/* ========== Table ========== */
+
+.emp-table{
+width:100%;
+border-collapse:collapse;
 }
 
-.form-group label {
-    display: block;
-    font-size: 14px;
-    margin-bottom: 6px;
-    color: #444;
+.emp-table th{
+text-align:left;
+padding:12px 10px;
+font-size:14px;
+color:#555;
+border-bottom:2px solid #eee;
 }
 
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    background: rgba(255,255,255,0.9);
+.emp-table td{
+padding:14px 10px;
+border-bottom:1px solid #f1f1f1;
+font-size:14px;
 }
+
+.emp-table tr:hover{
+background:#f9fbff;
+}
+
 
 /* ========== Buttons ========== */
 
-.btn-primary {
-    margin-top: 10px;
-    padding: 12px 20px;
-    border-radius: 10px;
-    border: none;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
-    color: #fff;
-    cursor: pointer;
+.btn-primary{
+margin-top:10px;
+padding:12px 20px;
+border-radius:10px;
+border:none;
+background:linear-gradient(135deg,#6366f1,#4f46e5);
+color:#fff;
+cursor:pointer;
 }
 
-/* ========== Employee Card & Table ========== */
-
-.emp-card {
-    background: #ffffff;
-    padding: 25px 30px;
-    border-radius: 14px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-    margin-top: 20px;
+.btn-outline{
+padding:10px 16px;
+border-radius:8px;
+border:1px solid #d1d5db;
+background:#fff;
+color:#374151;
+text-decoration:none;
+font-size:14px;
+transition:.2s;
 }
 
-.emp-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.emp-header h2 {
-    font-size: 22px;
-    font-weight: 600;
-}
-
-.add-btn {
-    background: #0d6efd;
-    color: white;
-    padding: 10px 18px;
-    border-radius: 8px;
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.add-btn:hover {
-    background: #0b5ed7;
-}
-
-.emp-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.emp-table th {
-    text-align: left;
-    padding: 12px 10px;
-    font-size: 14px;
-    color: #555;
-    border-bottom: 2px solid #eee;
-}
-
-.emp-table td {
-    padding: 14px 10px;
-    border-bottom: 1px solid #f1f1f1;
-    font-size: 14px;
-}
-
-.emp-table tr:hover {
-    background: #f9fbff;
-}
-
-/* ========== Outline Button & Action Links ========== */
-
-.btn-outline {
-    padding: 10px 16px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    background: white;
-    color: #374151;
-    text-decoration: none;
-    font-size: 14px;
-    transition: 0.2s;
-}
-
-.btn-outline:hover {
-    background: #f3f4f6;
-}
-
-.action-link {
-    color: #4f46e5;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.action-link:hover {
-    text-decoration: underline;
-}
-
-.action-link.danger {
-    color: #dc2626;
-}
-
-/* ========== Modal (Single Correct Version) ========== */
-
-.modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(2, 6, 23, 0.55);
-    backdrop-filter: blur(14px);
-    z-index: 9999;
-}
-
-.modal.show {
-    display: flex;
-}
-
-.modal-content {
-    width: 480px;
-    max-width: 94%;
-    padding: 36px;
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(22px);
-    border: 1px solid rgba(255,255,255,0.5);
-    box-shadow:
-        0 40px 80px rgba(0,0,0,0.25),
-        inset 0 1px 0 rgba(255,255,255,0.7);
-    animation: dialogIn 0.25s ease;
-}
-
-/* animations kept original */
-@keyframes dialogIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.97);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.nav-links {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-}
-
-.nav-links li {
-    width: 100%;
-}
-
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-
-    width: 100%;            /* 🔥 full row */
-    padding: 14px 22px;     /* বড় clickable area */
-    box-sizing: border-box;
-
-    border-radius: 10px;
-    text-decoration: none;
-    color: white;
-    transition: 0.2s;
-}
-
-.nav-item:hover {
-    background: rgba(255,255,255,0.08);
-}
-
-.nav-item i {
-    width: 24px;
-    text-align: center;
+.btn-outline:hover{
+background:#f3f4f6;
 }
 
 
-/* ========== Modal Overlay ========== */
-.modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    background: rgba(15, 23, 42, 0.55);
-    backdrop-filter: blur(6px);
-    z-index: 2000;
+/* ========== Modal ========== */
+
+.modal{
+position:fixed;
+inset:0;
+display:none;
+align-items:center;
+justify-content:center;
+background:rgba(15,23,42,0.55);
+backdrop-filter:blur(6px);
+z-index:3000;
 }
 
-/* ========== Card ========== */
-.modal-card {
-    width: 420px;
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 28px 30px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.25);
-    animation: fadeIn 0.25s ease;
+.modal.show{
+display:flex;
 }
 
-/* Header */
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+.modal-content{
+width:480px;
+max-width:94%;
+padding:36px;
+border-radius:24px;
+background:rgba(255,255,255,0.65);
+backdrop-filter:blur(22px);
+border:1px solid rgba(255,255,255,0.5);
+box-shadow:0 40px 80px rgba(0,0,0,0.25);
 }
 
-.modal-header h2 {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
+
+/* ========== Modal Header ========== */
+
+.modal-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
 }
 
-.close-btn {
-    font-size: 22px;
-    cursor: pointer;
-    color: #888;
+.modal-header h2{
+font-size:20px;
+margin:0;
 }
 
-.close-btn:hover {
-    color: #000;
+.close-btn{
+font-size:22px;
+cursor:pointer;
+color:#888;
 }
 
-/* Form */
-.form-row {
-    margin-bottom: 16px;
+
+/* ========== Modal Form ========== */
+
+.form-row{
+margin-bottom:16px;
 }
 
-.form-row label {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 6px;
-    display: block;
+.form-row label{
+font-weight:600;
+font-size:14px;
+margin-bottom:6px;
+display:block;
 }
 
 .form-row input,
-.form-row select {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    font-size: 14px;
+.form-row select{
+width:100%;
+padding:10px 12px;
+border-radius:8px;
+border:1px solid #ddd;
+font-size:14px;
 }
 
 .form-row input:focus,
-.form-row select:focus {
-    border-color: #2d6cdf;
-    outline: none;
-}
-
-/* Buttons */
-.modal-actions {
-    margin-top: 22px;
-    display: flex;
-    gap: 10px;
-}
-
-.primary-btn {
-    background: #2d6cdf;
-    color: #fff;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.secondary-btn {
-    background: #f1f1f1;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
+.form-row select:focus{
+border-color:#2d6cdf;
+outline:none;
 }
 
 
+/* ========== Modal Buttons ========== */
 
-.primary-btn:hover { opacity: .9; }
-.secondary-btn:hover { background: #e5e5e5; }
+.modal-actions{
+margin-top:22px;
+display:flex;
+gap:10px;
+}
 
-@keyframes fadeIn {
-    from { transform: translateY(-10px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+.primary-btn{
+background:#2d6cdf;
+color:#fff;
+border:none;
+padding:10px 18px;
+border-radius:8px;
+font-weight:600;
+cursor:pointer;
+}
+
+.secondary-btn{
+background:#f1f1f1;
+border:none;
+padding:10px 18px;
+border-radius:8px;
+font-weight:600;
+cursor:pointer;
 }
 
 
-.modal { display: none; }
-.modal.show { display: flex; }
-
+/* ========== Weekend Grid ========== */
 
 .weekend-box{
 display:grid;
 grid-template-columns:repeat(4,1fr);
 gap:10px;
 margin-top:10px;
+}
+
+
+/* ================================
+   MOBILE RESPONSIVE
+================================ */
+
+@media(max-width:768px){
+
+.layout{
+flex-direction:column;
+}
+
+/* sidebar */
+
+.sidebar{
+position:fixed;
+left:-260px;
+top:0;
+height:100%;
+width:250px;
+margin:0;
+border-radius:0;
+z-index:2000;
+transition:.3s ease;
+}
+
+.sidebar.open{
+left:0;
+}
+
+/* main */
+
+.main{
+padding:15px;
+width:100%;
+}
+
+/* topbar */
+
+.topbar{
+height:auto;
+padding:12px 16px;
+}
+
+/* page */
+
+.page{
+padding:0;
+}
+
+}
+
+
+/* ================================
+   OVERLAY
+================================ */
+
+#overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.4);
+display:none;
+z-index:1500;
+}
+
+.sidebar.open ~ #overlay{
+display:block;
+}
+
+
+/* ========== Mobile Menu Button ========== */
+
+.mobile-menu-btn{
+display:none;
+font-size:20px;
+cursor:pointer;
+}
+
+@media (max-width:768px){
+
+.mobile-menu-btn{
+display:block;
+}
+
 }
