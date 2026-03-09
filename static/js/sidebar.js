@@ -35,3 +35,12 @@ sidebar.classList.remove("open");
 }
 
 });
+
+function toggleSidebar(){
+
+const sidebar = document.getElementById("sidebar");
+
+sidebar.classList.toggle("collapsed");
+sidebar.classList.toggle("open");
+
+}
