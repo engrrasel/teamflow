@@ -226,3 +226,39 @@ grid-template-columns:1fr;
 }
 
 }
+
+/* Weekend chip selector */
+
+.weekend-chips{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+margin-top:6px;
+}
+
+.chip{
+display:flex;
+align-items:center;
+justify-content:center;
+padding:5px 10px;
+border-radius:20px;
+border:1px solid #e5e7eb;
+font-size:12px;
+cursor:pointer;
+background:#f9fafb;
+transition:.2s;
+}
+
+.chip input{
+display:none;
+}
+
+.chip:hover{
+background:#f3f4f6;
+}
+
+.chip:has(input:checked){
+background:#6366f1;
+border-color:#6366f1;
+color:#fff;
+}

@@ -2,75 +2,106 @@
 
 <div class="modal-card">
 
+<!-- HEADER -->
+
 <div class="modal-header">
+
 <h2>Add Employee</h2>
-<button type="button" id="closeModal" class="close-btn">&times;</button>
+
+<button type="button" id="closeModal" class="close-btn">
+&times;
+</button>
+
 </div>
+
 
 <form method="post" action="{% url 'employee_add' %}" class="modal-form">
 
 {% csrf_token %}
 
+<!-- EMAIL -->
+
 <div class="form-row">
+
 <label>Email</label>
+
 {{ form.email }}
+
 </div>
+
+
+<!-- DESIGNATION -->
 
 <div class="form-row">
+
 <label>Designation</label>
+
 {{ form.designation }}
+
 </div>
 
+
+<!-- WEEKEND -->
 <div class="form-row">
 
 <label class="weekend-title">
-Custom Weekend (optional)
+Custom Weekend
 </label>
 
-<div class="weekend-box">
+<div class="weekend-chips">
 
-<label class="weekend-item">
-<input type="checkbox" name="weekdays" value="0">
+<label class="chip">
+<input type="checkbox" name="weekdays" value="0"
+{% if 0 in weekend_days %}checked{% endif %}>
 <span>Mon</span>
 </label>
 
-<label class="weekend-item">
-<input type="checkbox" name="weekdays" value="1">
+<label class="chip">
+<input type="checkbox" name="weekdays" value="1"
+{% if 1 in weekend_days %}checked{% endif %}>
 <span>Tue</span>
 </label>
 
-<label class="weekend-item">
-<input type="checkbox" name="weekdays" value="2">
+<label class="chip">
+<input type="checkbox" name="weekdays" value="2"
+{% if 2 in weekend_days %}checked{% endif %}>
 <span>Wed</span>
 </label>
 
-<label class="weekend-item">
-<input type="checkbox" name="weekdays" value="3">
+<label class="chip">
+<input type="checkbox" name="weekdays" value="3"
+{% if 3 in weekend_days %}checked{% endif %}>
 <span>Thu</span>
 </label>
 
-<label class="weekend-item">
-<input type="checkbox" name="weekdays" value="4">
+<label class="chip">
+<input type="checkbox" name="weekdays" value="4"
+{% if 4 in weekend_days %}checked{% endif %}>
 <span>Fri</span>
 </label>
 
-<label class="weekend-item">
-<input type="checkbox" name="weekdays" value="5">
+<label class="chip">
+<input type="checkbox" name="weekdays" value="5"
+{% if 5 in weekend_days %}checked{% endif %}>
 <span>Sat</span>
 </label>
 
-<label class="weekend-item">
-<input type="checkbox" name="weekdays" value="6">
+<label class="chip">
+<input type="checkbox" name="weekdays" value="6"
+{% if 6 in weekend_days %}checked{% endif %}>
 <span>Sun</span>
 </label>
 
 </div>
 
 <small class="hint-text">
-If nothing selected → company default weekend will apply
+Company default weekend is already selected. You can change it if needed.
 </small>
 
 </div>
+
+
+<!-- ACTION BUTTONS -->
 
 <div class="modal-actions">
 

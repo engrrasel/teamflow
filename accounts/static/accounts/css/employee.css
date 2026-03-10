@@ -5,22 +5,64 @@
 .weekend-box{
 display:grid;
 grid-template-columns:repeat(4,1fr);
-gap:14px 25px;
-margin-top:10px;
+gap:6px;
+margin-top:6px;
 }
 
 .weekend-item{
 display:flex;
+flex-direction:column;
 align-items:center;
-gap:6px;
-font-size:14px;
-color:#444;
+justify-content:center;
+gap:4px;
+font-size:13px;
 cursor:pointer;
 }
 
 .weekend-item input{
 width:16px;
 height:16px;
+}
+
+
+/* =========================
+   WEEKEND CHIP SELECTOR
+========================= */
+
+.weekend-chips{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+margin-top:6px;
+}
+
+.chip{
+position:relative;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:5px 10px;
+border-radius:20px;
+border:1px solid #e5e7eb;
+font-size:12px;
+cursor:pointer;
+background:#f9fafb;
+transition:.2s;
+min-width:42px;
+}
+
+.chip input{
+display:none;
+}
+
+.chip:hover{
+background:#f3f4f6;
+}
+
+.chip:has(input:checked){
+background:#10b981;
+border-color:#10b981;
+color:#fff;
 }
 
 
@@ -84,13 +126,10 @@ font-size:12px;
 ========================= */
 
 .modal{
-display:none;
 position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
+inset:0;
 background:rgba(0,0,0,0.45);
+display:none;
 align-items:center;
 justify-content:center;
 z-index:1000;
@@ -106,32 +145,18 @@ display:flex;
 ========================= */
 
 .modal-card{
-background:#ffffff;
-width:420px;
-max-width:95%;
-padding:28px 30px;
-border-radius:16px;
-box-shadow:0 25px 60px rgba(0,0,0,0.25);
-animation:modalFade .25s ease;
+background:#fff;
+width:95%;
+max-width:460px;
+border-radius:14px;
+padding:24px;
+box-shadow:0 20px 40px rgba(0,0,0,0.2);
+transform:scale(.98);
 }
 
-
-/* =========================
-   MODAL ANIMATION
-========================= */
-
-@keyframes modalFade{
-
-from{
-opacity:0;
-transform:translateY(-10px);
-}
-
-to{
-opacity:1;
-transform:translateY(0);
-}
-
+.modal.show .modal-card{
+transform:scale(1);
+transition:.2s;
 }
 
 
@@ -143,7 +168,7 @@ transform:translateY(0);
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:20px;
+margin-bottom:18px;
 }
 
 .modal-header h2{
@@ -156,7 +181,7 @@ background:none;
 border:none;
 font-size:22px;
 cursor:pointer;
-color:#888;
+color:#555;
 }
 
 .close-btn:hover{
@@ -168,15 +193,10 @@ color:#000;
    MODAL FORM
 ========================= */
 
-.modal-form .form-row{
-margin-bottom:16px;
-}
-
-.modal-form label{
-display:block;
-font-size:14px;
-margin-bottom:6px;
-font-weight:600;
+.modal-form{
+display:flex;
+flex-direction:column;
+gap:14px;
 }
 
 .modal-form input,
@@ -196,16 +216,21 @@ border-color:#2d6cdf;
 box-shadow:0 0 0 3px rgba(45,108,223,0.15);
 }
 
+.form-row label{
+font-size:13px;
+font-weight:600;
+margin-bottom:4px;
+display:block;
+}
+
 
 /* =========================
    HINT TEXT
 ========================= */
 
 .hint-text{
-font-size:12px;
+font-size:11px;
 color:#777;
-display:block;
-margin-top:6px;
 }
 
 
@@ -214,35 +239,71 @@ margin-top:6px;
 ========================= */
 
 .modal-actions{
-margin-top:20px;
 display:flex;
+justify-content:flex-end;
 gap:10px;
+margin-top:8px;
 }
 
 .primary-btn{
-background:#2d6cdf;
+background:#10b981;
 color:#fff;
 border:none;
-padding:10px 16px;
+padding:8px 16px;
 border-radius:8px;
+cursor:pointer;
+}
+
+.secondary-btn{
+background:#f1f5f9;
+border:none;
+padding:8px 16px;
+border-radius:8px;
+cursor:pointer;
+}
+
+
+/* =========================
+   HEADER BUTTONS
+========================= */
+
+.header-actions{
+display:flex;
+gap:10px;
+align-items:center;
+}
+
+.btn-outline{
+padding:8px 14px;
+border-radius:8px;
+border:1px solid #6366f1;
+color:#6366f1;
+text-decoration:none;
+font-size:13px;
+font-weight:500;
+transition:.2s;
+}
+
+.btn-outline:hover{
+background:#6366f1;
+color:#fff;
+}
+
+.add-btn{
+padding:8px 16px;
+border-radius:8px;
+background:linear-gradient(135deg,#10b981,#059669);
+color:#fff;
+border:none;
+font-size:13px;
+font-weight:600;
 cursor:pointer;
 transition:.2s;
 }
 
-.primary-btn:hover{
-background:#1f56c4;
-}
-
-.secondary-btn{
-background:#f1f1f1;
-border:none;
-padding:10px 16px;
-border-radius:8px;
-cursor:pointer;
-}
-
-.secondary-btn:hover{
-background:#e5e5e5;
+.add-btn:hover{
+transform:translateY(-1px);
+box-shadow:0 6px 14px rgba(0,0,0,0.15);
 }
 
 
@@ -254,7 +315,6 @@ background:#e5e5e5;
 
 .weekend-box{
 grid-template-columns:repeat(2,1fr);
-gap:10px;
 }
 
 .modal-card{
@@ -262,15 +322,42 @@ width:95%;
 padding:22px;
 }
 
+.weekend-chips{
+justify-content:center;
 }
 
-.modal-card{
-transform:scale(.98);
-}
-
-.modal.show .modal-card{
-transform:scale(1);
-transition:.2s;
 }
 
 
+.emp-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
+.header-actions{
+display:flex;
+gap:10px;
+margin-left:auto;
+}
+
+.btn-outline{
+padding:8px 14px;
+border:1px solid #d1d5db;
+border-radius:6px;
+background:#fff;
+text-decoration:none;
+color:#333;
+font-size:14px;
+}
+
+.add-btn{
+padding:8px 14px;
+border:none;
+border-radius:6px;
+background:#4f46e5;
+color:#fff;
+font-size:14px;
+cursor:pointer;
+}
