@@ -1,33 +1,12 @@
 /* =========================
-   GLOBAL
+   CORE LAYOUT
 ========================= */
 
 .task-page{
-font-family:Arial, Helvetica, sans-serif;
-background:#f5f6fa;
-}
-
-
-/* =========================
-   HEADER
-========================= */
-
-.task-page .task-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-}
-
-.task-page .task-header h2{
-margin:0;
-font-size:22px;
-}
-
-.task-page .task-actions{
-display:flex;
-gap:10px;
-align-items:center;
+font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+background:linear-gradient(180deg,#f8fafc,#eef2f7);
+padding:20px;
+color:#333;
 }
 
 
@@ -39,402 +18,66 @@ align-items:center;
 background:#fff;
 padding:20px;
 margin-bottom:20px;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.08);
-}
-
-
-/* =========================
-   TABLE
-========================= */
-
-.task-page .emp-table{
-width:100%;
-border-collapse:collapse;
-background:#fff;
-}
-
-.task-page .emp-table th{
-background:#000000;
-color:#fff;
-padding:12px;
-text-align:left;
-font-size:14px;
-position:sticky;
-top:0;
-z-index:2;
-}
-
-.task-page .emp-table td{
-padding:12px;
-border-bottom:1px solid #eee;
-font-size:14px;
-}
-
-.task-page .emp-table tr:hover{
-background:#f1f2f6;
-}
-
-.task-page .no-data{
-text-align:center;
-padding:20px;
-}
-
-
-/* =========================
-   BUTTON
-========================= */
-
-.task-page .btn{
-display:inline-flex;
-align-items:center;
-justify-content:center;
-gap:6px;
-padding:8px 14px;
-height:36px;
-border:none;
-border-radius:6px;
-font-size:13px;
-cursor:pointer;
-text-decoration:none;
-transition:.2s;
-}
-
-.task-page .btn:hover{
-opacity:.9;
-transform:translateY(-1px);
-}
-
-.task-page .btn-primary{background:#3b82f6;color:#fff;}
-.task-page .btn-success{background:#2ecc71;color:#fff;}
-.task-page .btn-danger{background:#ff4757;color:#fff;}
-.task-page .btn-warning{background:#f1c40f;color:#333;}
-
-.task-page .btn-sm{
-padding:4px 8px;
-font-size:12px;
-}
-
-
-/* =========================
-   STATUS BADGE
-========================= */
-
-.task-page .status{
-padding:4px 8px;
-border-radius:6px;
-font-size:12px;
-font-weight:500;
-}
-
-.task-page .status-pending{background:#ffeaa7;}
-.task-page .status-submitted{background:#74b9ff;color:#fff;}
-.task-page .status-approved{background:#55efc4;}
-
-
-/* =========================
-   PRIORITY BADGE
-========================= */
-
-.task-page .priority{
-padding:4px 10px;
-border-radius:20px;
-font-size:12px;
-font-weight:600;
-color:#fff;
-}
-
-.task-page .priority-low{background:#2ecc71;}
-.task-page .priority-medium{background:#f39c12;}
-.task-page .priority-high{background:#e74c3c;}
-
-
-/* =========================
-   FORM
-========================= */
-
-.task-page input,
-.task-page select{
-width:100%;
-padding:10px 12px;
-font-size:14px;
-border:1px solid #e4e7ec;
-border-radius:8px;
-background:#fafafa;
-}
-
-.task-page input:focus,
-.task-page select:focus{
-outline:none;
-border-color:#3b82f6;
-background:#fff;
-box-shadow:0 0 0 3px rgba(59,130,246,.1);
-}
-
-
-/* =========================
-   TASK FORM
-========================= */
-
-.task-page .task-form{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px;
-margin-top:10px;
-}
-
-.task-page .task-form .full{
-grid-column:1/-1;
-}
-
-.task-page .task-form label{
-font-size:13px;
-font-weight:600;
-color:#555;
-margin-bottom:4px;
-display:block;
-}
-
-
-/* =========================
-   ACTION LINKS
-========================= */
-
-.task-page .actions{
-white-space:nowrap;
-min-width:220px;
-}
-
-.task-page .action-buttons{
-display:flex;
-align-items:center;
-gap:8px;
-flex-wrap:wrap;
-}
-
-.task-page .actions a,
-.task-page .actions button{
-border:none;
-background:none;
-font-size:16px;
-cursor:pointer;
-margin-right:8px;
-}
-
-.task-page .edit-link{color:#1e90ff;}
-.task-page .delete-link{color:#ff4757;}
-
-.task-page .edit-link i{color:#3498db;}
-.task-page .delete-link i{color:#e74c3c;}
-.task-page .btn-success i{color:#2ecc71;}
-.task-page .btn-danger i{color:#e74c3c;}
-.task-page .btn-warning i{color:#f39c12;}
-
-.task-page .divider{
-margin:0 6px;
-color:#aaa;
-}
-
-.task-page .inline-form{
-display:inline;
-}
-
-
-/* =========================
-   REJECT BOX
-========================= */
-
-.task-page .reject-box{
-margin-top:8px;
-padding:10px;
-background:#fff4f4;
-border:1px solid #ffd4d4;
-border-radius:6px;
-}
-
-.task-page .reject-reason{
-color:#d63031;
-font-size:13px;
-margin-bottom:6px;
-}
-
-.task-page .resubmit-form{
-display:flex;
-gap:6px;
-}
-
-.task-page .resubmit-form textarea{
-flex:1;
-height:32px;
-resize:none;
-padding:4px 6px;
-font-size:13px;
-}
-
-
-/* =========================
-   MODAL
-========================= */
-
-.task-page .task-modal{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.35);
-display:none;
-align-items:center;
-justify-content:center;
-z-index:1000;
-}
-
-.task-page .task-modal-content{
-width:640px;
-background:#fff;
 border-radius:14px;
-padding:26px;
-box-shadow:0 20px 50px rgba(0,0,0,.15);
+box-shadow:0 8px 25px rgba(0,0,0,0.06);
+overflow-x:auto;
 }
 
-.task-page .modal-header{
+
+/* =========================
+   HEADER
+========================= */
+
+.task-page .task-header{
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:18px;
+flex-wrap:wrap;
+gap:12px;
+margin-bottom:25px;
 }
 
-.task-page .modal-header h3{
+.task-page .task-header h2{
 margin:0;
-font-size:20px;
-font-weight:600;
-}
-
-.task-page .close-btn{
 font-size:22px;
-cursor:pointer;
-color:#888;
-}
-
-
-/* =========================
-   EMPLOYEE PICKER
-========================= */
-
-.task-page .employee-picker{
-border:1px solid #e5e7eb;
-border-radius:12px;
-padding:12px;
-background:#fbfbfc;
-}
-
-.task-page .picker-header{
-display:flex;
-gap:8px;
-margin-bottom:10px;
-}
-
-.task-page .picker-header input{
-flex:0.7;
-height:36px;
-background:#fff;
-}
-
-.task-page .picker-header button{
-flex:0.3;
-background:#eef2ff;
-border:none;
-padding:8px 12px;
-border-radius:8px;
-font-size:13px;
-font-weight:500;
-cursor:pointer;
-color:#4338ca;
-}
-
-.task-page .employee-list{
-max-height:180px;
-overflow-y:auto;
-display:flex;
-flex-direction:column;
-gap:4px;
-}
-
-.task-page .employee-item{
-display:block;
-padding:6px 8px;
-border-radius:8px;
-cursor:pointer;
-}
-
-.task-page .employee-item:hover{
-background:#f1f5f9;
-}
-
-.task-page .employee-item input{
-width:16px;
-height:16px;
-margin:0;
-flex-shrink:0;
-}
-
-.task-page .employee-item span{
-font-size:14px;
-color:#333;
-}
-
-.task-page .emp-row{
-display:flex;
-align-items:center;
-gap:10px;
-}
-
-.task-page .avatar{
-width:28px;
-height:28px;
-border-radius:50%;
-background:#3b82f6;
-color:#fff;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:13px;
 font-weight:600;
-flex-shrink:0;
 }
 
 
 /* =========================
-   STATS
+   STAT CARDS
 ========================= */
 
 .task-page .task-stats{
 display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:12px;
-margin-bottom:20px;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:16px;
+margin-bottom:25px;
 }
 
 .task-page .stat-card{
 background:#fff;
-padding:14px;
-border-radius:8px;
-box-shadow:0 2px 6px rgba(0,0,0,0.06);
+padding:18px;
+border-radius:12px;
+box-shadow:0 6px 18px rgba(0,0,0,0.06);
+border-left:5px solid #ddd;
 }
+
+.task-page .stat-card.pending{border-left-color:#f59e0b;}
+.task-page .stat-card.checkin{border-left-color:#6b009c;}
+.task-page .stat-card.completed{border-left-color:#10b981;}
 
 .task-page .stat-card span{
 font-size:12px;
 color:#777;
+text-transform:uppercase;
 }
 
 .task-page .stat-card strong{
-font-size:20px;
+font-size:24px;
 display:block;
+margin-top:4px;
 }
-
-.task-page .stat-card.pending{border-left:4px solid #f1c40f;}
-.task-page .stat-card.checkin{border-left:4px solid #3498db;}
-.task-page .stat-card.completed{border-left:4px solid #2ecc71;}
 
 
 /* =========================
@@ -445,112 +88,179 @@ display:block;
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:15px;
+flex-wrap:wrap;
+gap:12px;
+margin-bottom:20px;
 }
-
-.task-page .task-search{
-width:220px;
-padding:8px 10px;
-border-radius:6px;
-border:1px solid #ddd;
-}
-
-
-/* =========================
-   FILTER
-========================= */
 
 .task-page .task-date-filter{
 display:flex;
-gap:10px;
-align-items:center;
-margin-bottom:15px;
-}
-
-.task-page #dateRange{
-padding:8px 10px;
-border:1px solid #ddd;
-border-radius:6px;
-width:220px;
-}
-
-.task-page .btn-filter{
-background:#2f80ed;
-color:#fff;
-padding:6px 12px;
-font-size:13px;
-height:32px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
-.task-page .btn-today{
-background:#eef2ff;
-color:#4338ca;
-padding:6px 12px;
-border-radius:6px;
-font-size:13px;
-text-decoration:none;
-font-weight:500;
-}
-
-.task-page .btn-today:hover{
-background:#e0e7ff;
+gap:8px;
+flex-wrap:wrap;
 }
 
 
 /* =========================
-   HEADER BUTTONS
-========================= */
-
-.task-page .task-btn{
-padding:10px 18px;
-border-radius:8px;
-border:none;
-font-size:14px;
-font-weight:500;
-cursor:pointer;
-text-decoration:none;
-display:inline-flex;
-align-items:center;
-gap:6px;
-}
-
-.task-page .task-btn.leaderboard{background:#f4b400;color:black;}
-.task-page .task-btn.add{background:#3b82f6;color:#fff;}
-.task-page .task-btn.my{background:#22c55e;color:#fff;}
-
-
-/* =========================
-   STATUS TABS
+   FILTER TABS
 ========================= */
 
 .task-page .task-tabs{
 display:flex;
 gap:8px;
+flex-wrap:wrap;
 }
 
 .task-page .tab{
-background:#f1f3f5;
-border:1px solid #ddd;
-padding:6px 14px;
-border-radius:6px;
+padding:7px 14px;
+border-radius:20px;
+background:#f1f5f9;
+border:none;
 cursor:pointer;
 font-size:13px;
-font-weight:500;
-color:#555;
-}
-
-.task-page .tab:hover{
-background:#e9ecef;
 }
 
 .task-page .tab.active{
-background:#2f80ed;
+background:#3b82f6;
 color:#fff;
-border-color:#2f80ed;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+
+/* =========================
+   TABLE
+========================= */
+
+.task-page .emp-table{
+width:100%;
+border-collapse:collapse;
+}
+
+.task-page .emp-table th{
+text-align:left;
+font-size:13px;
+padding:12px;
+background:#f8fafc;
+}
+
+.task-page .emp-table td{
+font-size:13px;
+padding:12px;
+border-top:1px solid #eee;
+vertical-align:middle;
+}
+
+
+/* =========================
+   STATUS BADGES
+========================= */
+
+.task-page .status{
+display:inline-block;
+padding:4px 10px;
+font-size:12px;
+font-weight:600;
+border-radius:14px;
+white-space:nowrap;
+}
+
+.task-page .status-pending{
+background:#fef3c7;
+color:#92400e;
+}
+
+.task-page .status-checked_in{
+background:#dbeafe;
+color:#1e40af;
+}
+
+.task-page .status-submitted{
+background:#dbeafe;
+color:#1e40af;
+}
+
+.task-page .status-approved{
+background:#d1fae5;
+color:#065f46;
+}
+
+.task-page .status-rejected{
+background:#fee2e2;
+color:#991b1b;
+}
+
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.action-buttons{
+display:flex;
+gap:8px;
+align-items:center;
+}
+
+.action-buttons a,
+.action-buttons button{
+font-size:13px;
+padding:5px 8px;
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+.task-page .task-form{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+.task-page .task-form .full{
+grid-column:1 / -1;
+}
+
+.task-page input,
+.task-page select,
+.task-page textarea{
+padding:10px;
+border-radius:8px;
+border:1px solid #ddd;
+background:#fafafa;
+font-size:14px;
+}
+
+.task-page input:focus,
+.task-page select:focus,
+.task-page textarea:focus{
+outline:none;
+border-color:#3b82f6;
+background:#fff;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.task-page .task-modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.45);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:1000;
+}
+
+.task-page .task-modal-content{
+background:#fff;
+width:95%;
+max-width:640px;
+border-radius:16px;
+padding:25px;
+max-height:90vh;
+overflow-y:auto;
+box-shadow:0 20px 40px rgba(0,0,0,0.2);
 }
 
 
@@ -560,14 +270,13 @@ box-shadow:0 2px 6px rgba(0,0,0,0.1);
 
 @media (max-width:768px){
 
-.task-page .task-header{
-flex-direction:column;
-align-items:flex-start;
-gap:10px;
+.task-page{
+padding:16px;
 }
 
-.task-page .task-stats{
-grid-template-columns:1fr 1fr;
+.task-page .task-header{
+flex-direction:column;
+align-items:stretch;
 }
 
 .task-page .emp-table thead{
@@ -576,49 +285,140 @@ display:none;
 
 .task-page .emp-table tr{
 display:block;
-background:#fff;
-margin-bottom:10px;
-padding:10px;
-border-radius:10px;
-box-shadow:0 2px 5px rgba(0,0,0,0.05);
+margin-bottom:14px;
+border-radius:12px;
+border:1px solid #e5ebe6;
+box-shadow:0 6px 14px rgba(0,0,0,0.05);
 }
 
 .task-page .emp-table td{
-display:flex;
-justify-content:space-between;
-padding:6px 0;
+display:block;
+padding:10px 14px;
 border:none;
 }
 
+.action-buttons{
+margin-top:8px;
+}
+
+.task-page .task-form{
+grid-template-columns:1fr;
+}
+
+}
+
+
+.task-btn.schedule{
+background:#6366f1;
+color:#fff;
+border-radius:6px;
+padding:6px 10px;
+font-size:13px;
+text-decoration:none;
+}
+
+.task-btn.schedule:hover{
+background:#0b8000;
 }
 
 
 /* =========================
-   EXTRA TABLE FIX
+   TASK HEADER BUTTONS
 ========================= */
 
-.task-page .emp-card{
-width:100%;
-max-width:100%;
-}
-
-.task-page .emp-table{
-width:100%;
-table-layout:auto;
-}
-
-.task-page .emp-table td,
-.task-page .emp-table th{
-white-space:nowrap;
-}
-
-.task-page .actions{
-min-width:180px;
-text-align:right;
-}
-
-.task-page .action-buttons{
+.task-actions{
 display:flex;
-justify-content:flex-end;
 gap:10px;
+align-items:center;
+}
+
+/* common button */
+
+.task-btn{
+padding:7px 14px;
+border-radius:8px;
+font-size:13px;
+font-weight:500;
+text-decoration:none;
+border:none;
+cursor:pointer;
+transition:0.2s;
+display:inline-flex;
+align-items:center;
+}
+
+/* leaderboard */
+
+.task-btn.leaderboard{
+background:#710075;
+color:#fff;
+}
+
+.task-btn.leaderboard:hover{
+background:#0b8000;
+}
+
+/* add task */
+
+.task-btn.add{
+background:#10b981;
+color:#fff;
+}
+
+.task-btn.add:hover{
+background:#0b8000;
+}
+
+/* my tasks */
+
+.task-btn.my{
+background:#3b82f6;
+color:#fff;
+}
+
+.task-btn.my:hover{
+background:#0b8000;
+}
+
+/* =========================
+   FILTER BUTTON
+========================= */
+
+.btn-filter{
+background:#3b82f6;
+color:#fff;
+border:none;
+padding:7px 14px;
+border-radius:8px;
+font-size:13px;
+font-weight:500;
+cursor:pointer;
+transition:0.2s;
+}
+
+.btn-filter:hover{
+background:#0b8000;
+}
+
+
+/* =========================
+   TODAY BUTTON
+========================= */
+
+.btn-today{
+background:#f1f5f9;
+color:#334155;
+padding:7px 14px;
+border-radius:8px;
+font-size:13px;
+font-weight:500;
+text-decoration:none;
+display:inline-flex;
+align-items:center;
+transition:0.2s;
+border:1px solid #e2e8f0;
+}
+
+.btn-today:hover{
+background:#0b8000;
 }

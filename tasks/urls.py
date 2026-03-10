@@ -19,6 +19,7 @@ urlpatterns = [
     path("<int:assignment_id>/submit/", views.submit_task, name="submit_task"),
     path("<int:assignment_id>/approve/", views.approve_task, name="approve_task"),
 
+    
     # Task management
     path("<int:task_id>/edit/", views.task_edit_view, name="task_edit"),
     path("<int:task_id>/delete/", views.task_delete_view, name="task_delete"),
@@ -33,4 +34,9 @@ urlpatterns = [
     path("<int:assignment_id>/reject/", views.reject_task, name="reject_task"),
     path("<int:assignment_id>/resubmit/", views.resubmit_task, name="resubmit_task"),
 
+    path(
+    "scheduled/",
+    views.scheduled_tasks_view,
+    name="scheduled_tasks"
+),
 ]

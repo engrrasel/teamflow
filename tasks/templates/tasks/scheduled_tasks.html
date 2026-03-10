@@ -1,0 +1,63 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+
+<div class="task-page">
+
+<h2>Scheduled Tasks</h2>
+
+<div class="emp-card">
+
+<table class="emp-table">
+
+<thead>
+<tr>
+<th>Task</th>
+<th>Repeat</th>
+<th>Next Run</th>
+<th>Customer</th>
+<th>Created By</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for task in tasks %}
+
+<tr>
+
+<td>{{ task.title }}</td>
+
+<td>{{ task.get_repeat_type_display }}</td>
+
+<td>{{ task.next_run }}</td>
+
+<td>
+{% if task.customer %}
+{{ task.customer }}
+{% else %}
+-
+{% endif %}
+</td>
+
+<td>{{ task.created_by }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="5">No scheduled tasks</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

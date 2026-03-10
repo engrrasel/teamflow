@@ -617,3 +617,24 @@ def generate_recurring_tasks(company):
         new_assignments,
         ignore_conflicts=True
     )
+
+
+# =====================================
+# scheduled tasks view
+# =====================================
+@login_required
+def scheduled_tasks_view(request):
+
+    company = request.membership.company
+
+    tasks = Task.objects.filter(
+        company=company,
+        repeat_type__in=["daily", "weekly", "15days", "monthly"],
+        is_active=True
+    ).select_related("customer", "created_by")
+
+    return render(
+        request,
+        "tasks/scheduled_tasks.html",
+        {"tasks": tasks}
+    )

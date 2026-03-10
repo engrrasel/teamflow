@@ -11,12 +11,15 @@
 <div class="task-page">
 
 <!-- HEADER -->
-
 <div class="task-header">
 
 <h2>Tasks</h2>
 
 <div class="task-actions">
+
+<a href="{% url 'scheduled_tasks' %}" class="task-btn schedule">
+Scheduled Tasks
+</a>
 
 <a href="{% url 'leaderboard' %}" class="task-btn leaderboard">
 Leaderboard
@@ -32,11 +35,12 @@ My Tasks
 
 </div>
 
+
+
 </div>
 
 
 <!-- STATS -->
-
 <div class="task-stats">
 
 <div class="stat-card">
@@ -63,7 +67,6 @@ My Tasks
 
 
 <!-- TOOLBAR -->
-
 <div class="task-toolbar">
 
 <div class="task-date-filter">
@@ -94,7 +97,6 @@ Today
 
 
 <!-- TABLE -->
-
 <div class="emp-card">
 
 <table class="emp-table" id="taskTable">
@@ -113,6 +115,8 @@ Today
 </thead>
 
 <tbody>
+
+
 
 {% for task in tasks %}
 {% for a in task.assignments.all %}
@@ -142,8 +146,7 @@ Today
 </td>
 
 <td>
-<span class="status status-{{ a.status }}"
-title="{% if a.status == 'rejected' %}{{ a.reject_note }}{% endif %}">
+<span class="status status-{{ a.status }}">
 {{ a.get_status_display }}
 </span>
 </td>
@@ -159,7 +162,6 @@ title="{% if a.status == 'rejected' %}{{ a.reject_note }}{% endif %}">
 {% endif %}
 
 </td>
-
 
 <td class="actions">
 
@@ -215,7 +217,6 @@ No tasks found
 
 
 <!-- ADD TASK MODAL -->
-
 <div id="taskModal" class="task-modal">
 
 <div class="task-modal-content">
@@ -378,48 +379,6 @@ Reject Task
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
-
-<script>
-
-function openTaskModal(){
-document.getElementById("taskModal").style.display="flex";
-}
-
-function closeTaskModal(){
-document.getElementById("taskModal").style.display="none";
-}
-
-function openRejectModal(id){
-
-let modal=document.getElementById("rejectModal");
-let form=document.getElementById("rejectForm");
-
-form.action="/tasks/"+id+"/reject/";
-
-modal.style.display="flex";
-
-}
-
-function closeRejectModal(){
-document.getElementById("rejectModal").style.display="none";
-}
-
-window.onclick=function(e){
-
-let taskModal=document.getElementById("taskModal");
-let rejectModal=document.getElementById("rejectModal");
-
-if(e.target==taskModal){
-taskModal.style.display="none";
-}
-
-if(e.target==rejectModal){
-rejectModal.style.display="none";
-}
-
-}
-
-</script>
 
 {% endblock %}
 

@@ -1,4 +1,7 @@
-// Date filter
+/* =========================
+   DATE FILTER
+========================= */
+
 let selectedDates = [];
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -7,7 +10,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (dateInput) {
 
-        // URL parameters read
         const params = new URLSearchParams(window.location.search);
 
         let start = params.get("start");
@@ -27,14 +29,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // page reload হলেও selectedDates maintain
         if (defaultDates.length > 0) {
             selectedDates = defaultDates.map(d => new Date(d));
         }
 
     }
 
-    // Today button
+
+/* =========================
+   TODAY BUTTON
+========================= */
+
     const todayBtn = document.getElementById("todayBtn");
 
     if (todayBtn) {
@@ -56,10 +61,74 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
+
+/* =========================
+   SEARCH TASK
+========================= */
+
+    const searchInput = document.getElementById("taskSearch");
+
+    if (searchInput) {
+
+        searchInput.addEventListener("keyup", function () {
+
+            let value = this.value.toLowerCase();
+
+            document.querySelectorAll("#taskTable tbody tr").forEach(function (row) {
+
+                row.textContent.toLowerCase().includes(value)
+                    ? row.style.display = ""
+                    : row.style.display = "none";
+
+            });
+
+        });
+
+    }
+
+
+/* =========================
+   STATUS TABS FILTER
+========================= */
+
+    const tabs = document.querySelectorAll(".tab");
+
+    if (tabs.length > 0) {
+
+        const rows = document.querySelectorAll("#taskTable tbody tr");
+
+        tabs.forEach(tab => {
+
+            tab.addEventListener("click", () => {
+
+                tabs.forEach(t => t.classList.remove("active"));
+                tab.classList.add("active");
+
+                const status = tab.dataset.status;
+
+                rows.forEach(row => {
+
+                    if (status === "all" || row.dataset.status === status) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+
+                });
+
+            });
+
+        });
+
+    }
+
 });
 
 
-// Date format (Local time)
+/* =========================
+   DATE FORMAT
+========================= */
+
 function formatDate(date) {
 
     let year = date.getFullYear();
@@ -71,7 +140,10 @@ function formatDate(date) {
 }
 
 
-// Filter
+/* =========================
+   APPLY FILTER
+========================= */
+
 function applyFilter() {
 
     if (selectedDates.length === 0) return;
@@ -88,7 +160,10 @@ function applyFilter() {
 }
 
 
-// Task modal
+/* =========================
+   TASK MODAL
+========================= */
+
 function openTaskModal() {
     document.getElementById("taskModal").style.display = "flex";
 }
@@ -98,7 +173,10 @@ function closeTaskModal() {
 }
 
 
-// Reject modal
+/* =========================
+   REJECT MODAL
+========================= */
+
 function openRejectModal(id) {
 
     let modal = document.getElementById("rejectModal");
@@ -114,7 +192,10 @@ function closeRejectModal() {
 }
 
 
-// Outside click close
+/* =========================
+   OUTSIDE CLICK CLOSE
+========================= */
+
 window.onclick = function (e) {
 
     let taskModal = document.getElementById("taskModal");
@@ -129,58 +210,3 @@ window.onclick = function (e) {
     }
 
 };
-
-// Search task
-const searchInput = document.getElementById("taskSearch");
-
-if (searchInput) {
-
-    searchInput.addEventListener("keyup", function () {
-
-        let value = this.value.toLowerCase();
-
-        document.querySelectorAll("#taskTable tbody tr").forEach(function (row) {
-
-            row.textContent.toLowerCase().includes(value)
-                ? row.style.display = ""
-                : row.style.display = "none";
-
-        });
-
-    });
-
-}
-
-
-
-// Status tabs filter
-const tabs = document.querySelectorAll(".tab");
-
-if (tabs.length > 0) {
-
-    const rows = document.querySelectorAll("#taskTable tbody tr");
-
-    tabs.forEach(tab => {
-
-        tab.addEventListener("click", () => {
-
-            tabs.forEach(t => t.classList.remove("active"));
-            tab.classList.add("active");
-
-            const status = tab.dataset.status;
-
-            rows.forEach(row => {
-
-                if (status === "all" || row.dataset.status === status) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
-
-            });
-
-        });
-
-    });
-
-}
