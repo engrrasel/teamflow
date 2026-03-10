@@ -9,7 +9,6 @@ padding:20px;
 color:#333;
 }
 
-
 /* =========================
    CARD
 ========================= */
@@ -22,7 +21,6 @@ border-radius:14px;
 box-shadow:0 8px 25px rgba(0,0,0,0.06);
 overflow-x:auto;
 }
-
 
 /* =========================
    HEADER
@@ -43,6 +41,35 @@ font-size:22px;
 font-weight:600;
 }
 
+/* =========================
+   HEADER BUTTONS
+========================= */
+
+.task-actions{
+display:flex;
+gap:10px;
+align-items:center;
+}
+
+.task-btn{
+padding:7px 14px;
+border-radius:8px;
+font-size:13px;
+font-weight:500;
+text-decoration:none;
+border:none;
+cursor:pointer;
+transition:.2s;
+display:inline-flex;
+align-items:center;
+}
+
+.task-btn.schedule{background:#6366f1;color:#fff;}
+.task-btn.leaderboard{background:#710075;color:#fff;}
+.task-btn.add{background:#10b981;color:#fff;}
+.task-btn.my{background:#3b82f6;color:#fff;}
+
+.task-btn:hover{background:#0b8000;}
 
 /* =========================
    STAT CARDS
@@ -63,22 +90,21 @@ box-shadow:0 6px 18px rgba(0,0,0,0.06);
 border-left:5px solid #ddd;
 }
 
-.task-page .stat-card.pending{border-left-color:#f59e0b;}
-.task-page .stat-card.checkin{border-left-color:#6b009c;}
-.task-page .stat-card.completed{border-left-color:#10b981;}
+.stat-card.pending{border-left-color:#f59e0b;}
+.stat-card.checkin{border-left-color:#6b009c;}
+.stat-card.completed{border-left-color:#10b981;}
 
-.task-page .stat-card span{
+.stat-card span{
 font-size:12px;
 color:#777;
 text-transform:uppercase;
 }
 
-.task-page .stat-card strong{
+.stat-card strong{
 font-size:24px;
 display:block;
 margin-top:4px;
 }
-
 
 /* =========================
    TOOLBAR
@@ -93,24 +119,52 @@ gap:12px;
 margin-bottom:20px;
 }
 
-.task-page .task-date-filter{
+.task-date-filter{
 display:flex;
 gap:8px;
 flex-wrap:wrap;
 }
 
+/* =========================
+   FILTER BUTTONS
+========================= */
+
+.btn-filter{
+background:#3b82f6;
+color:#fff;
+border:none;
+padding:7px 14px;
+border-radius:8px;
+font-size:13px;
+cursor:pointer;
+transition:.2s;
+}
+
+.btn-filter:hover{background:#0b8000;}
+
+.btn-today{
+background:#f1f5f9;
+color:#334155;
+padding:7px 14px;
+border-radius:8px;
+font-size:13px;
+border:1px solid #e2e8f0;
+text-decoration:none;
+}
+
+.btn-today:hover{background:#0b8000;}
 
 /* =========================
    FILTER TABS
 ========================= */
 
-.task-page .task-tabs{
+.task-tabs{
 display:flex;
 gap:8px;
 flex-wrap:wrap;
 }
 
-.task-page .tab{
+.tab{
 padding:7px 14px;
 border-radius:20px;
 background:#f1f5f9;
@@ -119,74 +173,66 @@ cursor:pointer;
 font-size:13px;
 }
 
-.task-page .tab.active{
+.tab.active{
 background:#3b82f6;
 color:#fff;
 }
-
 
 /* =========================
    TABLE
 ========================= */
 
-.task-page .emp-table{
+.emp-table{
 width:100%;
 border-collapse:collapse;
 }
 
-.task-page .emp-table th{
+.emp-table th{
 text-align:left;
 font-size:13px;
 padding:12px;
 background:#f8fafc;
+position:sticky;
+top:0;
+z-index:5;
+box-shadow:0 2px 6px rgba(0,0,0,0.05);
 }
 
-.task-page .emp-table td{
+.emp-table td{
 font-size:13px;
 padding:12px;
 border-top:1px solid #eee;
 vertical-align:middle;
 }
 
+/* row hover */
+
+.emp-table tbody tr{
+transition:background .2s;
+border-bottom:1px solid #eef2f7;
+}
+
+.emp-table tbody tr:hover{
+background:#f8fafc;
+}
 
 /* =========================
    STATUS BADGES
 ========================= */
 
-.task-page .status{
+.status{
 display:inline-block;
 padding:4px 10px;
 font-size:12px;
 font-weight:600;
 border-radius:14px;
-white-space:nowrap;
 }
 
-.task-page .status-pending{
-background:#fef3c7;
-color:#92400e;
-}
-
-.task-page .status-checked_in{
-background:#dbeafe;
-color:#1e40af;
-}
-
-.task-page .status-submitted{
-background:#dbeafe;
-color:#1e40af;
-}
-
-.task-page .status-approved{
-background:#d1fae5;
-color:#065f46;
-}
-
-.task-page .status-rejected{
-background:#fee2e2;
-color:#991b1b;
-}
-
+.status-pending{background:#fef3c7;color:#92400e;}
+.status-checked_in{background:#dbeafe;color:#1e40af;}
+.status-submitted{background:#dbeafe;color:#1e40af;}
+.status-approved{background:#d1fae5;color:#065f46;}
+.status-rejected{background:#fee2e2;color:#991b1b;}
 
 /* =========================
    ACTION BUTTONS
@@ -200,23 +246,39 @@ align-items:center;
 
 .action-buttons a,
 .action-buttons button{
-font-size:13px;
-padding:5px 8px;
+display:flex;
+align-items:center;
+justify-content:center;
+width:34px;
+height:34px;
+border-radius:8px;
+font-size:15px;
+border:none;
+cursor:pointer;
 }
 
+.action-buttons a.edit-link{background:#eef2ff;color:#3b82f6;}
+.action-buttons a.delete-link{background:#fee2e2;color:#dc2626;}
+.action-buttons .btn-success{background:#d1fae5;color:#059669;}
+.action-buttons .btn-danger{background:#fee2e2;color:#dc2626;}
+
+.action-buttons a:hover,
+.action-buttons button:hover{
+transform:scale(1.05);
+}
 
 /* =========================
    FORM
 ========================= */
 
-.task-page .task-form{
+.task-form{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:15px;
 }
 
-.task-page .task-form .full{
-grid-column:1 / -1;
+.task-form .full{
+grid-column:1/-1;
 }
 
 .task-page input,
@@ -237,12 +299,11 @@ border-color:#3b82f6;
 background:#fff;
 }
 
-
 /* =========================
    MODAL
 ========================= */
 
-.task-page .task-modal{
+.task-modal{
 position:fixed;
 inset:0;
 background:rgba(0,0,0,0.45);
@@ -252,7 +313,7 @@ justify-content:center;
 z-index:1000;
 }
 
-.task-page .task-modal-content{
+.task-modal-content{
 background:#fff;
 width:95%;
 max-width:640px;
@@ -263,162 +324,199 @@ overflow-y:auto;
 box-shadow:0 20px 40px rgba(0,0,0,0.2);
 }
 
-
 /* =========================
-   MOBILE
+   MOBILE VIEW
 ========================= */
+
+.task-mobile{display:none;}
+.desktop-only{display:table-cell;}
 
 @media (max-width:768px){
 
-.task-page{
-padding:16px;
-}
+.task-page{padding:14px;}
 
-.task-page .task-header{
+.task-header{
 flex-direction:column;
 align-items:stretch;
 }
 
-.task-page .emp-table thead{
-display:none;
-}
+/* hide table header */
 
-.task-page .emp-table tr{
+.emp-table thead{display:none;}
+
+/* card layout */
+
+.emp-table tr{
 display:block;
-margin-bottom:14px;
+background:#fff;
+margin-bottom:12px;
 border-radius:12px;
-border:1px solid #e5ebe6;
-box-shadow:0 6px 14px rgba(0,0,0,0.05);
+border:1px solid #e5e7eb;
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
 }
 
-.task-page .emp-table td{
+/* hide desktop columns */
+
+.desktop-only{display:none!important;}
+
+/* show mobile card */
+
+.task-mobile{display:block;}
+
+/* remove table layout */
+
+.emp-table td{
 display:block;
-padding:10px 14px;
+padding:6px 12px;
 border:none;
+font-size:13px;
 }
+
+/* title */
+
+.emp-table td:nth-child(1){
+font-weight:600;
+font-size:15px;
+padding-top:10px;
+}
+
+/* actions bigger */
 
 .action-buttons{
+gap:14px;
 margin-top:8px;
 }
 
-.task-page .task-form{
+.action-buttons a,
+.action-buttons button{
+width:36px;
+height:36px;
+font-size:16px;
+}
+
+.task-form{
 grid-template-columns:1fr;
 }
 
 }
 
-
-.task-btn.schedule{
-background:#6366f1;
-color:#fff;
-border-radius:6px;
-padding:6px 10px;
-font-size:13px;
-text-decoration:none;
-}
-
-.task-btn.schedule:hover{
-background:#0b8000;
-}
-
-
 /* =========================
-   TASK HEADER BUTTONS
+   ACTION BUTTON STYLE
 ========================= */
 
-.task-actions{
+.action-buttons,
+.task-actions-mobile{
 display:flex;
-gap:10px;
+gap:14px;
 align-items:center;
+margin-top:6px;
 }
 
-/* common button */
+/* button base */
 
-.task-btn{
-padding:7px 14px;
+.action-buttons a,
+.action-buttons button,
+.task-actions-mobile a,
+.task-actions-mobile button{
+display:flex;
+align-items:center;
+justify-content:center;
+width:38px;
+height:38px;
+padding:8px;
 border-radius:8px;
-font-size:13px;
-font-weight:500;
-text-decoration:none;
+font-size:16px;
 border:none;
 cursor:pointer;
-transition:0.2s;
-display:inline-flex;
-align-items:center;
+transition:.2s;
 }
 
-/* leaderboard */
+/* edit */
 
-.task-btn.leaderboard{
-background:#710075;
-color:#fff;
+.action-buttons a.edit-link,
+.task-actions-mobile a.edit-link{
+background:#eef2ff;
+color:#3b82f6;
 }
 
-.task-btn.leaderboard:hover{
-background:#0b8000;
+/* delete */
+
+.action-buttons a.delete-link,
+.task-actions-mobile a.delete-link{
+background:#fee2e2;
+color:#dc2626;
 }
 
-/* add task */
+/* approve */
 
-.task-btn.add{
-background:#10b981;
-color:#fff;
+.action-buttons .btn-success,
+.task-actions-mobile .btn-success{
+background:#d1fae5;
+color:#059669;
 }
 
-.task-btn.add:hover{
-background:#0b8000;
+/* reject */
+
+.action-buttons .btn-danger,
+.task-actions-mobile .btn-danger{
+background:#fee2e2;
+color:#dc2626;
 }
 
-/* my tasks */
+/* hover effect */
 
-.task-btn.my{
-background:#3b82f6;
-color:#fff;
+.action-buttons a:hover,
+.action-buttons button:hover,
+.task-actions-mobile a:hover,
+.task-actions-mobile button:hover{
+transform:scale(1.05);
 }
 
-.task-btn.my:hover{
-background:#0b8000;
-}
-
-/* =========================
-   FILTER BUTTON
-========================= */
-
-.btn-filter{
-background:#3b82f6;
-color:#fff;
-border:none;
-padding:7px 14px;
+.employee-list{
+max-height:160px;
+overflow-y:auto;
+border:1px solid #eee;
 border-radius:8px;
-font-size:13px;
-font-weight:500;
+padding:6px;
+margin-top:6px;
+}
+
+.employee-item{
+display:flex;
+align-items:center;
+gap:8px;
+padding:6px 8px;
+border-radius:6px;
 cursor:pointer;
-transition:0.2s;
 }
 
-.btn-filter:hover{
-background:#0b8000;
-}
-
-
-/* =========================
-   TODAY BUTTON
-========================= */
-
-.btn-today{
+.employee-item:hover{
 background:#f1f5f9;
-color:#334155;
-padding:7px 14px;
-border-radius:8px;
-font-size:13px;
-font-weight:500;
-text-decoration:none;
-display:inline-flex;
-align-items:center;
-transition:0.2s;
-border:1px solid #e2e8f0;
 }
 
-.btn-today:hover{
-background:#0b8000;
+/* =========================
+   ACTION BUTTON BACKGROUND
+========================= */
+
+.action-buttons a:nth-child(1),
+.task-actions-mobile a:nth-child(1){
+background:#eef2ff;
+color:#3b82f6;
+}
+
+.action-buttons a:nth-child(2),
+.task-actions-mobile a:nth-child(2){
+background:#fee2e2;
+color:#dc2626;
+}
+
+.action-buttons a:nth-child(3),
+.task-actions-mobile a:nth-child(3){
+background:#d1fae5;
+color:#059669;
+}
+
+.action-buttons button{
+background:#fee2e2;
+color:#dc2626;
 }

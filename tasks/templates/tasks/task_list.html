@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
+
 <link rel="stylesheet" href="{% static 'tasks/css/task.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
@@ -11,6 +12,7 @@
 <div class="task-page">
 
 <!-- HEADER -->
+
 <div class="task-header">
 
 <h2>Tasks</h2>
@@ -34,13 +36,10 @@ My Tasks
 </a>
 
 </div>
-
-
-
 </div>
 
-
 <!-- STATS -->
+
 <div class="task-stats">
 
 <div class="stat-card">
@@ -65,8 +64,8 @@ My Tasks
 
 </div>
 
-
 <!-- TOOLBAR -->
+
 <div class="task-toolbar">
 
 <div class="task-date-filter">
@@ -95,8 +94,8 @@ Today
 
 </div>
 
-
 <!-- TABLE -->
+
 <div class="emp-card">
 
 <table class="emp-table" id="taskTable">
@@ -104,30 +103,94 @@ Today
 <thead>
 <tr>
 <th>Task</th>
-<th>Employee</th>
-<th>Customer</th>
-<th>Assign Date</th>
-<th>Deadline</th>
-<th>Status</th>
-<th>Points</th>
-<th class="actions">Actions</th>
+<th class="desktop-only">Employee</th>
+<th class="desktop-only">Customer</th>
+<th class="desktop-only">Assign Date</th>
+<th class="desktop-only">Deadline</th>
+<th class="desktop-only">Status</th>
+<th class="desktop-only">Points</th>
+<th class="desktop-only actions">Actions</th>
 </tr>
 </thead>
 
 <tbody>
-
-
 
 {% for task in tasks %}
 {% for a in task.assignments.all %}
 
 <tr data-status="{{ a.status }}">
 
-<td>{{ task.title }}</td>
-
-<td>{{ a.employee }}</td>
-
 <td>
+
+<div class="task-mobile">
+
+<div class="task-title">
+{{ task.title }}
+</div>
+
+<div class="task-meta">
+{{ a.employee }} -
+{% if task.customer %}
+{{ task.customer }}
+{% else %}
+-
+{% endif %}
+</div>
+
+<div class="task-dates">
+{{ task.created_at|date:"d M Y" }} -
+{% if task.due_date %}
+{{ task.due_date|date:"d M Y" }}
+{% else %}
+-
+{% endif %}
+</div>
+
+<div class="task-status-row">
+
+<span class="status status-{{ a.status }}">
+{{ a.get_status_display }}
+</span>
+
+{% if a.status != "approved" %} <span class="approx">(approx)</span>
+{% endif %}
+
+</div>
+
+<div class="task-actions-mobile">
+
+<a href="{% url 'task_edit' task.id %}">
+<i class="fa-solid fa-pen"></i>
+</a>
+
+<a href="{% url 'task_delete' task.id %}"
+onclick="return confirm('Delete this task?')"> <i class="fa-solid fa-trash"></i> </a>
+
+{% if a.status == "submitted" %}
+
+<a href="{% url 'approve_task' a.id %}">
+<i class="fa-solid fa-check"></i>
+</a>
+
+<button onclick="openRejectModal({{ a.id }})">
+<i class="fa-solid fa-xmark"></i>
+</button>
+
+{% endif %}
+
+</div>
+
+</div>
+
+<div class="desktop-only">
+{{ task.title }}
+</div>
+
+</td>
+
+<td class="desktop-only">{{ a.employee }}</td>
+
+<td class="desktop-only">
 {% if task.customer %}
 {{ task.customer }}
 {% else %}
@@ -135,9 +198,9 @@ Today
 {% endif %}
 </td>
 
-<td>{{ task.created_at|date:"d M Y" }}</td>
+<td class="desktop-only">{{ task.created_at|date:"d M Y" }}</td>
 
-<td>
+<td class="desktop-only">
 {% if task.due_date %}
 {{ task.due_date|date:"d M Y" }}
 {% else %}
@@ -145,48 +208,41 @@ Today
 {% endif %}
 </td>
 
-<td>
+<td class="desktop-only">
 <span class="status status-{{ a.status }}">
 {{ a.get_status_display }}
 </span>
 </td>
 
-<td class="points">
+<td class="desktop-only points">
 
 <span class="point-value">
 {{ a.calculate_points }}
 </span>
 
-{% if a.status != "approved" %}
-<span class="approx">(approx)</span>
+{% if a.status != "approved" %} <span class="approx">(approx)</span>
 {% endif %}
 
 </td>
 
-<td class="actions">
+<td class="desktop-only actions">
 
 <div class="action-buttons">
 
-<a href="{% url 'task_edit' task.id %}" class="edit-link">
+<a href="{% url 'task_edit' task.id %}">
 <i class="fa-solid fa-pen"></i>
 </a>
 
 <a href="{% url 'task_delete' task.id %}"
-class="delete-link"
-onclick="return confirm('Delete this task?')">
-<i class="fa-solid fa-trash"></i>
-</a>
+onclick="return confirm('Delete this task?')"> <i class="fa-solid fa-trash"></i> </a>
 
 {% if a.status == "submitted" %}
 
-<a href="{% url 'approve_task' a.id %}"
-class="btn btn-success btn-sm">
+<a href="{% url 'approve_task' a.id %}">
 <i class="fa-solid fa-check"></i>
 </a>
 
-<button
-class="btn btn-danger btn-sm"
-onclick="openRejectModal({{ a.id }})">
+<button onclick="openRejectModal({{ a.id }})">
 <i class="fa-solid fa-xmark"></i>
 </button>
 
@@ -210,13 +266,12 @@ No tasks found
 {% endfor %}
 
 </tbody>
-
 </table>
 
 </div>
 
-
 <!-- ADD TASK MODAL -->
+
 <div id="taskModal" class="task-modal">
 
 <div class="task-modal-content">
@@ -252,7 +307,7 @@ No tasks found
 <option value="weekly">Weekly</option>
 <option value="15days">Every 15 Days</option>
 <option value="monthly">Monthly</option>
-</select>
+</select> 
 
 
 <div class="full">
@@ -271,25 +326,15 @@ Select All
 
 </div>
 
+
 <div class="employee-list">
 
 {% for e in employees %}
 
 <label class="employee-item">
 
-<div class="emp-row">
-
 <input type="checkbox" name="employees" value="{{ e.user.id }}">
-
-<span class="avatar">
-{{ e.user.username|first|upper }}
-</span>
-
-<span class="employee-name">
 {{ e.user }}
-</span>
-
-</div>
 
 </label>
 
@@ -302,6 +347,7 @@ Select All
 </div>
 
 
+
 <div class="full">
 
 <label class="form-label">Customer</label>
@@ -311,13 +357,13 @@ Select All
 <option value="">No Customer</option>
 
 {% for c in customers %}
+
 <option value="{{ c.id }}">{{ c.name }}</option>
 {% endfor %}
 
 </select>
 
 </div>
-
 
 <input type="date" name="due_date" value="{% now 'Y-m-d' %}">
 
@@ -335,50 +381,14 @@ Assign Task
 
 </div>
 
-
-<!-- REJECT MODAL -->
-
-<div id="rejectModal" class="task-modal">
-
-<div class="task-modal-content">
-
-<div class="modal-header">
-<h3>Reject Task</h3>
-<span class="close-btn" onclick="closeRejectModal()">&times;</span>
-</div>
-
-<form method="post" id="rejectForm">
-
-{% csrf_token %}
-
-<label>Reject Reason</label>
-
-<textarea
-name="reject_note"
-required
-placeholder="Write reason..."
-style="width:100%;height:80px;margin-bottom:15px;">
-</textarea>
-
-<button class="btn btn-danger">
-Reject Task
-</button>
-
-</form>
-
-</div>
-
-</div>
-
 </div>
 
 {% endblock %}
-
 
 {% block extra_js %}
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
 
 {% endblock %}
-
