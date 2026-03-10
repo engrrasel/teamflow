@@ -69,7 +69,7 @@ align-items:center;
 .task-btn.add{background:#10b981;color:#fff;}
 .task-btn.my{background:#3b82f6;color:#fff;}
 
-.task-btn:hover{background:#0b8000;}
+.task-btn:hover{opacity:.9;}
 
 /* =========================
    STAT CARDS
@@ -140,7 +140,7 @@ cursor:pointer;
 transition:.2s;
 }
 
-.btn-filter:hover{background:#0b8000;}
+.btn-filter:hover{opacity:.9;}
 
 .btn-today{
 background:#f1f5f9;
@@ -152,7 +152,7 @@ border:1px solid #e2e8f0;
 text-decoration:none;
 }
 
-.btn-today:hover{background:#0b8000;}
+.btn-today:hover{background:#e2e8f0;}
 
 /* =========================
    FILTER TABS
@@ -205,8 +205,6 @@ border-top:1px solid #eee;
 vertical-align:middle;
 }
 
-/* row hover */
-
 .emp-table tbody tr{
 transition:background .2s;
 border-bottom:1px solid #eef2f7;
@@ -238,35 +236,77 @@ border-radius:14px;
    ACTION BUTTONS
 ========================= */
 
-.action-buttons{
+.action-buttons,
+.task-actions-mobile{
 display:flex;
-gap:8px;
+gap:6px;
 align-items:center;
+margin-top:4px;
 }
 
+/* base */
+
 .action-buttons a,
-.action-buttons button{
+.action-buttons button,
+.task-actions-mobile a,
+.task-actions-mobile button{
 display:flex;
 align-items:center;
 justify-content:center;
-width:34px;
-height:34px;
-border-radius:8px;
-font-size:15px;
+width:28px;
+height:28px;
+padding:4px;
+border-radius:6px;
+font-size:13px;
 border:none;
 cursor:pointer;
+transition:.15s;
 }
 
-.action-buttons a.edit-link{background:#eef2ff;color:#3b82f6;}
-.action-buttons a.delete-link{background:#fee2e2;color:#dc2626;}
-.action-buttons .btn-success{background:#d1fae5;color:#059669;}
-.action-buttons .btn-danger{background:#fee2e2;color:#dc2626;}
+/* edit */
+
+.action-buttons a.edit-link,
+.task-actions-mobile a.edit-link,
+.action-buttons a:nth-child(1){
+background:#eef2ff;
+color:#3b82f6;
+}
+
+/* delete */
+
+.action-buttons a.delete-link,
+.task-actions-mobile a.delete-link,
+.action-buttons a:nth-child(2){
+background:#fee2e2;
+color:#dc2626;
+}
+
+/* approve */
+
+.action-buttons .btn-success,
+.task-actions-mobile .btn-success,
+.action-buttons a:nth-child(3){
+background:#d1fae5;
+color:#059669;
+}
+
+/* reject */
+
+.action-buttons .btn-danger,
+.task-actions-mobile .btn-danger,
+.action-buttons button{
+background:#fee2e2;
+color:#dc2626;
+}
+
+/* hover */
 
 .action-buttons a:hover,
-.action-buttons button:hover{
-transform:scale(1.05);
+.action-buttons button:hover,
+.task-actions-mobile a:hover,
+.task-actions-mobile button:hover{
+transform:scale(1.06);
 }
-
 /* =========================
    FORM
 ========================= */
@@ -325,152 +365,8 @@ box-shadow:0 20px 40px rgba(0,0,0,0.2);
 }
 
 /* =========================
-   MOBILE VIEW
+   EMPLOYEE LIST
 ========================= */
-
-.task-mobile{display:none;}
-.desktop-only{display:table-cell;}
-
-@media (max-width:768px){
-
-.task-page{padding:14px;}
-
-.task-header{
-flex-direction:column;
-align-items:stretch;
-}
-
-/* hide table header */
-
-.emp-table thead{display:none;}
-
-/* card layout */
-
-.emp-table tr{
-display:block;
-background:#fff;
-margin-bottom:12px;
-border-radius:12px;
-border:1px solid #e5e7eb;
-box-shadow:0 4px 12px rgba(0,0,0,0.05);
-}
-
-/* hide desktop columns */
-
-.desktop-only{display:none!important;}
-
-/* show mobile card */
-
-.task-mobile{display:block;}
-
-/* remove table layout */
-
-.emp-table td{
-display:block;
-padding:6px 12px;
-border:none;
-font-size:13px;
-}
-
-/* title */
-
-.emp-table td:nth-child(1){
-font-weight:600;
-font-size:15px;
-padding-top:10px;
-}
-
-/* actions bigger */
-
-.action-buttons{
-gap:14px;
-margin-top:8px;
-}
-
-.action-buttons a,
-.action-buttons button{
-width:36px;
-height:36px;
-font-size:16px;
-}
-
-.task-form{
-grid-template-columns:1fr;
-}
-
-}
-
-/* =========================
-   ACTION BUTTON STYLE
-========================= */
-
-.action-buttons,
-.task-actions-mobile{
-display:flex;
-gap:14px;
-align-items:center;
-margin-top:6px;
-}
-
-/* button base */
-
-.action-buttons a,
-.action-buttons button,
-.task-actions-mobile a,
-.task-actions-mobile button{
-display:flex;
-align-items:center;
-justify-content:center;
-width:38px;
-height:38px;
-padding:8px;
-border-radius:8px;
-font-size:16px;
-border:none;
-cursor:pointer;
-transition:.2s;
-}
-
-/* edit */
-
-.action-buttons a.edit-link,
-.task-actions-mobile a.edit-link{
-background:#eef2ff;
-color:#3b82f6;
-}
-
-/* delete */
-
-.action-buttons a.delete-link,
-.task-actions-mobile a.delete-link{
-background:#fee2e2;
-color:#dc2626;
-}
-
-/* approve */
-
-.action-buttons .btn-success,
-.task-actions-mobile .btn-success{
-background:#d1fae5;
-color:#059669;
-}
-
-/* reject */
-
-.action-buttons .btn-danger,
-.task-actions-mobile .btn-danger{
-background:#fee2e2;
-color:#dc2626;
-}
-
-/* hover effect */
-
-.action-buttons a:hover,
-.action-buttons button:hover,
-.task-actions-mobile a:hover,
-.task-actions-mobile button:hover{
-transform:scale(1.05);
-}
 
 .employee-list{
 max-height:160px;
@@ -495,28 +391,55 @@ background:#f1f5f9;
 }
 
 /* =========================
-   ACTION BUTTON BACKGROUND
+   MOBILE VIEW
 ========================= */
 
-.action-buttons a:nth-child(1),
-.task-actions-mobile a:nth-child(1){
-background:#eef2ff;
-color:#3b82f6;
+.task-mobile{display:none;}
+.desktop-only{display:table-cell;}
+
+@media (max-width:768px){
+
+.task-page{padding:14px;}
+
+.task-header{
+flex-direction:column;
+align-items:stretch;
 }
 
-.action-buttons a:nth-child(2),
-.task-actions-mobile a:nth-child(2){
-background:#fee2e2;
-color:#dc2626;
+.emp-table thead{display:none;}
+
+.emp-table tr{
+display:block;
+background:#fff;
+margin-bottom:12px;
+border-radius:12px;
+border:1px solid #e5e7eb;
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
 }
 
-.action-buttons a:nth-child(3),
-.task-actions-mobile a:nth-child(3){
-background:#d1fae5;
-color:#059669;
+.desktop-only{display:none!important;}
+.task-mobile{display:block;}
+
+.emp-table td{
+display:block;
+padding:6px 12px;
+border:none;
+font-size:13px;
 }
 
-.action-buttons button{
-background:#fee2e2;
-color:#dc2626;
+.emp-table td:nth-child(1){
+font-weight:600;
+font-size:15px;
+padding-top:10px;
+}
+
+.action-buttons{
+gap:10px;
+margin-top:8px;
+}
+
+.task-form{
+grid-template-columns:1fr;
+}
+
 }

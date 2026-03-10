@@ -267,10 +267,17 @@ cursor:pointer;
    HEADER BUTTONS
 ========================= */
 
+.emp-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+}
+
 .header-actions{
 display:flex;
 gap:10px;
-align-items:center;
+margin-left:auto;
 }
 
 .btn-outline{
@@ -326,38 +333,4 @@ padding:22px;
 justify-content:center;
 }
 
-}
-
-
-.emp-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-}
-
-.header-actions{
-display:flex;
-gap:10px;
-margin-left:auto;
-}
-
-.btn-outline{
-padding:8px 14px;
-border:1px solid #d1d5db;
-border-radius:6px;
-background:#fff;
-text-decoration:none;
-color:#333;
-font-size:14px;
-}
-
-.add-btn{
-padding:8px 14px;
-border:none;
-border-radius:6px;
-background:#4f46e5;
-color:#fff;
-font-size:14px;
-cursor:pointer;
 }
