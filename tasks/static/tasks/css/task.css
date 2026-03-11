@@ -244,8 +244,6 @@ align-items:center;
 margin-top:4px;
 }
 
-/* base */
-
 .action-buttons a,
 .action-buttons button,
 .task-actions-mobile a,
@@ -263,131 +261,35 @@ cursor:pointer;
 transition:.15s;
 }
 
-/* edit */
-
-.action-buttons a.edit-link,
-.task-actions-mobile a.edit-link,
-.action-buttons a:nth-child(1){
+.action-buttons a:nth-child(1),
+.task-actions-mobile a:nth-child(1){
 background:#eef2ff;
 color:#3b82f6;
 }
 
-/* delete */
-
-.action-buttons a.delete-link,
-.task-actions-mobile a.delete-link,
-.action-buttons a:nth-child(2){
+.action-buttons a:nth-child(2),
+.task-actions-mobile a:nth-child(2){
 background:#fee2e2;
 color:#dc2626;
 }
 
-/* approve */
-
-.action-buttons .btn-success,
-.task-actions-mobile .btn-success,
-.action-buttons a:nth-child(3){
+.action-buttons a:nth-child(3),
+.task-actions-mobile a:nth-child(3){
 background:#d1fae5;
 color:#059669;
 }
 
-/* reject */
-
-.action-buttons .btn-danger,
-.task-actions-mobile .btn-danger,
-.action-buttons button{
+.action-buttons button,
+.task-actions-mobile button{
 background:#fee2e2;
 color:#dc2626;
 }
-
-/* hover */
 
 .action-buttons a:hover,
 .action-buttons button:hover,
 .task-actions-mobile a:hover,
 .task-actions-mobile button:hover{
 transform:scale(1.06);
-}
-/* =========================
-   FORM
-========================= */
-
-.task-form{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-}
-
-.task-form .full{
-grid-column:1/-1;
-}
-
-.task-page input,
-.task-page select,
-.task-page textarea{
-padding:10px;
-border-radius:8px;
-border:1px solid #ddd;
-background:#fafafa;
-font-size:14px;
-}
-
-.task-page input:focus,
-.task-page select:focus,
-.task-page textarea:focus{
-outline:none;
-border-color:#3b82f6;
-background:#fff;
-}
-
-/* =========================
-   MODAL
-========================= */
-
-.task-modal{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,0.45);
-display:none;
-align-items:center;
-justify-content:center;
-z-index:1000;
-}
-
-.task-modal-content{
-background:#fff;
-width:95%;
-max-width:640px;
-border-radius:16px;
-padding:25px;
-max-height:90vh;
-overflow-y:auto;
-box-shadow:0 20px 40px rgba(0,0,0,0.2);
-}
-
-/* =========================
-   EMPLOYEE LIST
-========================= */
-
-.employee-list{
-max-height:160px;
-overflow-y:auto;
-border:1px solid #eee;
-border-radius:8px;
-padding:6px;
-margin-top:6px;
-}
-
-.employee-item{
-display:flex;
-align-items:center;
-gap:8px;
-padding:6px 8px;
-border-radius:6px;
-cursor:pointer;
-}
-
-.employee-item:hover{
-background:#f1f5f9;
 }
 
 /* =========================
@@ -438,8 +340,21 @@ gap:10px;
 margin-top:8px;
 }
 
-.task-form{
-grid-template-columns:1fr;
 }
 
+
+.task-detail-page{
+max-width:900px;
+margin:auto;
+background:#fff;
+padding:25px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.05);
+}
+
+.task-desc{
+background:#f8fafc;
+padding:12px;
+border-radius:8px;
+margin-top:6px;
 }

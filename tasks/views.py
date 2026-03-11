@@ -16,6 +16,7 @@ from company.models import CompanyWeekend, CompanyHoliday
 User = get_user_model()
 
 
+
 # =====================================
 # EMPLOYEE TASK DASHBOARD
 # =====================================
@@ -186,8 +187,12 @@ def task_add_view(request):
     if request.method == "POST":
 
         title = request.POST.get("title")
+        description = request.POST.get("description")
         task_type = request.POST.get("task_type")
-        due_date = request.POST.get("due_date")
+
+        due_date_str = request.POST.get("due_date")
+        due_date = parse_date(due_date_str) if due_date_str else None
+
         repeat_type = request.POST.get("repeat_type", "none")
 
         customer_id = request.POST.get("customer")
@@ -216,8 +221,9 @@ def task_add_view(request):
             task = Task.objects.create(
                 company=company,
                 title=title,
+                description=description,
                 task_type=task_type,
-                due_date=due_date or None,
+                due_date=due_date,
                 customer=customer,
                 created_by=request.user,
                 repeat_type=repeat_type,
@@ -228,7 +234,11 @@ def task_add_view(request):
 
             for emp_id in employee_ids:
 
-                employee = get_object_or_404(User, id=emp_id)
+                employee = get_object_or_404(
+                    User,
+                    id=emp_id,
+                    membership__company=company
+                )
 
                 assignments.append(
                     TaskAssignment(
@@ -248,7 +258,9 @@ def task_add_view(request):
         role="employee"
     ).select_related("user")
 
-    customers = Customer.objects.filter(company=company)
+    customers = Customer.objects.filter(
+        company=company
+    )
 
     return render(
         request,
@@ -258,7 +270,6 @@ def task_add_view(request):
             "customers": customers
         }
     )
-
 
 # =====================================
 # TASK LIST
@@ -363,7 +374,6 @@ def approve_task(request, assignment_id):
 # =====================================
 # EDIT TASK
 # =====================================
-
 @login_required
 def task_edit_view(request, task_id):
 
@@ -375,13 +385,27 @@ def task_edit_view(request, task_id):
 
     if request.method == "POST":
 
-        task.title = request.POST.get("title")
-        task.task_type = request.POST.get("task_type")
-        task.priority = request.POST.get("priority")
-        task.due_date = request.POST.get("due_date")
-        task.description = request.POST.get("description")
+        title = request.POST.get("title")
+        task_type = request.POST.get("task_type")
+        priority = request.POST.get("priority")
+        description = request.POST.get("description")
 
-        task.save()
+        due_date_str = request.POST.get("due_date")
+        due_date = parse_date(due_date_str) if due_date_str else None
+
+        task.title = title
+        task.task_type = task_type
+        task.priority = priority
+        task.description = description
+        task.due_date = due_date
+
+        task.save(update_fields=[
+            "title",
+            "task_type",
+            "priority",
+            "description",
+            "due_date"
+        ])
 
         custom_points = request.POST.get("custom_points")
 
@@ -392,7 +416,7 @@ def task_edit_view(request, task_id):
 
         for assignment in task.assignments.all():
             assignment.custom_points = custom_points
-            assignment.save()
+            assignment.save(update_fields=["custom_points"])
 
         return redirect("task_list")
 
@@ -486,7 +510,8 @@ def reject_task(request, assignment_id):
 
     assignment = get_object_or_404(
         TaskAssignment,
-        id=assignment_id
+        id=assignment_id,
+        task__company=request.membership.company
     )
 
     if request.method == "POST":
@@ -495,30 +520,52 @@ def reject_task(request, assignment_id):
 
         assignment.status = "rejected"
         assignment.reject_note = reason
+        assignment.approved_by = request.user
+        assignment.approved_at = timezone.now()
+
         assignment.save()
 
-    return redirect("task_list")
+        # save history
+        TaskActionNote.objects.create(
+            assignment=assignment,
+            note_type="reject",
+            note=reason,
+            created_by=request.user
+        )
 
-
+    return redirect("task_detail", assignment.task.id)
 # =====================================
 # RESUBMIT TASK
 # =====================================
+
+from .models import TaskActionNote
 
 @login_required
 def resubmit_task(request, assignment_id):
 
     assignment = get_object_or_404(
-        TaskAssignment,
-        id=assignment_id
-    )
+    TaskAssignment,
+    id=assignment_id,
+    task__company=request.membership.company
+)
 
     if request.method == "POST":
 
         note = request.POST.get("resubmit_note")
+
+        # existing workflow
         assignment.resubmit(note)
 
-    return redirect("task_list")
+        # save history
+        if note:
+            TaskActionNote.objects.create(
+                assignment=assignment,
+                note_type="resubmit",
+                note=note,
+                created_by=request.user
+            )
 
+    return redirect("task_detail", assignment.task.id)
 
 # =====================================
 # GENERATE RECURRING TASKS
@@ -637,4 +684,34 @@ def scheduled_tasks_view(request):
         request,
         "tasks/scheduled_tasks.html",
         {"tasks": tasks}
+    )
+
+
+@login_required
+def task_detail_view(request, task_id):
+
+    company = request.membership.company
+
+    task = get_object_or_404(
+        Task.objects
+        .select_related(
+            "customer",
+            "created_by"
+        )
+        .prefetch_related(
+            "assignments",
+            "assignments__employee",
+            "assignments__notes",
+            "assignments__notes__created_by"
+        ),
+        id=task_id,
+        company=company
+    )
+
+    return render(
+        request,
+        "tasks/task_detail.html",
+        {
+            "task": task
+        }
     )

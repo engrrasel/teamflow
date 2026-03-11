@@ -1,0 +1,131 @@
+<!-- ADD TASK MODAL -->
+
+<div id="taskModal" class="task-modal">
+
+<div class="task-modal-content">
+
+<div class="modal-header">
+<h3>Add Task</h3>
+<span class="close-btn" onclick="closeTaskModal()">&times;</span>
+</div>
+
+<form method="post" action="{% url 'task_add' %}" class="task-form">
+
+{% csrf_token %}
+
+<input type="text" name="title" placeholder="Task title" class="full" required>
+
+<div class="full">
+<textarea name="description" rows="3" placeholder="Write task description..."></textarea>
+</div>
+
+
+<!-- ROW 1 -->
+
+<div class="form-row three">
+
+<select name="task_type">
+<option value="desk">Desk Work</option>
+<option value="visit">Visit</option>
+<option value="call">Call</option>
+<option value="meeting">Meeting</option>
+<option value="collection">Collection</option>
+</select>
+
+<select name="priority">
+<option value="low">Low Priority</option>
+<option value="medium" selected>Medium Priority</option>
+<option value="high">High Priority</option>
+</select>
+
+<select name="repeat_type">
+<option value="none">One Time</option>
+<option value="daily">Daily</option>
+<option value="weekly">Weekly</option>
+<option value="15days">Every 15 Days</option>
+<option value="monthly">Monthly</option>
+</select>
+
+</div>
+
+
+<!-- ROW 2 -->
+
+<div class="form-row two">
+
+<div>
+
+<label class="form-label">Employees</label>
+
+<div class="employee-picker">
+
+<div class="picker-header">
+
+<input type="text" id="empSearch" placeholder="Search">
+
+<button type="button" onclick="selectAllEmployees()">
+Select All
+</button>
+
+</div>
+
+<div class="employee-list">
+
+{% for e in employees %}
+<label class="employee-item">
+<input type="checkbox" name="employees" value="{{ e.user.id }}">
+{{ e.user }}
+</label>
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+
+<div>
+
+<label class="form-label">Customer</label>
+
+<input type="text" id="customerSearch" placeholder="Search customer...">
+
+<select name="customer" id="customerSelect" size="7">
+
+<option value="">No Customer</option>
+
+{% for c in customers %}
+<option value="{{ c.id }}">{{ c.name }}</option>
+{% endfor %}
+
+</select>
+
+</div>
+
+</div>
+
+
+<!-- ROW 3 -->
+
+<div class="form-row two">
+
+<input type="date" name="due_date" value="{% now 'Y-m-d' %}">
+
+<input type="number" name="custom_points" step="0.1" min="0" value="1" placeholder="Points">
+
+</div>
+
+
+<div class="full">
+<button type="submit" class="btn btn-primary">
+Assign Task
+</button>
+</div>
+
+</form>
+
+</div>
+
+</div>
+

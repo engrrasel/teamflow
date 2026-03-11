@@ -71,8 +71,6 @@ class Task(models.Model):
 
     due_date = models.DateField(null=True, blank=True)
 
-    assign_date = models.DateField(auto_now_add=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     repeat_type = models.CharField(
@@ -87,6 +85,12 @@ class Task(models.Model):
         help_text="Next date this task will auto appear"
     )
 
+    assign_time = models.TimeField(
+    null=True,
+    blank=True,
+    help_text="Time when task should appear"
+    )
+
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -99,6 +103,7 @@ class Task(models.Model):
 # =========================================
 # TASK ASSIGNMENT
 # =========================================
+
 class TaskAssignment(models.Model):
 
     STATUS_CHOICES = (
@@ -158,14 +163,12 @@ class TaskAssignment(models.Model):
             )
         ]
 
-        # 🔹 Performance indexes
         indexes = [
             models.Index(fields=["employee", "assignment_date"]),
             models.Index(fields=["task", "assignment_date"]),
             models.Index(fields=["status", "assignment_date"]),
         ]
 
-        # 🔹 Default ordering
         ordering = ["-assignment_date", "-created_at"]
 
     # =========================================
@@ -220,6 +223,54 @@ class TaskAssignment(models.Model):
 
         self.save()
         return True
+
+
+    # =========================================
+    # POINT CALCULATION SYSTEM
+    # =========================================
+
+    @property
+    def calculate_points(self):
+
+        if self.custom_points is not None:
+            return self.custom_points
+
+        task = self.task
+
+        base_points = {
+            "visit": 12,
+            "desk": 6,
+            "call": 5,
+            "meeting": 10,
+            "collection": 15,
+        }.get(task.task_type, 5)
+
+        priority_multiplier = {
+            "low": 1,
+            "medium": 1.3,
+            "high": 1.6,
+        }.get(task.priority, 1)
+
+        points = base_points * priority_multiplier
+
+        if task.due_date and self.approved_at:
+
+            approved_date = self.approved_at.date()
+
+            if approved_date <= task.due_date:
+                points += 3
+            else:
+                points -= 2
+
+        total_sales = sum(o.amount for o in self.orders.all())
+        points += float(total_sales) * 0.005
+
+        total_collection = sum(c.amount for c in self.collections.all())
+        points += float(total_collection) * 0.01
+
+        return round(points, 2)
+
+
 # =========================================
 # SALES ORDER
 # =========================================
@@ -279,3 +330,39 @@ class EmployeeLocation(models.Model):
 
     def __str__(self):
         return f"{self.employee} ({self.latitude},{self.longitude})"
+
+
+# =========================================
+# TASK ACTION NOTE
+# =========================================
+
+class TaskActionNote(models.Model):
+
+    NOTE_TYPE = (
+        ("reject", "Reject"),
+        ("resubmit", "Resubmit"),
+    )
+
+    assignment = models.ForeignKey(
+        TaskAssignment,
+        on_delete=models.CASCADE,
+        related_name="notes"
+    )
+
+    note_type = models.CharField(
+        max_length=10,
+        choices=NOTE_TYPE
+    )
+
+    note = models.TextField()
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.note_type} - {self.created_at}"
