@@ -1,33 +1,37 @@
 /* =========================
-   ADD TASK MODAL
+   MODAL CONTROL
 ========================= */
 
-window.openTaskModal = function () {
-    const modal = document.getElementById("taskModal");
-    if(modal){
-        modal.style.display = "flex";
-    }
+function getTaskModal(){
+return document.getElementById("taskModal");
 }
 
-window.closeTaskModal = function () {
-    const modal = document.getElementById("taskModal");
-    if(modal){
-        modal.style.display = "none";
-    }
-}
+window.openTaskModal=function(){
+
+const modal=getTaskModal();
+if(modal) modal.style.display="flex";
+
+};
+
+window.closeTaskModal=function(){
+
+const modal=getTaskModal();
+if(modal) modal.style.display="none";
+
+};
 
 
 /* =========================
    OUTSIDE CLICK CLOSE
 ========================= */
 
-window.addEventListener("click", function(e){
+window.addEventListener("click",function(e){
 
-    const modal = document.getElementById("taskModal");
+const modal=getTaskModal();
 
-    if(modal && e.target === modal){
-        modal.style.display = "none";
-    }
+if(modal && e.target===modal){
+modal.style.display="none";
+}
 
 });
 
@@ -36,24 +40,24 @@ window.addEventListener("click", function(e){
    PAGE INIT
 ========================= */
 
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded",function(){
 
 /* EMPLOYEE SEARCH */
 
-const empSearch = document.getElementById("empSearch");
+const empSearch=document.getElementById("empSearch");
 
 if(empSearch){
 
-empSearch.addEventListener("keyup", function(){
+empSearch.addEventListener("input",function(){
 
-const filter = this.value.toLowerCase();
-const items = document.querySelectorAll(".employee-item");
+const filter=this.value.toLowerCase();
+const items=document.querySelectorAll("#employeeList .employee-item");
 
 items.forEach(function(item){
 
-const name = item.textContent.toLowerCase();
+const name=item.textContent.toLowerCase();
 
-item.style.display = name.includes(filter) ? "" : "none";
+item.style.display=name.includes(filter) ? "" : "none";
 
 });
 
@@ -64,20 +68,20 @@ item.style.display = name.includes(filter) ? "" : "none";
 
 /* CUSTOMER SEARCH */
 
-const search = document.getElementById("customerSearch");
+const customerSearch=document.getElementById("customerSearch");
 
-if(search){
+if(customerSearch){
 
-search.addEventListener("keyup", function(){
+customerSearch.addEventListener("input",function(){
 
-const filter = this.value.toLowerCase();
-const options = document.querySelectorAll("#customerSelect option");
+const filter=this.value.toLowerCase();
+const options=document.querySelectorAll("#customerSelect option");
 
 options.forEach(function(option){
 
-const text = option.textContent.toLowerCase();
+const text=option.textContent.toLowerCase();
 
-option.style.display = text.includes(filter) ? "" : "none";
+option.style.display=text.includes(filter) ? "" : "none";
 
 });
 
@@ -92,14 +96,47 @@ option.style.display = text.includes(filter) ? "" : "none";
    SELECT ALL EMPLOYEES
 ========================= */
 
-window.selectAllEmployees = function(){
+window.selectAllEmployees=function(){
 
-const checkboxes = document.querySelectorAll(
-'.employee-list input[type="checkbox"]'
-);
+const items=document.querySelectorAll("#employeeList .employee-item");
 
-checkboxes.forEach(function(cb){
-cb.checked = true;
+items.forEach(function(item){
+
+if(item.style.display!=="none"){
+
+const cb=item.querySelector('input[type="checkbox"]');
+
+if(cb) cb.checked=true;
+
+}
+
 });
+
+};
+
+
+let allSelected=false;
+
+function toggleEmployees(){
+
+const checks=document.querySelectorAll(".emp-check");
+
+checks.forEach(function(c){
+
+const item=c.closest(".employee-item");
+
+if(item && item.style.display!=="none"){
+c.checked=!allSelected;
+}
+
+});
+
+allSelected=!allSelected;
+
+const btn=document.getElementById("selectAllBtn");
+
+if(btn){
+btn.innerText=allSelected ? "Unselect All" : "Select All";
+}
 
 }
