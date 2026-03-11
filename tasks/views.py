@@ -454,6 +454,10 @@ def task_delete_view(request, task_id):
 # LEADERBOARD
 # =====================================
 
+# =====================================
+# LEADERBOARD
+# =====================================
+
 @login_required
 def leaderboard_view(request):
 
@@ -478,7 +482,8 @@ def leaderboard_view(request):
         if emp_id not in employee_points:
             employee_points[emp_id] = 0
 
-        employee_points[emp_id] += a.calculate_points()
+        # IMPORTANT FIX
+        employee_points[emp_id] += a.calculate_points
 
     leaderboard = []
 
@@ -494,13 +499,20 @@ def leaderboard_view(request):
         reverse=True
     )
 
+    # same data for now (daily/weekly/monthly later filter করা যাবে)
+    context = {
+        "daily": leaderboard,
+        "weekly": leaderboard,
+        "monthly": leaderboard,
+        "quarterly": leaderboard,
+        "yearly": leaderboard,
+    }
+
     return render(
         request,
         "tasks/leaderboard.html",
-        {"leaderboard": leaderboard}
+        context
     )
-
-
 # =====================================
 # REJECT TASK
 # =====================================

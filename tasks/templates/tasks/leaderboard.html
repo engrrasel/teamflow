@@ -2,203 +2,106 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/leaderboard.css' %}">
+<link rel="stylesheet" href="{% static 'tasks/css/leaderboard.css' %}">
 {% endblock %}
 
 {% block content %}
 
-<div class="leaderboard-header">
+<div class="leaderboard-container">
 
-<h2>Employee Leaderboard</h2>
+    <!-- Header -->
 
-<a href="{% url 'task_list' %}" class="btn-back">
-Back
-</a>
+    <div class="leaderboard-header">
 
-</div>
+        <h2>🏆 Employee Leaderboard</h2>
 
+        <a href="{% url 'task_list' %}" class="btn-back">
+            ← Back
+        </a>
 
-<div class="leaderboard-tabs">
+    </div>
 
-<button class="lb-btn active" data-tab="daily">Daily</button>
-<button class="lb-btn" data-tab="weekly">Weekly</button>
-<button class="lb-btn" data-tab="monthly">Monthly</button>
-<button class="lb-btn" data-tab="quarterly">Quarterly</button>
-<button class="lb-btn" data-tab="yearly">Yearly</button>
 
-</div>
+    <!-- Tabs -->
 
+    <div class="leaderboard-tabs">
 
+        <button class="lb-btn active" data-tab="daily">
+            Daily
+        </button>
 
-<!-- DAILY -->
+        <button class="lb-btn" data-tab="weekly">
+            Weekly
+        </button>
 
-<div class="lb-content active" id="daily">
+        <button class="lb-btn" data-tab="monthly">
+            Monthly
+        </button>
 
-<h3>Daily Leaderboard</h3>
+        <button class="lb-btn" data-tab="quarterly">
+            Quarterly
+        </button>
 
-<table class="emp-table">
+        <button class="lb-btn" data-tab="yearly">
+            Yearly
+        </button>
 
-<tr>
-<th>Rank</th>
-<th>Employee</th>
-<th>Points</th>
-</tr>
+    </div>
 
-{% for e in daily %}
 
-<tr>
+    <!-- DAILY -->
 
-<td>
-{% if forloop.counter == 1 %}
-🥇
-{% elif forloop.counter == 2 %}
-🥈
-{% elif forloop.counter == 3 %}
-🥉
-{% else %}
-{{ forloop.counter }}
-{% endif %}
-</td>
+    <div class="lb-content active" id="daily">
 
-<td>{{ e.user.name|default:e.user.email }}</td>
+        <h3>Daily Leaderboard</h3>
 
-<td>{{ e.points|default:0 }}</td>
+        {% include "tasks/leaderboard_table.html" with employees=daily %}
 
-</tr>
+    </div>
 
-{% empty %}
 
-<tr>
-<td colspan="3">No data</td>
-</tr>
+    <!-- WEEKLY -->
 
-{% endfor %}
+    <div class="lb-content" id="weekly">
 
-</table>
+        <h3>Weekly Leaderboard</h3>
 
-</div>
+        {% include "tasks/leaderboard_table.html" with employees=weekly %}
 
+    </div>
 
-<!-- WEEKLY -->
 
-<div class="lb-content" id="weekly">
+    <!-- MONTHLY -->
 
-<h3>Weekly Leaderboard</h3>
+    <div class="lb-content" id="monthly">
 
-<table class="emp-table">
+        <h3>Monthly Leaderboard</h3>
 
-<tr>
-<th>Rank</th>
-<th>Employee</th>
-<th>Points</th>
-</tr>
+        {% include "tasks/leaderboard_table.html" with employees=monthly %}
 
-{% for e in weekly %}
+    </div>
 
-<tr>
-<td>{{ forloop.counter }}</td>
-<td>{{ e.user.name|default:e.user.email }}</td>
-<td>{{ e.points|default:0 }}</td>
-</tr>
 
-{% empty %}
-<tr><td colspan="3">No data</td></tr>
-{% endfor %}
+    <!-- QUARTERLY -->
 
-</table>
+    <div class="lb-content" id="quarterly">
 
-</div>
+        <h3>Quarterly Leaderboard</h3>
 
+        {% include "tasks/leaderboard_table.html" with employees=quarterly %}
 
-<!-- MONTHLY -->
+    </div>
 
-<div class="lb-content" id="monthly">
 
-<h3>Monthly Leaderboard</h3>
+    <!-- YEARLY -->
 
-<table class="emp-table">
+    <div class="lb-content" id="yearly">
 
-<tr>
-<th>Rank</th>
-<th>Employee</th>
-<th>Points</th>
-</tr>
+        <h3>Yearly Leaderboard</h3>
 
-{% for e in monthly %}
+        {% include "tasks/leaderboard_table.html" with employees=yearly %}
 
-<tr>
-<td>{{ forloop.counter }}</td>
-<td>{{ e.user.name|default:e.user.email }}</td>
-<td>{{ e.points|default:0 }}</td>
-</tr>
-
-{% empty %}
-<tr><td colspan="3">No data</td></tr>
-{% endfor %}
-
-</table>
-
-</div>
-
-
-<!-- QUARTERLY -->
-
-<div class="lb-content" id="quarterly">
-
-<h3>Quarterly Leaderboard</h3>
-
-<table class="emp-table">
-
-<tr>
-<th>Rank</th>
-<th>Employee</th>
-<th>Points</th>
-</tr>
-
-{% for e in quarterly %}
-
-<tr>
-<td>{{ forloop.counter }}</td>
-<td>{{ e.user.name|default:e.user.email }}</td>
-<td>{{ e.points|default:0 }}</td>
-</tr>
-
-{% empty %}
-<tr><td colspan="3">No data</td></tr>
-{% endfor %}
-
-</table>
-
-</div>
-
-
-<!-- YEARLY -->
-
-<div class="lb-content" id="yearly">
-
-<h3>Yearly Leaderboard</h3>
-
-<table class="emp-table">
-
-<tr>
-<th>Rank</th>
-<th>Employee</th>
-<th>Points</th>
-</tr>
-
-{% for e in yearly %}
-
-<tr>
-<td>{{ forloop.counter }}</td>
-<td>{{ e.user.name|default:e.user.email }}</td>
-<td>{{ e.points|default:0 }}</td>
-</tr>
-
-{% empty %}
-<tr><td colspan="3">No data</td></tr>
-{% endfor %}
-
-</table>
+    </div>
 
 </div>
 
@@ -208,26 +111,6 @@ Back
 
 {% block extra_js %}
 
-<script>
-
-const buttons=document.querySelectorAll(".lb-btn")
-const tabs=document.querySelectorAll(".lb-content")
-
-buttons.forEach(btn=>{
-
-btn.addEventListener("click",()=>{
-
-buttons.forEach(b=>b.classList.remove("active"))
-tabs.forEach(t=>t.classList.remove("active"))
-
-btn.classList.add("active")
-
-document.getElementById(btn.dataset.tab).classList.add("active")
-
-})
-
-})
-
-</script>
+<script src="{% static 'tasks/js/leaderboard.js' %}"></script>
 
 {% endblock %}
