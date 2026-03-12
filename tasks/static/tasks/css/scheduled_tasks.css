@@ -1,0 +1,125 @@
+/* ===============================
+   TASK PAGE
+================================ */
+
+.task-page{
+padding:20px;
+}
+
+.task-page h2{
+margin-bottom:15px;
+}
+
+/* ===============================
+   TABLE
+================================ */
+
+.emp-table{
+width:100%;
+border-collapse:collapse;
+background:#fff;
+}
+
+.emp-table th{
+text-align:left;
+padding:10px;
+background:#f5f7fb;
+font-size:13px;
+}
+
+.emp-table td{
+padding:10px;
+border-top:1px solid #eee;
+font-size:14px;
+}
+
+/* ===============================
+   STATUS BADGE
+================================ */
+
+.status{
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+font-weight:500;
+}
+
+.status.active{
+background:#e6f7ed;
+color:#1a7f37;
+}
+
+.status.paused{
+background:#ffeaea;
+color:#c62828;
+}
+
+/* ===============================
+   EMPLOYEE COUNT
+================================ */
+
+.emp-badge{
+background:#eef2ff;
+color:#4338ca;
+padding:3px 7px;
+border-radius:6px;
+font-size:12px;
+font-weight:600;
+}
+
+/* ===============================
+   COUNTDOWN
+================================ */
+
+.countdown{
+font-size:11px;
+color:#777;
+}
+
+/* ===============================
+   ACTION BUTTONS
+================================ */
+
+.actions{
+display:flex;
+gap:6px;
+}
+
+.btn-sm{
+padding:4px 8px;
+font-size:12px;
+border-radius:6px;
+text-decoration:none;
+}
+
+.btn-sm.edit{
+background:#e3f2fd;
+color:#1565c0;
+}
+
+.btn-sm.pause{
+background:#fff3e0;
+color:#ef6c00;
+}
+
+.btn-sm.delete{
+background:#ffebee;
+color:#c62828;
+}
+
+/* ===============================
+   MOBILE
+================================ */
+
+@media (max-width:768px){
+
+.emp-table{
+font-size:13px;
+}
+
+.actions{
+flex-direction:column;
+gap:4px;
+}
+
+}

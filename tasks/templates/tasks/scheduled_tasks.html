@@ -1,10 +1,17 @@
 {% extends "base/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tasks/css/scheduled_tasks.css' %}">
+{% endblock %}
 
 {% block content %}
 
 <div class="task-page">
 
+<div class="task-header">
 <h2>Scheduled Tasks</h2>
+</div>
 
 <div class="emp-card">
 
@@ -15,8 +22,11 @@
 <th>Task</th>
 <th>Repeat</th>
 <th>Next Run</th>
+<th>Employees</th>
 <th>Customer</th>
-<th>Created By</th>
+<th>Created</th>
+<th>Status</th>
+<th>Actions</th>
 </tr>
 </thead>
 
@@ -24,13 +34,41 @@
 
 {% for task in tasks %}
 
-<tr>
+<tr class="{% if not task.is_active %}paused-row{% endif %}">
 
-<td>{{ task.title }}</td>
+<td>
+<a href="{% url 'scheduled_task_detail' task.id %}" class="task-link">
+<strong>{{ task.title }}</strong>
+</a>
+</td>
 
-<td>{{ task.get_repeat_type_display }}</td>
+<td>
+{{ task.get_repeat_type_display }}
+</td>
 
-<td>{{ task.next_run }}</td>
+<td>
+
+{% if task.next_run %}
+{{ task.next_run|date:"d M Y" }}
+
+<br>
+
+<span class="countdown">
+{% now "Y-m-d" as today %}
+{{ task.next_run|timeuntil }}
+</span>
+
+{% else %}
+-
+{% endif %}
+
+</td>
+
+<td>
+<span class="emp-badge">
+{{ task.assignments.count }}
+</span>
+</td>
 
 <td>
 {% if task.customer %}
@@ -40,14 +78,50 @@
 {% endif %}
 </td>
 
-<td>{{ task.created_by }}</td>
+<td>
+{{ task.created_at|date:"d M Y H:i" }}
+</td>
+
+<td>
+
+{% if task.is_active %}
+<span class="status active">Active</span>
+{% else %}
+<span class="status paused">Paused</span>
+{% endif %}
+
+</td>
+
+<td class="actions">
+
+<a href="{% url 'task_edit' task.id %}" class="btn-sm edit">
+Edit
+</a>
+
+<a href="{% url 'task_toggle' task.id %}" class="btn-sm pause">
+
+{% if task.is_active %}
+Pause
+{% else %}
+Resume
+{% endif %}
+
+</a>
+
+<a href="{% url 'task_delete' task.id %}" class="btn-sm delete">
+Delete
+</a>
+
+</td>
 
 </tr>
 
 {% empty %}
 
 <tr>
-<td colspan="5">No scheduled tasks</td>
+<td colspan="8" class="no-data">
+No scheduled tasks
+</td>
 </tr>
 
 {% endfor %}

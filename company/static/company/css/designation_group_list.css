@@ -1,0 +1,222 @@
+/* =========================
+PAGE CENTER
+========================= */
+
+.designation-page{
+width:100%;
+min-height:80vh;
+display:flex;
+justify-content:center;
+align-items:flex-start;
+padding:40px 20px;
+background:#eef1f5;
+font-family:'Segoe UI',Roboto,Arial,sans-serif;
+}
+
+
+/* =========================
+MAIN CARD
+========================= */
+
+.emp-card{
+width:100%;
+max-width:950px;
+background:#f1f3f6;
+padding:25px;
+border-radius:14px;
+}
+
+
+/* =========================
+HEADER
+========================= */
+
+.emp-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:12px;
+margin-bottom:18px;
+}
+
+.emp-header h2{
+margin:0;
+font-size:22px;
+font-weight:600;
+}
+
+
+/* =========================
+ACTION AREA
+========================= */
+
+.header-actions{
+display:flex;
+gap:10px;
+align-items:center;
+flex-wrap:wrap;
+}
+
+.quick-add-form{
+display:flex;
+gap:8px;
+align-items:center;
+}
+
+
+/* =========================
+INPUT / SELECT
+========================= */
+
+.quick-add-form input,
+.quick-add-form select{
+padding:8px 12px;
+border-radius:8px;
+border:1px solid #cbd5e1;
+font-size:14px;
+background:#fff;
+}
+
+
+/* =========================
+BUTTONS
+========================= */
+
+.add-btn{
+background:#6366f1;
+color:#fff;
+border:none;
+padding:8px 16px;
+border-radius:8px;
+font-size:14px;
+cursor:pointer;
+text-decoration:none;
+}
+
+.add-btn:hover{
+background:#4f46e5;
+}
+
+.btn-gray{
+background:#64748b;
+}
+
+.btn-light{
+background:#94a3b8;
+}
+
+
+/* =========================
+TABLE WRAPPER
+========================= */
+
+.table-wrapper{
+background:#fff;
+border-radius:12px;
+overflow:hidden;
+}
+
+
+/* =========================
+TABLE
+========================= */
+
+.emp-table{
+width:100%;
+border-collapse:collapse;
+}
+
+.emp-table th{
+background:#d1d5db;
+padding:12px;
+text-align:left;
+font-weight:600;
+font-size:14px;
+}
+
+.emp-table td{
+padding:12px;
+border-top:1px solid #e5e7eb;
+font-size:14px;
+}
+
+.emp-table tr:hover{
+background:#f9fafb;
+}
+
+
+/* =========================
+ACTION LINKS
+========================= */
+
+.action-link{
+color:#2563eb;
+text-decoration:none;
+font-size:14px;
+}
+
+.action-link.danger{
+color:#dc2626;
+}
+
+.divider{
+margin:0 8px;
+color:#bbb;
+}
+
+
+/* =========================
+EMPTY
+========================= */
+
+.empty-row{
+text-align:center;
+padding:30px;
+color:#777;
+}
+
+/* =========================
+PAGE CENTER
+========================= */
+
+.group-page{
+width:100%;
+min-height:80vh;
+display:flex;
+justify-content:center;   /* horizontal center */
+align-items:flex-start;   /* top aligned */
+padding:40px 20px;
+background:#eef1f5;
+font-family:'Segoe UI',Roboto,Arial,sans-serif;
+}
+
+
+/* =========================
+CARD
+========================= */
+
+.emp-card{
+width:100%;
+max-width:950px;          /* card width control */
+background:#f1f3f6;
+padding:25px;
+border-radius:14px;
+margin:0 auto;            /* extra safety center */
+}
+
+.back-btn{
+background:#64748b;
+color:#fff;
+padding:8px 14px;
+border-radius:8px;
+font-size:14px;
+text-decoration:none;
+display:inline-block;
+transition:0.2s;
+}
+
+.back-btn:hover{
+background:#475569;
+color:#fff;
+}

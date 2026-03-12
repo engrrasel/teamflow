@@ -7,14 +7,16 @@ position:fixed;
 top:0;
 left:0;
 width:100%;
-height:100%;
+height:100dvh;
 background:rgba(0,0,0,0.45);
+
 display:none;
 align-items:center;
 justify-content:center;
+
 z-index:999;
-padding:20px;
-animation:fadeIn .2s ease;
+padding:10px;
+overflow-y:auto;
 }
 
 /* ===============================
@@ -25,10 +27,10 @@ animation:fadeIn .2s ease;
 background:#fff;
 width:720px;
 max-width:100%;
+margin:auto;
 border-radius:16px;
-padding:26px 28px;
+padding:20px;
 box-shadow:0 25px 70px rgba(0,0,0,0.25);
-animation:modalPop .2s ease;
 }
 
 /* ===============================
@@ -70,7 +72,7 @@ color:#111;
 .task-form select,
 .task-form textarea{
 width:100%;
-padding:10px 2px;
+padding:10px;
 border:1px solid #e1e4e8;
 border-radius:8px;
 font-size:14px;
@@ -108,10 +110,12 @@ margin-top:12px;
 
 .form-row.two > *{
 flex:1;
+min-width:0;
 }
 
 .form-row.three > *{
 flex:1;
+min-width:0;
 }
 
 /* ===============================
@@ -123,6 +127,8 @@ border:1px solid #e1e4e8;
 border-radius:10px;
 overflow:hidden;
 background:#fafafa;
+width:100%;
+min-width:0;
 }
 
 .picker-header{
@@ -135,7 +141,7 @@ background:#fff;
 
 .picker-header input{
 flex:1;
-padding:6px 8px;
+padding:8px;
 font-size:13px;
 border-radius:6px;
 border:1px solid #ddd;
@@ -149,6 +155,7 @@ padding:6px 10px;
 border-radius:6px;
 cursor:pointer;
 font-size:12px;
+transition:.2s;
 }
 
 .picker-header button:hover{
@@ -169,7 +176,6 @@ padding:8px 10px;
 font-size:14px;
 border-radius:6px;
 cursor:pointer;
-justify-content:flex-start;
 }
 
 .employee-item input{
@@ -186,25 +192,9 @@ flex:1;
 background:#eef2ff;
 }
 
-.employee-item:hover{
-background:#eef2ff;
-}
-
-/* ===============================
-   CUSTOMER SELECT
-================================ */
-
-#customerSearch{
-margin-bottom:6px;
-}
-
-#customerSelect{
-width:100%;
-border:1px solid #ddd;
-border-radius:8px;
-padding:6px;
-background:#fff;
-font-size:14px;
+.employee-item input:checked + .emp-name{
+font-weight:600;
+color:#2563eb;
 }
 
 /* ===============================
@@ -231,62 +221,127 @@ box-shadow:0 5px 12px rgba(79,70,229,0.3);
 }
 
 /* ===============================
-   SCROLLBAR
+   TABLET / MOBILE
 ================================ */
 
-.employee-list::-webkit-scrollbar{
-width:6px;
-}
+@media (max-width:768px){
 
-.employee-list::-webkit-scrollbar-thumb{
-background:#ccc;
-border-radius:6px;
+.task-modal{
+align-items:flex-start;
+padding:10px;
 }
-
-/* ===============================
-   ANIMATION
-================================ */
-
-@keyframes modalPop{
-from{
-transform:scale(.95);
-opacity:0;
-}
-to{
-transform:scale(1);
-opacity:1;
-}
-}
-
-@keyframes fadeIn{
-from{
-opacity:0;
-}
-to{
-opacity:1;
-}
-}
-
-/* ===============================
-   MOBILE
-================================ */
-
-@media (max-width:650px){
 
 .task-modal-content{
-padding:20px;
+width:100%;
+margin:0 auto;
+padding:16px;
+border-radius:14px;
 }
 
-.form-row{
+/* employees + customer stack */
+
+.form-row.two{
 flex-direction:column;
+gap:12px;
 }
 
-.employee-list{
-max-height:150px;
+/* dropdown 3 side by side */
+
+.form-row.three{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:8px;
+}
+
+.form-row.three select{
+font-size:13px;
+padding:8px 6px;
+}
+
+}
+
+/* ===============================
+   SMALL MOBILE
+================================ */
+
+@media (max-width:480px){
+
+.task-modal-content{
+padding:12px;
+border-radius:12px;
+}
+
+.modal-header{
+margin-bottom:10px;
+padding-bottom:6px;
 }
 
 .modal-header h3{
-font-size:18px;
+font-size:16px;
+}
+
+.task-form input,
+.task-form select,
+.task-form textarea{
+padding:7px 8px;
+font-size:13px;
+}
+
+.task-form textarea{
+min-height:60px;
+}
+
+.form-row{
+gap:8px;
+margin-top:8px;
+}
+
+/* dropdown still side by side */
+
+.form-row.three{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:6px;
+}
+
+.form-row.three select{
+font-size:12px;
+padding:7px 4px;
+}
+
+/* date + points */
+
+.form-row.two.date-row{
+display:grid;
+grid-template-columns:1fr 70px;
+gap:6px;
+}
+
+.form-row.two.date-row input{
+min-width:0;
+}
+
+/* compact employee list */
+
+.employee-list{
+max-height:120px;
+padding:4px;
+}
+
+.employee-item{
+padding:6px;
+font-size:13px;
+}
+
+.employee-item input{
+width:16px;
+height:16px;
+}
+
+.btn-primary{
+padding:8px 12px;
+font-size:13px;
+margin-top:10px;
 }
 
 }

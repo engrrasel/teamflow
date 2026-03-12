@@ -1,0 +1,174 @@
+/* =========================
+   PAGE WRAPPER
+========================= */
+
+.task-header{
+margin-bottom:20px;
+}
+
+.task-header h2{
+margin:0;
+font-size:22px;
+font-weight:600;
+color:#1f2937;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.emp-card{
+background:#fff;
+padding:25px;
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,0.06);
+max-width:850px;
+}
+
+/* =========================
+   FORM
+========================= */
+
+.task-form{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:18px;
+}
+
+/* full width fields */
+
+.task-form .full{
+grid-column:1 / -1;
+}
+
+/* =========================
+   LABEL
+========================= */
+
+.task-form label{
+display:block;
+font-size:13px;
+font-weight:600;
+margin-bottom:6px;
+color:#374151;
+}
+
+/* =========================
+   INPUTS
+========================= */
+
+.task-form input,
+.task-form select,
+.task-form textarea{
+width:100%;
+padding:10px 12px;
+border:1px solid #e5e7eb;
+border-radius:8px;
+font-size:14px;
+background:#fff;
+transition:all .2s ease;
+}
+
+.task-form textarea{
+min-height:100px;
+resize:vertical;
+}
+
+/* focus */
+
+.task-form input:focus,
+.task-form select:focus,
+.task-form textarea:focus{
+border-color:#6366f1;
+box-shadow:0 0 0 2px rgba(99,102,241,.15);
+outline:none;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+padding:9px 16px;
+border-radius:8px;
+font-size:14px;
+font-weight:500;
+text-decoration:none;
+border:none;
+cursor:pointer;
+transition:.2s;
+margin-right:6px;
+}
+
+.btn-primary{
+background:#6366f1;
+color:#fff;
+}
+
+.btn-primary:hover{
+background:#4f46e5;
+}
+
+.btn-danger{
+background:#ef4444;
+color:#fff;
+}
+
+.btn-danger:hover{
+background:#dc2626;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width:768px){
+
+.task-form{
+grid-template-columns:1fr;
+}
+
+.emp-card{
+padding:18px;
+}
+
+.task-header h2{
+font-size:18px;
+}
+
+}
+
+
+
+.task-page{
+max-width:1000px;
+margin:0 auto;
+padding:20px;
+}
+
+
+/* =========================
+   PAGE WRAPPER
+========================= */
+
+.task-header{
+max-width:900px;
+margin:0 auto 20px auto;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.emp-card{
+background:#fff;
+padding:25px;
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,0.06);
+
+max-width:900px;
+margin:0 auto;   /* center করবে */
+}

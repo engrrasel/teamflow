@@ -140,3 +140,28 @@ btn.innerText=allSelected ? "Unselect All" : "Select All";
 }
 
 }
+
+/* =========================
+   CUSTOMER SEARCH LIST
+========================= */
+
+const customerSearch=document.getElementById("customerSearch");
+
+if(customerSearch){
+
+customerSearch.addEventListener("input",function(){
+
+const filter=this.value.toLowerCase();
+const items=document.querySelectorAll("#customerList .employee-item");
+
+items.forEach(function(item){
+
+const text=item.textContent.toLowerCase();
+
+item.style.display=text.includes(filter) ? "" : "none";
+
+});
+
+});
+
+}

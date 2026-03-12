@@ -689,7 +689,6 @@ def scheduled_tasks_view(request):
     tasks = Task.objects.filter(
         company=company,
         repeat_type__in=["daily", "weekly", "15days", "monthly"],
-        is_active=True
     ).select_related("customer", "created_by")
 
     return render(
@@ -726,4 +725,42 @@ def task_detail_view(request, task_id):
         {
             "task": task
         }
+    )
+
+
+
+
+def task_toggle(request, task_id):
+
+    task = get_object_or_404(Task, id=task_id)
+
+    task.is_active = not task.is_active
+    task.save(update_fields=["is_active"])
+
+    return redirect("scheduled_tasks")
+
+
+
+@login_required
+def scheduled_task_detail(request, task_id):
+
+    company = request.membership.company
+
+    task = get_object_or_404(
+        Task,
+        id=task_id,
+        company=company
+    )
+
+    assignments = task.assignments.select_related("employee")
+
+    context = {
+        "task": task,
+        "assignments": assignments
+    }
+
+    return render(
+        request,
+        "tasks/scheduled_task_detail.html",
+        context
     )

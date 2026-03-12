@@ -13,7 +13,6 @@ ADD TASK MODAL
 <span class="close-btn" onclick="closeTaskModal()">&times;</span>
 </div>
 
-
 <!-- FORM -->
 
 <form method="post" action="{% url 'task_add' %}" class="task-form">
@@ -35,7 +34,6 @@ rows="3"
 placeholder="Write task description..."
 ></textarea>
 </div>
-
 
 <!-- =========================
 ROW 1
@@ -73,13 +71,11 @@ ROW 1
 
 </div>
 
-
 <!-- =========================
 ROW 2
 ========================= -->
 
 <div class="form-row two">
-
 
 <!-- EMPLOYEES -->
 
@@ -106,7 +102,6 @@ Select All
 </button>
 
 </div>
-
 
 <div class="employee-list" id="employeeList">
 
@@ -142,29 +137,55 @@ value="{{ e.user.id }}"
 
 <label class="form-label">Customer</label>
 
+<div class="employee-picker">
+
+<div class="picker-header">
+
 <input
 type="text"
 id="customerSearch"
 placeholder="Search customer..."
 >
 
-<select
+</div>
+
+<div class="employee-list" id="customerList">
+
+<label class="employee-item">
+
+<input
+type="radio"
 name="customer"
-id="customerSelect"
-size="7"
+value=""
 >
 
-<option value="">No Customer</option>
+<span class="emp-name">
+No Customer
+</span>
+
+</label>
 
 {% for c in customers %}
 
-<option value="{{ c.id }}">
+<label class="employee-item">
+
+<input
+type="radio"
+name="customer"
+value="{{ c.id }}"
+>
+
+<span class="emp-name">
 {{ c.name }}
-</option>
+</span>
+
+</label>
 
 {% endfor %}
 
-</select>
+</div>
+
+</div>
 
 </div>
 
@@ -177,23 +198,18 @@ ROW 3
 
 <div class="form-row two">
 
-<input
-type="date"
-name="due_date"
-value="{% now 'Y-m-d' %}"
->
+<div class="form-row two date-row">
 
-<input
-type="number"
+<input type="date" name="due_date" value="{% now 'Y-m-d' %}">
+
+<input type="number"
 name="custom_points"
 step="0.1"
 min="0"
 value="1"
-placeholder="Points"
->
+placeholder="Points">
 
 </div>
-
 
 <!-- SUBMIT -->
 

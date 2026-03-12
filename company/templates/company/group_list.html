@@ -1,76 +1,125 @@
 {% extends "base/base.html" %}
+{% load static %}
 
 {% block title %}Designation Groups{% endblock %}
 
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'company/css/designation_group_list.css' %}">
+{% endblock %}
+
 {% block content %}
+
+<div class="group-page">
 
 <div class="emp-card">
 
-    <!-- ===== Header ===== -->
-    <div class="emp-header">
-        <h2>Designation Groups</h2>
+<!-- ===== Header ===== -->
 
-        <div style="display:flex; gap:10px; align-items:center;">
+<div class="emp-header">
 
-            <!-- Quick Add -->
-            <form method="post" style="display:flex; gap:8px; align-items:center;">
-                {% csrf_token %}
-                {{ form.name }}
-                <button type="submit" class="add-btn" style="padding:8px 14px;">
-                    Add
-                </button>
-            </form>
+<h2 class="page-title">Designation Groups</h2>
 
-            <!-- Back Button -->
-            <a href="{% url 'designation_list' %}" class="add-btn" style="background:#94a3b8;">
-                ← Back
-            </a>
+<div class="header-actions">
 
-        </div>
-    </div>
+<!-- Quick Add -->
 
-    <!-- Error message -->
-    {% if form.errors %}
-        <div style="color:#dc2626; margin-bottom:12px; font-size:14px;">
-            {{ form.errors }}
-        </div>
-    {% endif %}
+<form method="post" class="quick-add-form">
 
-    <!-- ===== Table ===== -->
-    <table class="emp-table">
-        <thead>
-            <tr>
-                <th style="width:50%;">Group Name</th>
-                <th style="width:20%;">Designations</th>
-                <th style="width:30%;">Actions</th>
-            </tr>
-        </thead>
+{% csrf_token %}
 
-        <tbody>
-            {% for g in groups %}
-            <tr>
-                <td><strong>{{ g.name }}</strong></td>
-                <td>{{ g.designation_set.count }}</td>
-                <td>
-                    <a href="{% url 'group_edit' g.id %}" class="action-link">Edit</a>
-                    <span style="margin:0 8px; color:#bbb;">|</span>
-                    <a href="{% url 'group_delete' g.id %}"
-                       class="action-link danger"
-                       onclick="return confirm('Delete this group? All related designations will also be removed.')">
-                        Delete
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3" style="text-align:center; padding:30px; color:#777;">
-                    No groups found. Add one from above.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{{ form.name }}
 
+<button type="submit" class="add-btn">
+Add
+</button>
+
+</form>
+
+<!-- Back Button -->
+
+<a href="{% url 'designation_list' %}" class="back-btn">
+← Back
+</a>
+
+</div>
+
+</div>
+
+<!-- Error message -->
+
+{% if form.errors %}
+
+<div class="form-error">
+{{ form.errors }}
+</div>
+{% endif %}
+
+<!-- ===== Table Wrapper ===== -->
+
+<div class="table-wrapper">
+
+<table class="emp-table">
+
+<thead>
+<tr>
+<th style="width:50%">Group Name</th>
+<th style="width:20%">Designations</th>
+<th style="width:30%">Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for g in groups %}
+
+<tr>
+
+<td>
+<strong>{{ g.name }}</strong>
+</td>
+
+<td>
+{{ g.designation_set.count }}
+</td>
+
+<td class="actions">
+
+<a href="{% url 'group_edit' g.id %}" class="action-link">
+Edit
+</a>
+
+<span class="divider">|</span>
+
+<a href="{% url 'group_delete' g.id %}"
+class="action-link danger"
+onclick="return confirm('Delete this group? All related designations will also be removed.')">
+
+Delete
+
+</a>
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="3" class="empty-row">
+No groups found. Add one from above.
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
 </div>
 
 {% endblock %}

@@ -1,34 +1,49 @@
 {% extends "base/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'company/css/designation.css' %}">
+{% endblock %}
 
 {% block title %}Add Designation{% endblock %}
 
 {% block content %}
 
-<div class="emp-card" style="max-width:600px; margin:auto;">
+<div class="designation-page">
 
-    <div class="emp-header">
-        <h2>Add New Designation</h2>
-    </div>
+<div class="emp-card">
 
-    <form method="post">
-        {% csrf_token %}
+<div class="emp-header">
+<h2>Add New Designation</h2>
+</div>
 
-        <div class="form-group">
-            <label>Group</label>
-            {{ form.group }}
-        </div>
+<form method="post" class="designation-form">
+{% csrf_token %}
 
-        <div class="form-group">
-            <label>Designation Name</label>
-            {{ form.name }}
-        </div>
+<div class="form-group">
+<label>Group</label>
+{{ form.group }}
+</div>
 
-        <button type="submit" class="add-btn">Save Designation</button>
-    </form>
+<div class="form-group">
+<label>Designation Name</label>
+{{ form.name }}
+</div>
 
-    <div style="margin-top:15px;">
-        <a href="{% url 'designation_list' %}">← Back to list</a>
-    </div>
+<div class="form-actions">
+<button type="submit" class="add-btn">
+Save Designation
+</button>
+</div>
+
+</form>
+
+<div class="back-link">
+<a href="{% url 'designation_list' %}">← Back to list</a>
+</div>
+
+</div>
 
 </div>
 
