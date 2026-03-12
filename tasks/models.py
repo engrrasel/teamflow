@@ -366,3 +366,5 @@ class TaskActionNote(models.Model):
 
     def __str__(self):
         return f"{self.note_type} - {self.created_at}"
+
+

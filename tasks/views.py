@@ -604,10 +604,22 @@ def generate_recurring_tasks(company):
             ew.employee_id, set()
         ).add(ew.weekday)
 
-    # holiday list (single query)
-    holidays = list(
-        CompanyHoliday.objects.filter(company=company)
-        .values("start_date", "end_date")
+    # build holiday set (fast lookup)
+    holiday_dates = set()
+
+    for h in CompanyHoliday.objects.filter(company=company):
+
+        current = h.start_date
+
+        while current <= h.end_date:
+            holiday_dates.add(current)
+            current += timedelta(days=1)
+
+    # duplicate protection
+    existing_runs = set(
+        TaskAssignment.objects.filter(
+            task__company=company
+        ).values_list("task_id", "assignment_date")
     )
 
     tasks = Task.objects.filter(
@@ -623,19 +635,21 @@ def generate_recurring_tasks(company):
 
         run_date = task.next_run
 
+        assignments_template = list(task.assignments.all())
+
         while run_date <= today:
 
-            # holiday check without extra query
-            is_holiday = any(
-                h["start_date"] <= run_date <= h["end_date"]
-                for h in holidays
-            )
-
-            if is_holiday:
+            # holiday check (O1)
+            if run_date in holiday_dates:
                 run_date += timedelta(days=1)
                 continue
 
-            for a in task.assignments.all():
+            # duplicate protection
+            if (task.id, run_date) in existing_runs:
+                run_date += timedelta(days=1)
+                continue
+
+            for a in assignments_template:
 
                 employee = a.employee
 
@@ -656,7 +670,7 @@ def generate_recurring_tasks(company):
                     )
                 )
 
-            # calculate next run
+            # next run calculation
             if task.repeat_type == "daily":
                 run_date += timedelta(days=1)
 
@@ -670,14 +684,17 @@ def generate_recurring_tasks(company):
                 run_date += timedelta(days=30)
 
         task.next_run = run_date
-        task.save(update_fields=["next_run"])
 
+    # bulk update tasks
+    Task.objects.bulk_update(tasks, ["next_run"])
+
+    # bulk insert assignments
     TaskAssignment.objects.bulk_create(
         new_assignments,
         ignore_conflicts=True
     )
 
-
+    
 # =====================================
 # scheduled tasks view
 # =====================================
@@ -740,27 +757,29 @@ def task_toggle(request, task_id):
     return redirect("scheduled_tasks")
 
 
-
-@login_required
 def scheduled_task_detail(request, task_id):
 
-    company = request.membership.company
+    task = get_object_or_404(Task, id=task_id)
 
-    task = get_object_or_404(
-        Task,
-        id=task_id,
-        company=company
+    assignments = (
+        task.assignments
+        .select_related("employee")
+        .order_by("-assignment_date")
     )
 
-    assignments = task.assignments.select_related("employee")
-
-    context = {
-        "task": task,
-        "assignments": assignments
-    }
+    # run history with time
+    run_dates = (
+        task.assignments
+        .values_list("created_at", flat=True)
+        .order_by("-created_at")
+    )
 
     return render(
         request,
         "tasks/scheduled_task_detail.html",
-        context
+        {
+            "task": task,
+            "assignments": assignments,
+            "run_dates": run_dates
+        }
     )

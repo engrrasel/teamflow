@@ -1,4 +1,9 @@
 {% extends "base/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tasks/css/scheduled_task_detail.css' %}">
+{% endblock %}
 
 {% block content %}
 
@@ -6,34 +11,59 @@
 
 <div class="emp-card">
 
-<h2>{{ task.title }}</h2>
+<h2 class="task-title">{{ task.title }}</h2>
 
-<p>
-<strong>Repeat:</strong> {{ task.get_repeat_type_display }}
-</p>
+<div class="task-info">
 
-<p>
-<strong>Customer:</strong>
+<div class="info-box">
+<span>Repeat</span>
+<strong>{{ task.get_repeat_type_display }}</strong>
+</div>
+
+<div class="info-box">
+<span>Customer</span>
+<strong>
 {% if task.customer %}
 {{ task.customer }}
 {% else %}
 -
 {% endif %}
-</p>
+</strong>
+</div>
 
-<p>
-<strong>Next Run:</strong>
-{{ task.next_run|date:"d M Y" }}
-</p>
+<div class="info-box">
+<span>Next Run</span>
+<strong>{{ task.next_run|date:"d M Y" }}</strong>
+</div>
 
-<p>
-<strong>Created:</strong>
-{{ task.created_at|date:"d M Y H:i" }}
-</p>
+<div class="info-box">
+<span>Created</span>
+<strong>{{ task.created_at|date:"d M Y H:i" }}</strong>
+</div>
+
+</div>
 
 <hr>
 
-<h3>Assigned Employees</h3>
+
+<!-- TABS -->
+
+<div class="task-tabs">
+
+<button class="tab-btn active" data-tab="employees">
+Assigned Employees
+</button>
+
+<button class="tab-btn" data-tab="dates">
+Run Dates
+</button>
+
+</div>
+
+
+<!-- EMPLOYEE TAB -->
+
+<div id="employees" class="tab-content active">
 
 <table class="emp-table">
 
@@ -41,7 +71,8 @@
 <tr>
 <th>Employee</th>
 <th>Status</th>
-<th>Assignment Date</th>
+<th>Assign Date</th>
+<th>Points</th>
 </tr>
 </thead>
 
@@ -53,16 +84,24 @@
 
 <td>{{ a.employee }}</td>
 
-<td>{{ a.status }}</td>
+<td>
+<span class="status-badge status-{{ a.status }}">
+{{ a.get_status_display }}
+</span>
+</td>
 
-<td>{{ a.assignment_date }}</td>
+<td>{{ a.created_at|date:"d M Y H:i" }}</td>
+
+<td>{{ a.calculate_points }}</td>
 
 </tr>
 
 {% empty %}
 
 <tr>
-<td colspan="3">No assignments</td>
+<td colspan="4" class="no-data">
+No assignments
+</td>
 </tr>
 
 {% endfor %}
@@ -73,6 +112,49 @@
 
 </div>
 
+
+<!-- RUN DATE TAB -->
+
+<div id="dates" class="tab-content">
+
+<table class="emp-table">
+
+<thead>
+<tr>
+<th>Run Date</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for d in run_dates %}
+
+<tr>
+<td>{{ d|date:"d M Y H:i" }}</td>
+</tr>
+
+{% empty %}
+
+<tr>
+<td class="no-data">No run dates</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
 </div>
 
+
+</div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script src="{% static 'tasks/js/scheduled_task_detail.js' %}"></script>
 {% endblock %}
