@@ -359,3 +359,20 @@ border-radius:8px;
 margin-top:6px;
 }
 
+/* clickable row */
+
+.task-row{
+cursor:pointer;
+transition:0.15s;
+}
+
+.task-row:hover{
+background:#f9fafb;
+}
+
+/* title style */
+
+.task-link{
+font-weight:600;
+color:#111827;
+}

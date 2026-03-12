@@ -122,16 +122,18 @@ Today
 {% for task in tasks %}
 {% for a in task.assignments.all %}
 
-<tr data-status="{{ a.status }}">
+<tr class="task-row"
+    data-status="{{ a.status }}"
+    data-url="{% url 'task_detail' task.id %}">
 
 <td>
 
 <div class="task-mobile">
 
 <div class="task-title">
-<a href="{% url 'task_detail' task.id %}" class="task-link">
+<span class="task-link">
 {{ task.title }}
-</a>
+</span>
 </div>
 
 <div class="task-meta">
@@ -192,9 +194,11 @@ onclick="return confirm('Delete this task?')">
 </div>
 
 <div class="desktop-only">
-<a href="{% url 'task_detail' task.id %}" class="task-link">
+<div class="desktop-only">
+<span class="task-link">
 {{ task.title }}
-</a>
+</span>
+</div>
 </div>
 
 </td>

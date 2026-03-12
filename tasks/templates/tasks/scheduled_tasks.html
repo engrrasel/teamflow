@@ -34,12 +34,11 @@
 
 {% for task in tasks %}
 
-<tr class="{% if not task.is_active %}paused-row{% endif %}">
+<tr class="task-row {% if not task.is_active %}paused-row{% endif %}"
+    data-url="{% url 'scheduled_task_detail' task.id %}">
 
 <td>
-<a href="{% url 'scheduled_task_detail' task.id %}" class="task-link">
-<strong>{{ task.title }}</strong>
-</a>
+<strong class="task-link">{{ task.title }}</strong>
 </td>
 
 <td>
@@ -133,5 +132,9 @@ No scheduled tasks
 </div>
 
 </div>
+
+{% block extra_js %}
+<script src="{% static 'tasks/js/scheduled_tasks.js' %}"></script>
+{% endblock %}
 
 {% endblock %}

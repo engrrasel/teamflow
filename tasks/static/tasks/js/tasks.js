@@ -181,3 +181,29 @@ window.applyFilter = function(){
     window.location.href = "?start="+start+"&end="+end;
 
 };
+
+document.addEventListener("DOMContentLoaded", function () {
+
+const rows = document.querySelectorAll(".task-row");
+
+rows.forEach(function(row){
+
+row.addEventListener("click", function(e){
+
+// button বা link এ ক্লিক হলে redirect হবে না
+if(e.target.closest("a") || e.target.closest("button") || e.target.closest("i")){
+return;
+}
+
+const url = row.dataset.url;
+
+if(url){
+window.location.href = url;
+}
+
+});
+
+});
+
+});
+

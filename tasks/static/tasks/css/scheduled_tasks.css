@@ -123,3 +123,12 @@ gap:4px;
 }
 
 }
+
+.task-row{
+cursor:pointer;
+transition:0.15s;
+}
+
+.task-row:hover{
+background:#f8fafc;
+}
