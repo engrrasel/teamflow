@@ -57,7 +57,8 @@
 
 <li>
 <a href="{% url 'dashboard' %}"
-class="nav-item {% if active_tab == 'dashboard' %}active{% endif %}">
+class="nav-item {% if active_tab == 'dashboard' %}active{% endif %}"
+data-title="Dashboard">
 <i class="fas fa-th-large"></i>
 <span>Dashboard</span>
 </a>
@@ -65,7 +66,8 @@ class="nav-item {% if active_tab == 'dashboard' %}active{% endif %}">
 
 <li>
 <a href="{% url 'employee_list' %}"
-class="nav-item {% if active_tab == 'users' %}active{% endif %}">
+class="nav-item {% if active_tab == 'users' %}active{% endif %}"
+data-title="Users">
 <i class="fas fa-users"></i>
 <span>Users</span>
 </a>
@@ -73,7 +75,8 @@ class="nav-item {% if active_tab == 'users' %}active{% endif %}">
 
 <li>
 <a href="{% url 'customer_list' %}"
-class="nav-item {% if active_tab == 'customers' %}active{% endif %}">
+class="nav-item {% if active_tab == 'customers' %}active{% endif %}"
+data-title="Customers">
 <i class="fas fa-user-friends"></i>
 <span>Customers</span>
 </a>
@@ -81,7 +84,8 @@ class="nav-item {% if active_tab == 'customers' %}active{% endif %}">
 
 <li>
 <a href="{% url 'task_list' %}"
-class="nav-item {% if active_tab == 'tasks' %}active{% endif %}">
+class="nav-item {% if active_tab == 'tasks' %}active{% endif %}"
+data-title="Tasks">
 <i class="fas fa-tasks"></i>
 <span>Tasks</span>
 </a>
@@ -89,7 +93,8 @@ class="nav-item {% if active_tab == 'tasks' %}active{% endif %}">
 
 <li>
 <a href="#"
-class="nav-item {% if active_tab == 'analytics' %}active{% endif %}">
+class="nav-item {% if active_tab == 'analytics' %}active{% endif %}"
+data-title="Analytics">
 <i class="fas fa-chart-line"></i>
 <span>Analytics</span>
 </a>
@@ -97,7 +102,8 @@ class="nav-item {% if active_tab == 'analytics' %}active{% endif %}">
 
 <li>
 <a href="{% url 'company_settings' %}"
-class="nav-item {% if active_tab == 'settings' %}active{% endif %}">
+class="nav-item {% if active_tab == 'settings' %}active{% endif %}"
+data-title="Settings">
 <i class="fas fa-cog"></i>
 <span>Settings</span>
 </a>
@@ -107,10 +113,14 @@ class="nav-item {% if active_tab == 'settings' %}active{% endif %}">
 
 <div class="sidebar-footer">
 
-<a href="{% url 'logout' %}" class="logout-btn">
+<li>
+<a href="{% url 'logout' %}"
+class="nav-item {% if active_tab == 'logout' %}active{% endif %}"
+data-title="Logout">
 <i class="fas fa-sign-out-alt"></i>
 <span>Logout</span>
 </a>
+</li>
 
 </div>
 
@@ -123,6 +133,8 @@ class="nav-item {% if active_tab == 'settings' %}active{% endif %}">
 <main class="main">
 
 <div class="topbar">
+
+<!-- mobile toggle -->
 
 <div class="mobile-menu-btn" onclick="toggleSidebar(event)">
 <i class="fas fa-bars"></i>
@@ -139,8 +151,10 @@ class="nav-item {% if active_tab == 'settings' %}active{% endif %}">
 </div>
 
 <div class="page">
+
 {% block content %}
 {% endblock %}
+
 </div>
 
 </main>
@@ -155,7 +169,8 @@ class="nav-item {% if active_tab == 'settings' %}active{% endif %}">
 
 <script src="{% static 'js/sidebar.js' %}"></script>
 
-{% block extra_js %}{% endblock %}
+{% block extra_js %}
+{% endblock %}
 
 </body>
 </html>

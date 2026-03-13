@@ -138,6 +138,8 @@ font-size:18px;
 .sidebar.collapsed .nav-item{
 justify-content:center;
 padding:16px 0;
+flex-direction:column;
+gap:6px;
 }
 
 .sidebar.collapsed .nav-item span{
@@ -304,29 +306,99 @@ box-shadow:0 12px 30px rgba(0,0,0,0.12);
    TOOLTIP (collapsed sidebar)
 ================================ */
 
+.sidebar.collapsed{
+overflow:visible;
+}
+
 .sidebar.collapsed .nav-item{
 position:relative;
 }
 
-.sidebar.collapsed .nav-item:hover span{
-display:block;
-position:absolute;
-
-left:75px;
-top:50%;
-transform:translateY(-50%);
-
-background:#0f172a;
-padding:6px 12px;
-border-radius:6px;
-
-font-size:13px;
-white-space:nowrap;
-
-box-shadow:0 6px 20px rgba(0,0,0,0.2);
-pointer-events:none;
+.sidebar.collapsed .nav-item span{
+display:none;
 }
 
+/* ===============================
+   PREMIUM TOOLTIP
+================================ */
+
+.sidebar.collapsed .nav-item::after{
+content:attr(data-title);
+
+position:absolute;
+left:68px;
+top:50%;
+
+/* start slightly left for slide animation */
+transform:translate(-8px,-50%) scale(.96);
+
+background:rgba(0, 0, 0, 0.92);
+color:#fff;
+
+/* glass effect */
+backdrop-filter:blur(8px);
+-webkit-backdrop-filter:blur(8px);
+
+padding:8px 14px;
+border-radius:8px;
+
+font-size:14px;
+font-weight:500;
+letter-spacing:.2px;
+
+white-space:nowrap;
+
+box-shadow:
+0 6px 16px rgba(0,0,0,.25),
+0 2px 6px rgba(0,0,0,.15);
+
+opacity:0;
+pointer-events:none;
+
+transition:
+opacity .18s ease,
+transform .18s ease;
+
+z-index:9999;
+}
+
+/* arrow pointer */
+
+.sidebar.collapsed .nav-item::before{
+content:"";
+
+position:absolute;
+left:62px;
+top:50%;
+
+transform:translate(-6px,-50%) rotate(45deg);
+
+width:8px;
+height:8px;
+
+background:rgba(15,23,42,.92);
+
+opacity:0;
+transition:opacity .18s ease, transform .18s ease;
+
+z-index:9998;
+}
+
+/* hover animation */
+
+.sidebar.collapsed .nav-item:hover::after{
+opacity:1;
+transform:translate(0,-50%) scale(1);
+}
+
+.sidebar.collapsed .nav-item:hover::before{
+opacity:1;
+transform:translate(0,-50%) rotate(45deg);
+}
+
+.nav-item{
+transition:all .18s ease;
+}
 
 /* ===============================
    ACTIVE MENU
@@ -352,6 +424,10 @@ border-radius:6px;
 background:#3b82f6;
 }
 
+
+/* ===============================
+   RESTORE STATE
+================================ */
 
 .sidebar-collapsed #sidebar{
 width:70px;
