@@ -1,10 +1,31 @@
-/* ========== Sidebar Layout ========== */
+/* ===============================
+   DASHBOARD LAYOUT
+================================ */
+
+.layout{
+display:flex;
+align-items:flex-start;
+min-height:100vh;
+}
+
+.main{
+flex:1;
+padding:20px;
+margin:20px 20px 20px 0;
+min-width:0;
+}
+
+
+/* ===============================
+   SIDEBAR
+================================ */
 
 .sidebar{
 width:250px;
 min-width:250px;
+flex-shrink:0;
 
-margin:20px;
+margin:20px 0 20px 20px;
 border-radius:22px;
 
 background:linear-gradient(180deg,#0f172a,#0b1120);
@@ -12,26 +33,41 @@ color:#fff;
 
 box-shadow:0 30px 50px rgba(0,0,0,0.35);
 
-transition:width .3s ease;
-
 display:flex;
 flex-direction:column;
 
-/* FIX */
 height:calc(100vh - 40px);
+
 position:sticky;
 top:20px;
+
 overflow-y:auto;
+overflow-x:hidden;
+
+z-index:50;
+
+transition:width .25s ease;
 }
 
 
-/* ========== Brand ========== */
+/* ===============================
+   COLLAPSED SIDEBAR
+================================ */
+
+.sidebar.collapsed{
+width:70px;
+min-width:70px;
+}
+
+
+/* ===============================
+   BRAND
+================================ */
 
 .brand{
 padding:24px;
 font-size:20px;
 font-weight:600;
-white-space:nowrap;
 
 display:flex;
 align-items:center;
@@ -43,7 +79,9 @@ display:none;
 }
 
 
-/* ========== Nav Links ========== */
+/* ===============================
+   NAV LINKS
+================================ */
 
 .nav-links{
 list-style:none;
@@ -53,11 +91,13 @@ flex:1;
 }
 
 .nav-links li{
-margin:6px 12px;
+margin:6px 10px;
 }
 
 
-/* ========== Nav Item ========== */
+/* ===============================
+   NAV ITEM
+================================ */
 
 .nav-item{
 display:flex;
@@ -70,15 +110,18 @@ border-radius:14px;
 text-decoration:none;
 color:#fff;
 
-transition:.25s;
-
 width:100%;
 box-sizing:border-box;
+
+transition:.2s ease;
+}
+
+.nav-item span{
+white-space:nowrap;
 }
 
 .nav-item:hover{
 background:rgba(255,255,255,0.08);
-transform:translateX(4px);
 }
 
 .nav-item i{
@@ -88,7 +131,9 @@ font-size:18px;
 }
 
 
-/* ========== Collapsed Mode ========== */
+/* ===============================
+   COLLAPSED NAV
+================================ */
 
 .sidebar.collapsed .nav-item{
 justify-content:center;
@@ -97,10 +142,19 @@ padding:16px 0;
 
 .sidebar.collapsed .nav-item span{
 display:none;
+pointer-events:none;
+}
+
+.sidebar.collapsed .nav-links{
+display:flex;
+flex-direction:column;
+align-items:center;
 }
 
 
-/* ========== Footer ========== */
+/* ===============================
+   FOOTER
+================================ */
 
 .sidebar-footer{
 padding:18px;
@@ -118,10 +172,16 @@ text-decoration:none;
 color:#fff;
 
 background:rgba(255,255,255,0.06);
+
+transition:.2s;
 }
 
 .logout-btn:hover{
 background:rgba(255,255,255,0.12);
+}
+
+.sidebar.collapsed .logout-btn{
+justify-content:center;
 }
 
 .sidebar.collapsed .logout-btn span{
@@ -129,78 +189,51 @@ display:none;
 }
 
 
-/* ========== Center icons in collapsed sidebar ========== */
-
-.sidebar.collapsed .nav-links{
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-height:100%;
-}
-
-.sidebar.collapsed .nav-links li{
-width:100%;
-}
-
-
-/* ===== DASHBOARD LAYOUT ===== */
-
-.layout{
-display:flex;
-align-items:flex-start;
-min-height:100vh;
-}
-
-.main{
-flex:1;
-padding:20px;
-transition:.3s ease;
-min-width:0;
-}
-
-
-/* ===== MOBILE SIDEBAR ===== */
+/* ===============================
+   MOBILE SIDEBAR
+================================ */
 
 @media (max-width:768px){
 
 .sidebar{
 position:fixed;
-left:-260px;
 top:0;
+left:-260px;
+
 height:100vh;
 width:250px;
+min-width:250px;
 
 margin:0;
 border-radius:0;
 
-z-index:1000;
+z-index:3000;
+
 transition:left .3s ease;
 }
-
-/* sidebar open */
 
 .sidebar.open{
 left:0;
 }
 
-/* content full width */
-
 .main{
-margin-left:0;
+margin:0;
 padding:15px;
 }
 
-/* sidebar overlay */
+/* overlay */
 
 .sidebar-overlay{
 position:fixed;
 top:0;
 left:0;
+
 width:100%;
 height:100%;
+
 background:rgba(0,0,0,0.35);
-z-index:900;
+
+z-index:2500;
 display:none;
 }
 
@@ -211,7 +244,9 @@ display:block;
 }
 
 
-/* ===== SMALL MOBILE ===== */
+/* ===============================
+   SMALL MOBILE
+================================ */
 
 @media (max-width:480px){
 
@@ -233,4 +268,92 @@ padding:10px 14px;
 padding:12px;
 }
 
+}
+
+
+/* ===============================
+   TABLE HOVER
+================================ */
+
+.emp-table tbody tr{
+transition:.2s;
+}
+
+.emp-table tbody tr:hover{
+background:#f8fafc;
+transform:scale(1.01);
+}
+
+
+/* ===============================
+   CARD HOVER
+================================ */
+
+.stat-card{
+transition:all .25s ease;
+cursor:pointer;
+}
+
+.stat-card:hover{
+transform:translateY(-4px);
+box-shadow:0 12px 30px rgba(0,0,0,0.12);
+}
+
+
+/* ===============================
+   TOOLTIP (collapsed sidebar)
+================================ */
+
+.sidebar.collapsed .nav-item{
+position:relative;
+}
+
+.sidebar.collapsed .nav-item:hover span{
+display:block;
+position:absolute;
+
+left:75px;
+top:50%;
+transform:translateY(-50%);
+
+background:#0f172a;
+padding:6px 12px;
+border-radius:6px;
+
+font-size:13px;
+white-space:nowrap;
+
+box-shadow:0 6px 20px rgba(0,0,0,0.2);
+pointer-events:none;
+}
+
+
+/* ===============================
+   ACTIVE MENU
+================================ */
+
+.nav-item.active{
+background:rgba(59,130,246,0.18);
+color:#60a5fa;
+position:relative;
+}
+
+.nav-item.active::before{
+content:"";
+position:absolute;
+
+left:-10px;
+top:8px;
+bottom:8px;
+
+width:4px;
+border-radius:6px;
+
+background:#3b82f6;
+}
+
+
+.sidebar-collapsed #sidebar{
+width:70px;
+min-width:70px;
 }

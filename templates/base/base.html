@@ -2,13 +2,25 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>{% block title %}Dashboard{% endblock %}</title>
+
+<!-- Prevent sidebar flash (restore collapsed state before CSS loads) -->
+
+<script>
+(function(){
+  try{
+    if(localStorage.getItem("sidebar-state")==="collapsed"){
+      document.documentElement.classList.add("sidebar-collapsed");
+    }
+  }catch(e){}
+})();
+</script>
 
 <link rel="stylesheet" href="{% static 'css/base.css' %}">
 <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
@@ -23,121 +35,127 @@
 
 <div class="layout">
 
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
+<!-- =======================
+        SIDEBAR
+======================= -->
 
-    <div class="brand">
+<aside class="sidebar" id="sidebar">
 
-        <span class="brand-text">TeamFlow</span>
+<div class="brand">
 
-        <!-- Desktop collapse button -->
-        <div class="toggle-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </div>
+<span class="brand-text">TeamFlow</span>
 
-    </div>
+<!-- desktop toggle -->
 
-    <ul class="nav-links">
-
-        <li>
-            <a href="{% url 'dashboard' %}" class="nav-item">
-                <i class="fas fa-th-large"></i>
-                <span>Dashboard</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="{% url 'employee_list' %}" class="nav-item">
-                <i class="fas fa-users"></i>
-                <span>Users</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="{% url 'customer_list' %}" class="nav-item">
-                <i class="fas fa-user-friends"></i>
-                <span>Customers</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="{% url 'task_list' %}" class="nav-item">
-                <i class="fas fa-tasks"></i>
-                <span>Tasks</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="#" class="nav-item">
-                <i class="fas fa-chart-line"></i>
-                <span>Analytics</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="{% url 'company_settings' %}" class="nav-item">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </a>
-        </li>
-
-    </ul>
-
-    <div class="sidebar-footer">
-
-        <a href="{% url 'logout' %}" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
-        </a>
-
-    </div>
+<div class="toggle-btn" onclick="toggleSidebar(event)">
+<i class="fas fa-bars"></i>
+</div>
 
 </div>
 
+<ul class="nav-links">
 
-<!-- MAIN AREA -->
-<div class="main">
+<li>
+<a href="{% url 'dashboard' %}"
+class="nav-item {% if active_tab == 'dashboard' %}active{% endif %}">
+<i class="fas fa-th-large"></i>
+<span>Dashboard</span>
+</a>
+</li>
 
-    <!-- TOPBAR -->
-    <div class="topbar">
+<li>
+<a href="{% url 'employee_list' %}"
+class="nav-item {% if active_tab == 'users' %}active{% endif %}">
+<i class="fas fa-users"></i>
+<span>Users</span>
+</a>
+</li>
 
-        <!-- Mobile menu button -->
-        <div class="mobile-menu-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </div>
+<li>
+<a href="{% url 'customer_list' %}"
+class="nav-item {% if active_tab == 'customers' %}active{% endif %}">
+<i class="fas fa-user-friends"></i>
+<span>Customers</span>
+</a>
+</li>
 
-        <div class="company-name">
-            {{ request.membership.company.name }}
-        </div>
+<li>
+<a href="{% url 'task_list' %}"
+class="nav-item {% if active_tab == 'tasks' %}active{% endif %}">
+<i class="fas fa-tasks"></i>
+<span>Tasks</span>
+</a>
+</li>
 
-        <div class="user-email">
-            {{ request.user.email }}
-        </div>
+<li>
+<a href="#"
+class="nav-item {% if active_tab == 'analytics' %}active{% endif %}">
+<i class="fas fa-chart-line"></i>
+<span>Analytics</span>
+</a>
+</li>
 
-    </div>
+<li>
+<a href="{% url 'company_settings' %}"
+class="nav-item {% if active_tab == 'settings' %}active{% endif %}">
+<i class="fas fa-cog"></i>
+<span>Settings</span>
+</a>
+</li>
 
+</ul>
 
-    <!-- PAGE CONTENT -->
-    <div class="page">
+<div class="sidebar-footer">
 
-        {% block content %}
-        {% endblock %}
-
-    </div>
+<a href="{% url 'logout' %}" class="logout-btn">
+<i class="fas fa-sign-out-alt"></i>
+<span>Logout</span>
+</a>
 
 </div>
 
+</aside>
+
+<!-- =======================
+        MAIN AREA
+======================= -->
+
+<main class="main">
+
+<div class="topbar">
+
+<div class="mobile-menu-btn" onclick="toggleSidebar(event)">
+<i class="fas fa-bars"></i>
+</div>
+
+<div class="company-name">
+{{ request.membership.company.name }}
+</div>
+
+<div class="user-email">
+{{ request.user.email }}
+</div>
 
 </div>
 
-<!-- MOBILE OVERLAY -->
+<div class="page">
+{% block content %}
+{% endblock %}
+</div>
 
-<div id="overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+</main>
+
+</div>
+
+<!-- =======================
+        MOBILE OVERLAY
+======================= -->
+
+<div id="overlay" class="sidebar-overlay" onclick="toggleSidebar(event)"></div>
 
 <script src="{% static 'js/sidebar.js' %}"></script>
 
-{% block extra_js %}
-{% endblock %}
+{% block extra_js %}{% endblock %}
 
 </body>
 </html>

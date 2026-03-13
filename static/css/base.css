@@ -6,7 +6,6 @@ font-family:'Segoe UI',system-ui,sans-serif;
 }
 
 .layout{
-display:flex;
 min-height:100vh;
 background:linear-gradient(135deg,#eef2f7,#f8fafc);
 }
