@@ -1,0 +1,74 @@
+<!-- 🔥 CSRF TOKEN (required for AJAX POST) -->
+<form style="display:none;">
+    {% csrf_token %}
+</form>
+
+<table class="emp-table">
+
+    <thead>
+        <tr>
+            <th>Task</th>
+            <th>Customer</th>
+            <th>Deadline</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for a in assignments %}
+        <tr class="clickable-row {% if not a.checked_in_at %}disabled-row{% endif %}"
+            data-url="{% url 'assignment_detail' a.id %}"
+            data-checked="{{ a.checked_in_at|yesno:'true,false' }}">
+            
+            <!-- TASK -->
+            <td>{{ a.task.title }}</td>
+
+            <!-- CUSTOMER -->
+            <td>
+                {{ a.task.customer|default:"-" }}
+            </td>
+
+            <!-- DEADLINE -->
+            <td>
+                {{ a.due_date_value|default:"-" }}
+            </td>
+
+            <!-- STATUS -->
+            <td>
+                <span class="status-badge status-{{ a.status }}">
+                    {{ a.status|title }}
+                </span>
+            </td>
+
+            <!-- ACTION -->
+            <td>
+
+                {% if a.checked_in_at %}
+                    <button class="btn btn-secondary" disabled>
+                        Checked in at {{ a.checked_in_at|time:"h:i A" }}
+                    </button>
+                {% else %}
+                    <button class="btn btn-success checkin-btn"
+                            data-id="{{ a.id }}"
+                            data-url="{% url 'assignment_detail' a.id %}"
+                            data-checkin-url="{% url 'check_in_assignment' a.id %}">
+                        Check In
+                    </button>
+                {% endif %}
+
+            </td>
+
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align:center; padding:20px;">
+                No tasks found
+            </td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+
+</table>

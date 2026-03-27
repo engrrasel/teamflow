@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block extra_css %}
-
 <link rel="stylesheet" href="{% static 'tasks/css/task_edit.css' %}">
 {% endblock %}
 
@@ -22,8 +21,14 @@
 
 <div class="full">
 <label>Task Title</label>
-<input type="text" name="title" value="{{ task.title }}" required>
+
+<input type="text"
+name="title"
+value="{{ assignment.title_override|default:task.title }}"
+required>
+
 </div>
+
 
 <!-- TASK TYPE -->
 
@@ -32,29 +37,59 @@
 
 <select name="task_type">
 
-<option value="desk" {% if task.task_type == "desk" %}selected{% endif %}>
+<option value="desk"
+{% if assignment.task_type_override %}
+    {% if assignment.task_type_override == "desk" %}selected{% endif %}
+{% else %}
+    {% if task.task_type == "desk" %}selected{% endif %}
+{% endif %}>
 Desk Work
 </option>
 
-<option value="visit" {% if task.task_type == "visit" %}selected{% endif %}>
+
+<option value="visit"
+{% if assignment.task_type_override %}
+    {% if assignment.task_type_override == "visit" %}selected{% endif %}
+{% else %}
+    {% if task.task_type == "visit" %}selected{% endif %}
+{% endif %}>
 Visit
 </option>
 
-<option value="call" {% if task.task_type == "call" %}selected{% endif %}>
+
+<option value="call"
+{% if assignment.task_type_override %}
+    {% if assignment.task_type_override == "call" %}selected{% endif %}
+{% else %}
+    {% if task.task_type == "call" %}selected{% endif %}
+{% endif %}>
 Call
 </option>
 
-<option value="meeting" {% if task.task_type == "meeting" %}selected{% endif %}>
+
+<option value="meeting"
+{% if assignment.task_type_override %}
+    {% if assignment.task_type_override == "meeting" %}selected{% endif %}
+{% else %}
+    {% if task.task_type == "meeting" %}selected{% endif %}
+{% endif %}>
 Meeting
 </option>
 
-<option value="collection" {% if task.task_type == "collection" %}selected{% endif %}>
+
+<option value="collection"
+{% if assignment.task_type_override %}
+    {% if assignment.task_type_override == "collection" %}selected{% endif %}
+{% else %}
+    {% if task.task_type == "collection" %}selected{% endif %}
+{% endif %}>
 Collection
 </option>
 
 </select>
 
 </div>
+
 
 <!-- PRIORITY -->
 
@@ -63,15 +98,32 @@ Collection
 
 <select name="priority">
 
-<option value="low" {% if task.priority == "low" %}selected{% endif %}>
+<option value="low"
+{% if assignment.priority_override %}
+    {% if assignment.priority_override == "low" %}selected{% endif %}
+{% else %}
+    {% if task.priority == "low" %}selected{% endif %}
+{% endif %}>
 Low
 </option>
 
-<option value="medium" {% if task.priority == "medium" %}selected{% endif %}>
+
+<option value="medium"
+{% if assignment.priority_override %}
+    {% if assignment.priority_override == "medium" %}selected{% endif %}
+{% else %}
+    {% if task.priority == "medium" %}selected{% endif %}
+{% endif %}>
 Medium
 </option>
 
-<option value="high" {% if task.priority == "high" %}selected{% endif %}>
+
+<option value="high"
+{% if assignment.priority_override %}
+    {% if assignment.priority_override == "high" %}selected{% endif %}
+{% else %}
+    {% if task.priority == "high" %}selected{% endif %}
+{% endif %}>
 High
 </option>
 
@@ -79,14 +131,22 @@ High
 
 </div>
 
+
 <!-- DEADLINE -->
 
 <div>
 <label>Deadline</label>
+
 <input type="date"
 name="due_date"
-value="{{ task.due_date|date:'Y-m-d' }}">
+value="{% if assignment.due_date_override %}
+{{ assignment.due_date_override|date:'Y-m-d' }}
+{% else %}
+{{ task.due_date|date:'Y-m-d' }}
+{% endif %}">
+
 </div>
+
 
 <!-- CUSTOM POINTS -->
 
@@ -102,6 +162,7 @@ placeholder="Leave empty for auto points">
 
 </div>
 
+
 <!-- DESCRIPTION -->
 
 <div class="full">
@@ -109,9 +170,10 @@ placeholder="Leave empty for auto points">
 <label>Description</label>
 
 <textarea name="description"
-placeholder="Task description...">{{ task.description }}</textarea>
+placeholder="Task description...">{{ assignment.description_override|default:task.description }}</textarea>
 
 </div>
+
 
 <!-- BUTTONS -->
 

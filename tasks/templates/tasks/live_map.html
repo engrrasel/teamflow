@@ -1,39 +1,73 @@
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+#map{
+    height:500px;
+    border-radius:12px;
+}
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<h2>📍 Live Employee Map</h2>
+
+<div id="map"></div>
+
+{% endblock %}
+
+
+{% block extra_js %}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<div id="map" style="height:600px"></div>
-
 <script>
 
-let map = L.map('map').setView([23.6850,90.3563],7);
+var map = L.map('map').setView([23.8103, 90.4125], 12);
 
-L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+}).addTo(map);
 
-let employees = [
+let markers = [];
 
-{% for e in locations %}
+// load data
+function loadLocations(){
 
-{
-name:"{{ e.employee.username }}",
-lat:{{ e.latitude }},
-lng:{{ e.longitude }}
-},
+    fetch("/tasks/locations/")
+    .then(res => res.json())
+    .then(data => {
 
-{% endfor %}
+        // clear old markers
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
 
-];
+        data.forEach(emp => {
 
-employees.forEach(e=>{
+            let marker = L.marker([emp.lat, emp.lng])
+                .addTo(map)
+                .bindPopup(emp.name);
 
-let marker = L.marker([e.lat,e.lng]).addTo(map);
+            markers.push(marker);
+        });
 
-marker.bindPopup(e.name);
+    });
 
-});
+}
+
+// first load
+loadLocations();
+
+// refresh every 20 sec
+setInterval(loadLocations, 20000);
 
 </script>
 
+{% endblock %}

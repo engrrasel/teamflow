@@ -127,3 +127,35 @@ text-align:center;
 padding:20px;
 color:#64748b;
 }
+
+/* SKIP BOX */
+.skip-box{
+margin:15px 0;
+padding:14px 16px;
+border-radius:12px;
+background: rgba(255, 77, 77, 0.08);
+border: 1px solid rgba(255, 77, 77, 0.25);
+}
+
+.skip-header{
+font-weight:600;
+color:#ff5c5c;
+margin-bottom:6px;
+}
+
+.skip-box li{
+font-size:14px;
+margin-bottom:4px;
+color:#ff6b6b;
+}
+
+/* SUCCESS BOX */
+.success-box{
+margin:15px 0;
+padding:14px 16px;
+border-radius:12px;
+background: rgba(0, 200, 100, 0.08);
+border: 1px solid rgba(0, 200, 100, 0.25);
+color:#2ecc71;
+font-weight:500;
+}

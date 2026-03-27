@@ -1,0 +1,159 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tasks/css/assignment_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="task-wrapper">
+
+<!-- LEFT -->
+<div class="left">
+
+<div class="box title-box">
+<h2>{{ assignment.title }}</h2>
+
+<div class="badges">
+<span class="badge type">{{ assignment.task.get_task_type_display }}</span>
+
+<span class="badge priority-{{ assignment.priority_value }}">
+{{ assignment.get_priority_value_display }}
+</span>
+
+<span class="badge due">
+{{ assignment.due_date_value|date:"d M Y" }}
+</span>
+</div>
+</div>
+
+<div class="box info-box">
+<h3>📌 Task Information</h3>
+
+<div class="info-grid">
+<div><label>Employee</label><p>{{ assignment.employee }}</p></div>
+
+<div>
+<label>Status</label>
+<span class="status status-{{ assignment.status }}">
+{{ assignment.get_status_display }}
+</span>
+</div>
+
+<div><label>Assign Date</label><p>{{ assignment.assignment_date|date:"d M Y" }}</p></div>
+<div><label>Points</label><p>{{ assignment.calculate_points }}</p></div>
+</div>
+</div>
+
+<div class="box desc-box">
+<h3>📝 Description</h3>
+<p>{{ assignment.description }}</p>
+</div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+
+<div class="box chat-box">
+
+<div class="chat-messages" id="chatMessages">
+
+{% for note in assignment.notes.all|dictsort:"created_at" %}
+<div class="chat-msg {% if note.created_by == request.user %}me{% else %}other{% endif %}">
+<div class="chat-bubble">
+
+<div class="chat-text">{{ note.note }}</div>
+
+<div class="chat-meta">
+{{ note.created_by }} • {{ note.created_at|date:"d M Y H:i" }}
+
+{% if forloop.last %}
+<span class="seen">Seen</span>
+{% endif %}
+</div>
+
+</div>
+</div>
+{% empty %}
+<div class="no-chat">No conversation yet</div>
+{% endfor %}
+
+</div>
+
+<div class="typing" id="typing">Typing...</div>
+
+<!-- ========================= -->
+<!-- FORM -->
+<!-- ========================= -->
+
+<form method="post" class="chat-input">
+{% csrf_token %}
+
+<input type="text" name="note" id="chatInput" placeholder="Write message...">
+
+<!-- default action for Enter -->
+<input type="hidden" name="action" value="message">
+
+<!-- ========================= -->
+<!-- 👤 EMPLOYEE -->
+<!-- ========================= -->
+{% if request.user == assignment.employee %}
+
+    <button type="submit"
+            name="action"
+            value="submit"
+            class="submit-btn"
+            {% if assignment.status != "checked_in" and assignment.status != "rejected" and assignment.status != "resubmitted" %}disabled{% endif %}>
+        Submit
+    </button>
+
+{% endif %}
+
+<!-- ========================= -->
+<!-- 🧑‍💼 ADMIN -->
+<!-- ========================= -->
+{% if request.membership.role == "company_admin" %}
+
+    <button type="submit"
+            name="action"
+            value="approve"
+            class="approve-btn"
+            {% if assignment.status != "submitted" %}disabled{% endif %}>
+        Approve
+    </button>
+
+    <button type="submit"
+            name="action"
+            value="reject"
+            class="reject-btn"
+            {% if assignment.status != "submitted" %}disabled{% endif %}>
+        Resubmit
+    </button>
+
+{% endif %}
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'tasks/js/assignment_detail.js' %}"></script>
+
+<script>
+/* Enter = send message only */
+document.getElementById("chatInput").addEventListener("keypress", function(e){
+    if(e.key === "Enter"){
+        // default action already message
+    }
+});
+</script>
+
+{% endblock %}

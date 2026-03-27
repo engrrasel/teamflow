@@ -2,105 +2,104 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'company/css/company.css' %}">
+<link rel="stylesheet" href="{% static 'company/css/company_create.css' %}">
 {% endblock %}
 
 {% block content %}
 
 <div class="settings-container">
 
-<div class="settings-card">
+  <div class="settings-card">
 
-<div class="settings-header">
-<h2>Holiday Setup</h2>
-<p>Add company holidays. Tasks will not generate on these days.</p>
-</div>
+    <div class="settings-header">
+      <h2>Create Company</h2>
+      <p>Setup your company to start managing tasks and employees.</p>
+    </div>
 
-<form method="post">
+    <!-- Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
 
-{% csrf_token %}
+    <form method="post">
+      {% csrf_token %}
 
-<div class="form-group">
+      <!-- Company Name -->
+      <div class="form-group">
+        <label>Company Name</label>
+        <input type="text" name="name" placeholder="Example: ABC Ltd" required>
+      </div>
 
-<label>Holiday Name</label>
+      <!-- Address -->
+      <div class="form-group">
+        <label>Address</label>
+        <textarea name="address" placeholder="Company address" required></textarea>
+      </div>
 
-<input type="text"
-name="name"
-placeholder="Example: Victory Day"
-required>
+      <!-- Phone -->
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" name="phone" placeholder="01XXXXXXXXX" required>
+      </div>
 
-</div>
+      <!-- Weekend Chips -->
+      <div class="form-group">
+        <label>Weekend Days</label>
 
-<div class="form-group">
+        <div class="chip-group">
 
-<label>Holiday Date</label>
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="4" checked>
+            <span>Friday</span>
+          </label>
 
-<input type="date"
-name="date"
-required>
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="5" checked>
+            <span>Saturday</span>
+          </label>
 
-</div>
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="6">
+            <span>Sunday</span>
+          </label>
 
-<div class="form-actions">
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="0">
+            <span>Monday</span>
+          </label>
 
-<button type="submit" class="primary-btn">
-Add Holiday
-</button>
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="1">
+            <span>Tuesday</span>
+          </label>
 
-</div>
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="2">
+            <span>Wednesday</span>
+          </label>
 
-</form>
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="3">
+            <span>Thursday</span>
+          </label>
 
-<hr style="margin:30px 0;">
+        </div>
 
-<h3>Holiday List</h3>
+        <small class="hint">Select your weekly holidays</small>
+      </div>
 
-<table class="settings-table">
+      <!-- Submit -->
+      <div class="form-actions">
+        <button type="submit" class="primary-btn">
+          Save & Continue →
+        </button>
+      </div>
 
-<thead>
-<tr>
-<th>Name</th>
-<th>Date</th>
-<th>Action</th>
-</tr>
-</thead>
+    </form>
 
-<tbody>
-
-{% for h in holidays %}
-
-<tr>
-
-<td>{{ h.name }}</td>
-
-<td>{{ h.date|date:"d M Y" }}</td>
-
-<td>
-
-<a href="{% url 'delete_company_holiday' h.id %}"
-class="danger-btn">
-
-Delete
-
-</a>
-
-</td>
-
-</tr>
-
-{% empty %}
-
-<tr>
-<td colspan="3">No holidays added</td>
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
+  </div>
 
 </div>
 

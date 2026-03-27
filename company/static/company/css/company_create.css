@@ -1,0 +1,150 @@
+/* ===============================
+   COMPANY CREATE PAGE
+================================ */
+
+/* Container */
+.settings-container{
+display:flex;
+justify-content:center;
+align-items:center;
+padding:40px 20px;
+}
+
+/* Card */
+.settings-card{
+width:100%;
+max-width:600px;
+padding:30px;
+border-radius:20px;
+background: rgba(255,255,255,0.05);
+backdrop-filter: blur(12px);
+box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* Header */
+.settings-header h2{
+margin-bottom:5px;
+}
+
+.settings-header p{
+opacity:0.7;
+margin-bottom:20px;
+}
+
+/* Form */
+.form-group{
+margin-bottom:20px;
+}
+
+.form-group label{
+display:block;
+margin-bottom:6px;
+font-weight:500;
+}
+
+.form-group input,
+.form-group textarea{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,0.2);
+background:rgba(255,255,255,0.05);
+color:#000000;
+outline:none;
+}
+
+/* Focus */
+.form-group input:focus,
+.form-group textarea:focus{
+border-color:#4facfe;
+box-shadow:0 0 0 2px rgba(79,172,254,0.2);
+}
+
+/* ===============================
+   CHIP (Weekend Selector)
+================================ */
+
+.chip-group {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+margin-top: 10px;
+}
+
+.chip {
+cursor: pointer;
+}
+
+.chip input {
+display: none;
+}
+
+.chip span {
+display: inline-block;
+padding: 8px 14px;
+border-radius: 20px;
+background: rgba(255,255,255,0.08);
+border: 1px solid rgba(255,255,255,0.15);
+font-size: 14px;
+transition: all 0.3s ease;
+}
+
+/* Hover */
+.chip:hover span {
+background: rgba(255,255,255,0.15);
+}
+
+/* Active */
+.chip input:checked + span {
+background: #006dac;
+color: #fff;
+border: none;
+box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+transform: scale(1.05);
+}
+
+/* ===============================
+   BUTTON
+================================ */
+
+.form-actions{
+margin-top:20px;
+}
+
+.primary-btn{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+background: #00a11b;
+color:#fff;
+font-weight:600;
+cursor:pointer;
+transition: all 0.3s ease;
+}
+
+.primary-btn:hover{
+transform: translateY(-2px);
+box-shadow:0 6px 20px rgba(0,0,0,0.3);
+}
+
+/* ===============================
+   ALERT
+================================ */
+
+.alert{
+padding:10px;
+border-radius:8px;
+margin-bottom:15px;
+background:rgba(255,255,255,0.1);
+color:#fff;
+}
+
+/* ===============================
+   SMALL TEXT
+================================ */
+
+.hint{
+font-size:12px;
+opacity:0.6;
+}

@@ -1,0 +1,333 @@
+/* =========================
+PAGE LAYOUT
+========================= */
+
+.task-wrapper{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:25px;
+padding:20px;
+background:#f3f4f6;
+font-family:'Segoe UI',sans-serif;
+}
+
+/* =========================
+BOX
+========================= */
+
+.box{
+background:#fff;
+border-radius:22px;
+padding:22px;
+border:1px solid #e5e7eb;
+}
+
+/* =========================
+LEFT PANEL
+========================= */
+
+.left{
+display:flex;
+flex-direction:column;
+gap:20px;
+}
+
+/* =========================
+TITLE
+========================= */
+
+.title-box h2{
+margin:0 0 12px;
+font-size:26px;
+font-weight:700;
+}
+
+/* =========================
+BADGES
+========================= */
+
+.badges{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.badge{
+padding:6px 12px;
+border-radius:20px;
+font-size:12px;
+font-weight:600;
+}
+
+.badge.type{
+background:#e0e7ff;
+color:#4338ca;
+}
+
+.priority-high{
+background:#fee2e2;
+color:#dc2626;
+}
+
+.priority-medium{
+background:#fde68a;
+color:#92400e;
+}
+
+.priority-low{
+background:#dcfce7;
+color:#16a34a;
+}
+
+.badge.due{
+background:#fed7aa;
+color:#c2410c;
+}
+
+/* =========================
+TASK INFO
+========================= */
+
+.info-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+.info-grid label{
+font-size:12px;
+color:#777;
+display:block;
+margin-bottom:3px;
+}
+
+.info-grid p{
+margin:0;
+font-weight:500;
+}
+
+/* =========================
+STATUS
+========================= */
+
+.status{
+padding:4px 10px;
+border-radius:20px;
+font-size:12px;
+font-weight:600;
+display:inline-block;
+}
+
+.status-approved{
+background:#dcfce7;
+color:#166534;
+}
+
+.status-pending{
+background:#fef3c7;
+color:#92400e;
+}
+
+.status-rejected{
+background:#fee2e2;
+color:#991b1b;
+}
+
+.status-submitted{
+background:#e0f2fe;
+color:#0369a1;
+}
+
+/* =========================
+DESCRIPTION (SCROLL)
+========================= */
+
+.desc-box{
+max-height:300px;
+overflow-y:auto;
+line-height:1.6;
+color:#444;
+}
+
+/* =========================
+RIGHT PANEL
+========================= */
+
+.right{
+display:flex;
+flex-direction:column;
+gap:15px;
+height:100%;
+}
+
+/* =========================
+CHAT BOX
+========================= */
+
+.chat-box{
+display:flex;
+flex-direction:column;
+height:520px;
+}
+
+/* =========================
+CHAT MESSAGES
+========================= */
+
+.chat-messages{
+flex:1;
+overflow-y:auto;
+display:flex;
+flex-direction:column;
+gap:10px;
+padding-right:5px;
+scroll-behavior:smooth;
+}
+
+/* 🔥 keeps last message at bottom */
+.chat-messages::after{
+content:"";
+margin-top:auto;
+}
+
+/* =========================
+CHAT MESSAGE
+========================= */
+
+.chat-msg{
+display:flex;
+}
+
+.chat-msg.me{
+justify-content:flex-end;
+}
+
+.chat-msg.other{
+justify-content:flex-start;
+}
+
+.chat-bubble{
+max-width:70%;
+padding:10px 14px;
+border-radius:14px;
+background:#f1f3f5;
+font-size:14px;
+line-height:1.4;
+box-shadow:0 2px 6px rgba(0,0,0,0.06);
+}
+
+.chat-msg.me .chat-bubble{
+background:#dbeafe;
+}
+
+/* =========================
+CHAT META
+========================= */
+
+.chat-meta{
+font-size:11px;
+opacity:.6;
+margin-top:5px;
+}
+
+/* =========================
+SEEN STATUS
+========================= */
+
+.seen{
+color:#16a34a;
+margin-left:6px;
+font-size:11px;
+}
+
+/* =========================
+TYPING
+========================= */
+
+.typing{
+display:none;
+font-size:12px;
+color:#888;
+margin:5px 0;
+}
+
+/* =========================
+INPUT
+========================= */
+
+.chat-input{
+display:flex;
+gap:10px;
+margin-top:10px;
+}
+
+.chat-input input{
+flex:1;
+padding:12px;
+border-radius:30px;
+border:1px solid #ddd;
+outline:none;
+font-size:14px;
+}
+
+/* =========================
+BUTTONS
+========================= */
+
+.approve-btn{
+background:#16a34a;
+color:#fff;
+border:none;
+padding:10px 18px;
+border-radius:8px;
+cursor:pointer;
+font-weight:500;
+}
+
+/* =========================
+EMPTY CHAT
+========================= */
+
+.no-chat{
+text-align:center;
+color:#888;
+margin:auto;
+font-size:15px;
+}
+
+/* =========================
+SCROLLBAR (OPTIONAL NICE)
+========================= */
+
+.chat-messages::-webkit-scrollbar{
+width:6px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb{
+background:#ccc;
+border-radius:10px;
+}
+
+/* =========================
+MOBILE
+========================= */
+
+@media(max-width:768px){
+
+.task-wrapper{
+grid-template-columns:1fr;
+}
+
+.chat-bubble{
+max-width:90%;
+}
+
+}
+
+
+.status-resubmit{
+background:#e0f2fe;
+color:#0369a1;
+padding:4px 10px;
+border-radius:20px;
+}

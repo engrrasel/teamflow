@@ -87,31 +87,25 @@ def logout_view(request):
 
 @login_required
 def dashboard_view(request):
+
+    membership = getattr(request, "membership", None)
+
+    # ❌ No company → create company
+    if not membership:
+        return redirect("create_company")
+
+    company = membership.company
+
+    # ❌ Weekend setup নাই → company setup page
+    if not company.weekends.exists():
+        return redirect("company_edit")
+
+    # ❌ Holiday নাই → holiday setup
+    if not company.holidays.exists():
+        return redirect("company_holiday")
+
+    # ✅ সব ঠিক → dashboard
     return render(request, "accounts/dashboard.html")
-
-
-# ------------------ Force Password Change ------------------
-
-@login_required
-def force_password_change_view(request):
-    form = ForcePasswordChangeForm(request.POST or None)
-
-    if request.method == "POST" and form.is_valid():
-        new_password = form.cleaned_data["new_password"]
-
-        request.user.set_password(new_password)
-        request.user.is_invited = False
-        request.user.save()
-
-        login(request, request.user)
-        return redirect("dashboard")
-
-    return render(
-        request,
-        "accounts/force_password_change.html",
-        {"form": form},
-    )
-
 
 # ------------------ Invite Employee ------------------
 
@@ -394,4 +388,29 @@ def employee_weekend_view(request, user_id):
         request,
         "accounts/employee_weekend.html",
         {"weekends": weekends},
+    )
+
+
+from django.contrib.auth import login
+
+@login_required
+def force_password_change_view(request):
+
+    form = ForcePasswordChangeForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        new_password = form.cleaned_data["new_password"]
+
+        request.user.set_password(new_password)
+        request.user.is_invited = False
+        request.user.save()
+
+        login(request, request.user)
+
+        return redirect("dashboard")
+
+    return render(
+        request,
+        "accounts/force_password_change.html",
+        {"form": form},
     )

@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -7,7 +8,11 @@ from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.contrib import messages
 
+
+from django.views.decorators.http import require_POST
+from .models import TaskActionNote
 from .models import Task, TaskAssignment, SalesOrder, Collection, EmployeeLocation
 from customers.models import Customer
 from accounts.models import Membership, EmployeeWeekend
@@ -16,6 +21,23 @@ from company.models import CompanyWeekend, CompanyHoliday
 User = get_user_model()
 
 
+# =====================================
+# ADMIN PERMISSION HELPER
+# =====================================
+
+def admin_required(request):
+
+    membership = getattr(request, "membership", None)
+
+    if not membership:
+        return HttpResponseForbidden("No membership")
+
+    role = str(membership.role).lower()
+
+    if role not in ["company_admin"]:
+        return HttpResponseForbidden("Admin only")
+
+    return None
 
 # =====================================
 # EMPLOYEE TASK DASHBOARD
@@ -26,22 +48,36 @@ def my_tasks_view(request):
 
     today = timezone.localdate()
 
-    assignments = (
-        TaskAssignment.objects
-        .filter(employee=request.user, assignment_date=today)
-        .select_related(
-            "task",
-            "task__customer"
-        )
-        .order_by("status", "task__title")
-    )
+    base_qs = TaskAssignment.objects.filter(
+        employee=request.user
+    ).select_related("task", "task__customer")
+
+    # আজকের কাজ
+    today_tasks = base_qs.filter(
+        assignment_date=today
+    ).order_by("status")
+
+    # চলমান (pending + checked_in + submitted)
+    ongoing_tasks = base_qs.filter(
+        status__in=["pending", "checked_in", "submitted"]
+    ).exclude(
+        assignment_date=today
+    ).order_by("-assignment_date")
+
+    # history (approved + rejected)
+    history_tasks = base_qs.filter(
+        status__in=["approved", "rejected"]
+    ).order_by("-assignment_date")
 
     return render(
         request,
         "tasks/my_tasks.html",
-        {"assignments": assignments}
+        {
+            "today_tasks": today_tasks,
+            "ongoing_tasks": ongoing_tasks,
+            "history_tasks": history_tasks,
+        }
     )
-
 # =====================================
 # CHECK IN
 # =====================================
@@ -176,6 +212,9 @@ def update_employee_location(request):
 
 @login_required
 def task_add_view(request):
+    check = admin_required(request)
+    if check:
+        return check
 
     membership = getattr(request, "membership", None)
 
@@ -274,11 +313,17 @@ def task_add_view(request):
 # =====================================
 # TASK LIST
 # =====================================
-
 @login_required
 def task_list_view(request):
 
-    company = request.membership.company
+    membership = request.membership
+
+    # employee হলে My Tasks এ পাঠাও
+    if membership.role == "employee":
+        return redirect("my_tasks")
+
+    # admin হলে normal task list
+    company = membership.company
 
     generate_recurring_tasks(company)
 
@@ -332,7 +377,6 @@ def task_list_view(request):
         context
     )
 
-
 # =====================================
 # SUBMIT TASK
 # =====================================
@@ -358,6 +402,10 @@ def submit_task(request, assignment_id):
 @login_required
 def approve_task(request, assignment_id):
 
+    check = admin_required(request)
+    if check:
+        return check
+
     company = request.membership.company
 
     assignment = get_object_or_404(
@@ -376,6 +424,9 @@ def approve_task(request, assignment_id):
 # =====================================
 @login_required
 def task_edit_view(request, task_id):
+    check = admin_required(request)
+    if check:
+        return check
 
     task = get_object_or_404(
         Task,
@@ -439,20 +490,21 @@ def task_edit_view(request, task_id):
 @login_required
 def task_delete_view(request, task_id):
 
+    check = admin_required(request)
+    if check:
+        return check
+
     task = get_object_or_404(
         Task,
         id=task_id,
         company=request.membership.company
     )
 
+    # 🔥 FULL DELETE (correct way)
     task.delete()
 
-    return redirect("task_list")
+    return redirect("scheduled_tasks")
 
-
-# =====================================
-# LEADERBOARD
-# =====================================
 
 # =====================================
 # LEADERBOARD
@@ -520,6 +572,10 @@ def leaderboard_view(request):
 @login_required
 def reject_task(request, assignment_id):
 
+    check = admin_required(request)
+    if check:
+        return check
+
     assignment = get_object_or_404(
         TaskAssignment,
         id=assignment_id,
@@ -530,59 +586,24 @@ def reject_task(request, assignment_id):
 
         reason = request.POST.get("reject_note")
 
-        assignment.status = "rejected"
-        assignment.reject_note = reason
-        assignment.approved_by = request.user
-        assignment.approved_at = timezone.now()
+        success = assignment.reject(request.user, reason)
 
-        assignment.save()
-
-        # save history
-        TaskActionNote.objects.create(
-            assignment=assignment,
-            note_type="reject",
-            note=reason,
-            created_by=request.user
-        )
-
-    return redirect("task_detail", assignment.task.id)
-# =====================================
-# RESUBMIT TASK
-# =====================================
-
-from .models import TaskActionNote
-
-@login_required
-def resubmit_task(request, assignment_id):
-
-    assignment = get_object_or_404(
-    TaskAssignment,
-    id=assignment_id,
-    task__company=request.membership.company
-)
-
-    if request.method == "POST":
-
-        note = request.POST.get("resubmit_note")
-
-        # existing workflow
-        assignment.resubmit(note)
-
-        # save history
-        if note:
+        if success:
             TaskActionNote.objects.create(
                 assignment=assignment,
-                note_type="resubmit",
-                note=note,
+                note_type="reject",
+                note=reason,
                 created_by=request.user
             )
+        else:
+            print("❌ Reject failed. Status:", assignment.status)
 
     return redirect("task_detail", assignment.task.id)
 
+    
 # =====================================
 # GENERATE RECURRING TASKS
 # =====================================
-
 
 def generate_recurring_tasks(company):
 
@@ -604,28 +625,25 @@ def generate_recurring_tasks(company):
             ew.employee_id, set()
         ).add(ew.weekday)
 
-    # build holiday set (fast lookup)
+    # holiday set
     holiday_dates = set()
 
     for h in CompanyHoliday.objects.filter(company=company):
-
         current = h.start_date
-
         while current <= h.end_date:
             holiday_dates.add(current)
             current += timedelta(days=1)
 
-    # duplicate protection
+    # existing assignments (duplicate protection)
     existing_runs = set(
         TaskAssignment.objects.filter(
             task__company=company
-        ).values_list("task_id", "assignment_date")
+        ).values_list("task_id", "employee_id", "assignment_date")
     )
 
     tasks = Task.objects.filter(
         company=company,
         repeat_type__in=["daily", "weekly", "15days", "monthly"],
-        next_run__lte=today,
         is_active=True
     ).prefetch_related("assignments", "assignments__employee")
 
@@ -633,19 +651,16 @@ def generate_recurring_tasks(company):
 
     for task in tasks:
 
-        run_date = task.next_run
+        # 🔥 IMPORTANT: run_date start
+        run_date = task.next_run or today
 
         assignments_template = list(task.assignments.all())
 
+        # 🔁 loop until today (missed recovery)
         while run_date <= today:
 
-            # holiday check (O1)
+            # ❌ skip holiday globally
             if run_date in holiday_dates:
-                run_date += timedelta(days=1)
-                continue
-
-            # duplicate protection
-            if (task.id, run_date) in existing_runs:
                 run_date += timedelta(days=1)
                 continue
 
@@ -653,12 +668,18 @@ def generate_recurring_tasks(company):
 
                 employee = a.employee
 
+                # employee-specific weekend
                 weekend_days = employee_weekends.get(
                     employee.id,
                     company_weekends
                 )
 
+                # ❌ skip only this employee
                 if run_date.weekday() in weekend_days:
+                    continue
+
+                # ❌ duplicate protection
+                if (task.id, employee.id, run_date) in existing_runs:
                     continue
 
                 new_assignments.append(
@@ -670,7 +691,7 @@ def generate_recurring_tasks(company):
                     )
                 )
 
-            # next run calculation
+            # 🔁 next run increment (only logic, no bug)
             if task.repeat_type == "daily":
                 run_date += timedelta(days=1)
 
@@ -683,23 +704,26 @@ def generate_recurring_tasks(company):
             elif task.repeat_type == "monthly":
                 run_date += timedelta(days=30)
 
+        # ✅ FIX: next_run set correctly (NO GLOBAL BUG)
         task.next_run = run_date
 
-    # bulk update tasks
+    # bulk update
     Task.objects.bulk_update(tasks, ["next_run"])
 
-    # bulk insert assignments
+    # bulk create
     TaskAssignment.objects.bulk_create(
         new_assignments,
         ignore_conflicts=True
     )
-
     
 # =====================================
 # scheduled tasks view
 # =====================================
 @login_required
 def scheduled_tasks_view(request):
+    check = admin_required(request)
+    if check:
+        return check
 
     company = request.membership.company
 
@@ -721,33 +745,49 @@ def task_detail_view(request, task_id):
     company = request.membership.company
 
     task = get_object_or_404(
-        Task.objects
-        .select_related(
-            "customer",
-            "created_by"
-        )
-        .prefetch_related(
-            "assignments",
-            "assignments__employee",
-            "assignments__notes",
-            "assignments__notes__created_by"
-        ),
+        Task.objects.select_related("customer", "created_by"),
         id=task_id,
         company=company
     )
+
+    # 🔥 employee filter param (admin use করবে)
+    employee_id = request.GET.get("employee")
+
+    # 🔥 base queryset
+    assignments = TaskAssignment.objects.filter(
+        task=task
+    ).select_related("employee")
+
+    # 🔥 employee role হলে নিজেরটা দেখবে
+    if request.membership.role == "employee":
+        assignments = assignments.filter(employee=request.user)
+
+    # 🔥 admin filter (optional)
+    elif employee_id:
+        assignments = assignments.filter(employee_id=employee_id)
+
+    # 🔥 dropdown এর জন্য employees list
+    employees = Membership.objects.filter(
+        company=company,
+        role="employee"
+    ).select_related("user")
 
     return render(
         request,
         "tasks/task_detail.html",
         {
-            "task": task
+            "task": task,
+            "assignments": assignments,
+            "employees": employees
         }
     )
 
-
-
-
+@login_required
 def task_toggle(request, task_id):
+
+    check = admin_required(request)
+    if check:
+        return check
 
     task = get_object_or_404(Task, id=task_id)
 
@@ -757,7 +797,13 @@ def task_toggle(request, task_id):
     return redirect("scheduled_tasks")
 
 
+
+@login_required
 def scheduled_task_detail(request, task_id):
+
+    check = admin_required(request)
+    if check:
+        return check
 
     task = get_object_or_404(Task, id=task_id)
 
@@ -767,12 +813,14 @@ def scheduled_task_detail(request, task_id):
         .order_by("-assignment_date")
     )
 
-    # run history with time
     run_dates = (
         task.assignments
         .values_list("created_at", flat=True)
         .order_by("-created_at")
     )
+
+    # 🔥 ADD THIS
+    skip_reasons = get_task_skip_reason(task)
 
     return render(
         request,
@@ -780,6 +828,261 @@ def scheduled_task_detail(request, task_id):
         {
             "task": task,
             "assignments": assignments,
-            "run_dates": run_dates
+            "run_dates": run_dates,
+            "skip_reasons": skip_reasons
         }
     )
+
+@login_required
+def assignment_delete_view(request, assignment_id):
+
+    check = admin_required(request)
+    if check:
+        return check
+
+    assignment = get_object_or_404(
+        TaskAssignment,
+        id=assignment_id,
+        task__company=request.membership.company
+    )
+
+    assignment.delete()
+
+    return redirect("task_list")
+
+
+@login_required
+def assignment_edit_view(request, assignment_id):
+
+    check = admin_required(request)
+    if check:
+        return check
+
+    assignment = get_object_or_404(
+        TaskAssignment,
+        id=assignment_id,
+        task__company=request.membership.company
+    )
+
+    if request.method == "POST":
+
+        assignment.title_override = request.POST.get("title") or None
+        assignment.description_override = request.POST.get("description") or None
+        assignment.task_type_override = request.POST.get("task_type") or None
+        assignment.priority_override = request.POST.get("priority") or None
+
+        due_date = request.POST.get("due_date")
+        assignment.due_date_override = parse_date(due_date) if due_date else None
+
+        custom_points = request.POST.get("custom_points")
+
+        try:
+            assignment.custom_points = float(custom_points)
+        except:
+            assignment.custom_points = None
+
+        assignment.save()
+
+        return redirect("task_list")
+
+    return render(
+        request,
+        "tasks/task_edit.html",
+        {
+            "assignment": assignment,
+            "task": assignment.task
+        }
+    )
+
+@login_required
+def assignment_detail_view(request, assignment_id):
+
+    assignment = get_object_or_404(
+        TaskAssignment.objects.select_related(
+            "task",
+            "employee",
+            "task__customer",
+            "task__created_by"
+        ).prefetch_related(
+            "notes",
+            "notes__created_by"
+        ),
+        id=assignment_id,
+        task__company=request.membership.company
+    )
+
+    user = request.user
+    is_employee = user == assignment.employee
+    is_admin = request.membership.role == "company_admin"
+
+    # =========================
+    # 🔒 CHECK-IN REQUIRED (CORE FIX)
+    # =========================
+    if is_employee and not assignment.checked_in_at:
+        messages.warning(request, "Please check in first.")
+        return redirect("my_tasks")
+
+    # =========================
+    # POST HANDLING
+    # =========================
+    if request.method == "POST":
+
+        note = request.POST.get("note", "").strip()
+        action = request.POST.get("action") or "message"
+
+        # =========================
+        # 💬 ALWAYS SAVE MESSAGE
+        # =========================
+        if note:
+            TaskActionNote.objects.create(
+                assignment=assignment,
+                note=note,
+                created_by=user,
+                note_type="comment"
+            )
+
+        # =========================
+        # 👤 EMPLOYEE
+        # =========================
+        if is_employee:
+
+            if action == "submit":
+                success = assignment.submit()
+
+                if not success:
+                    messages.warning(request, "Task cannot be submitted in current state.")
+
+        # =========================
+        # 🧑‍💼 ADMIN
+        # =========================
+        elif is_admin:
+
+            if action == "approve":
+                assignment.approve(user)
+
+            if action == "reject":
+
+                if not note:
+                    messages.error(request, "Reject note is required.")
+                    return redirect("assignment_detail", assignment.id)
+
+                assignment.reject(user, note)
+
+                TaskActionNote.objects.create(
+                    assignment=assignment,
+                    note=note,
+                    created_by=user,
+                    note_type="reject"
+                )
+
+        return redirect("assignment_detail", assignment.id)
+
+    return render(
+        request,
+        "tasks/assignment_detail.html",
+        {
+            "assignment": assignment
+        }
+    )
+
+
+@login_required
+def employee_locations_api(request):
+
+    company = request.membership.company
+
+    locations = EmployeeLocation.objects.filter(
+        employee__membership__company=company
+    ).select_related("employee")
+
+    data = []
+
+    for loc in locations:
+        data.append({
+            "name": loc.employee.username,
+            "lat": loc.latitude,
+            "lng": loc.longitude,
+        })
+
+    return JsonResponse(data, safe=False)
+
+
+def get_task_skip_reason(task):
+
+    today = timezone.localdate()
+    reasons = []
+
+    # 1️⃣ Next run check
+    if task.next_run and task.next_run > today:
+        reasons.append(f"Next run scheduled on {task.next_run}")
+
+    # 2️⃣ Holiday check
+    if CompanyHoliday.objects.filter(
+        company=task.company,
+        start_date__lte=today,
+        end_date__gte=today
+    ).exists():
+        reasons.append("Today is holiday")
+
+    # 3️⃣ Weekend check
+    company_weekends = CompanyWeekend.objects.filter(
+        company=task.company,
+        weekday=today.weekday()
+    )
+
+    if company_weekends.exists():
+        reasons.append("Today is company weekend")
+
+    # 4️⃣ Already generated check
+    if TaskAssignment.objects.filter(
+        task=task,
+        assignment_date=today
+    ).exists():
+        reasons.append("Task already generated today")
+
+    # 5️⃣ IMPORTANT: missed run detect 🔥
+    if task.next_run and task.next_run < today:
+        reasons.append(f"Missed run (last should run on {task.next_run})")
+
+    return reasons
+
+
+@login_required
+@require_POST
+def check_in_assignment(request, assignment_id):
+    assignment = get_object_or_404(
+        TaskAssignment,
+        id=assignment_id,
+        employee=request.user  # 🔥 security: নিজের assignment ছাড়া কেউ check-in করতে পারবে না
+    )
+
+    # Already checked ইন?
+    if assignment.checked_in_at:
+        return JsonResponse({
+            "status": "already",
+            "time": assignment.checked_in_at.strftime("%I:%M %p")
+        })
+
+    lat = request.POST.get("lat")
+    lng = request.POST.get("lng")
+
+    # Optional: validation
+    if not lat or not lng:
+        return JsonResponse({"status": "error", "message": "Location required"})
+
+    # Save
+    assignment.checked_in_at = timezone.now()
+    assignment.checkin_lat = float(lat)
+    assignment.checkin_lng = float(lng)
+    assignment.status = "checked_in"
+    assignment.save(update_fields=[
+        "checked_in_at",
+        "checkin_lat",
+        "checkin_lng",
+        "status"
+    ])
+
+    return JsonResponse({
+        "status": "success",
+        "time": assignment.checked_in_at.strftime("%I:%M %p")
+    })

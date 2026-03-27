@@ -1,0 +1,34 @@
+<!-- =========================
+REJECT TASK MODAL
+========================= -->
+
+<div id="rejectModal" class="modal">
+
+  <div class="modal-content">
+
+    <h3>Reject Task</h3>
+
+    <!-- ✅ IMPORTANT: action added -->
+    <form id="rejectForm" method="post" action="{% url 'reject_task' 0 %}">
+      {% csrf_token %}
+
+      <!-- hidden assignment id -->
+      <input type="hidden" id="rejectAssignmentId" name="assignment_id">
+
+      <!-- reject reason -->
+      <textarea
+        name="reject_note"
+        placeholder="Enter reason..."
+        required
+      ></textarea>
+
+      <div class="modal-actions">
+        <button type="submit" class="danger-btn">Reject</button>
+        <button type="button" onclick="closeRejectModal()">Cancel</button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

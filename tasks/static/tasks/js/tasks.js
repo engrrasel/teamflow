@@ -191,8 +191,9 @@ rows.forEach(function(row){
 row.addEventListener("click", function(e){
 
 // button বা link এ ক্লিক হলে redirect হবে না
-if(e.target.closest("a") || e.target.closest("button") || e.target.closest("i")){
-return;
+if(e.target.closest("a") || e.target.closest("button")){
+    e.stopPropagation();
+    return;
 }
 
 const url = row.dataset.url;
@@ -207,3 +208,47 @@ window.location.href = url;
 
 });
 
+// ===============================
+// REJECT MODAL JS
+// ===============================
+
+function openRejectModal(id) {
+    const modal = document.getElementById("rejectModal");
+    const form = document.getElementById("rejectForm");
+    const input = document.getElementById("rejectAssignmentId");
+
+    if (!modal || !form || !input) {
+        console.error("Reject modal عناصر missing!");
+        return;
+    }
+
+    // set assignment id
+    input.value = id;
+
+    // dynamic URL
+    form.action = `/tasks/${id}/reject/`;
+
+    // show modal
+    modal.style.display = "flex";
+}
+
+function closeRejectModal() {
+    const modal = document.getElementById("rejectModal");
+
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
+
+// ===============================
+// OPTIONAL: CLICK OUTSIDE CLOSE
+// ===============================
+
+window.addEventListener("click", function(e) {
+    const modal = document.getElementById("rejectModal");
+
+    if (e.target === modal) {
+        closeRejectModal();
+    }
+});

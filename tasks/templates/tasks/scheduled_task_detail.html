@@ -9,146 +9,154 @@
 
 <div class="task-page">
 
-<div class="emp-card">
+  <div class="emp-card">
 
-<h2 class="task-title">{{ task.title }}</h2>
+    <!-- TITLE -->
+    <h2 class="task-title">{{ task.title }}</h2>
 
-<div class="task-info">
+    <!-- INFO -->
+    <div class="task-info">
 
-<div class="info-box">
-<span>Repeat</span>
-<strong>{{ task.get_repeat_type_display }}</strong>
-</div>
+      <div class="info-box">
+        <span>Repeat</span>
+        <strong>{{ task.get_repeat_type_display }}</strong>
+      </div>
 
-<div class="info-box">
-<span>Customer</span>
-<strong>
-{% if task.customer %}
-{{ task.customer }}
-{% else %}
--
-{% endif %}
-</strong>
-</div>
+      <div class="info-box">
+        <span>Customer</span>
+        <strong>
+          {% if task.customer %}
+            {{ task.customer }}
+          {% else %}
+            -
+          {% endif %}
+        </strong>
+      </div>
 
-<div class="info-box">
-<span>Next Run</span>
-<strong>{{ task.next_run|date:"d M Y" }}</strong>
-</div>
+      <div class="info-box">
+        <span>Next Run</span>
+        <strong>{{ task.next_run|date:"d M Y" }}</strong>
+      </div>
 
-<div class="info-box">
-<span>Created</span>
-<strong>{{ task.created_at|date:"d M Y H:i" }}</strong>
-</div>
+      <div class="info-box">
+        <span>Created</span>
+        <strong>{{ task.created_at|date:"d M Y H:i" }}</strong>
+      </div>
 
-</div>
+    </div>
 
-<hr>
+    <!-- 🔥 SKIP REASON UI -->
+    {% if skip_reasons %}
+    <div class="skip-box">
+      <div class="skip-header">
+        ⚠️ Task Not Generated Today
+      </div>
 
+      <ul>
+        {% for reason in skip_reasons %}
+          <li>❌ {{ reason }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% else %}
+    <div class="success-box">
+      ✅ Task generated successfully today
+    </div>
+    {% endif %}
 
-<!-- TABS -->
+    <hr>
 
-<div class="task-tabs">
+    <!-- TABS -->
+    <div class="task-tabs">
 
-<button class="tab-btn active" data-tab="employees">
-Assigned Employees
-</button>
+      <button class="tab-btn active" data-tab="employees">
+        Assigned Employees
+      </button>
 
-<button class="tab-btn" data-tab="dates">
-Run Dates
-</button>
+      <button class="tab-btn" data-tab="dates">
+        Run Dates
+      </button>
 
-</div>
+    </div>
 
+    <!-- EMPLOYEE TAB -->
+    <div id="employees" class="tab-content active">
 
-<!-- EMPLOYEE TAB -->
+      <table class="emp-table">
 
-<div id="employees" class="tab-content active">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Status</th>
+            <th>Assign Date</th>
+            <th>Points</th>
+          </tr>
+        </thead>
 
-<table class="emp-table">
+        <tbody>
 
-<thead>
-<tr>
-<th>Employee</th>
-<th>Status</th>
-<th>Assign Date</th>
-<th>Points</th>
-</tr>
-</thead>
+        {% for a in assignments %}
 
-<tbody>
+          <tr>
+            <td>{{ a.employee }}</td>
 
-{% for a in assignments %}
+            <td>
+              <span class="status-badge status-{{ a.status }}">
+                {{ a.get_status_display }}
+              </span>
+            </td>
 
-<tr>
+            <td>{{ a.assignment_date|date:"d M Y" }}</td>
 
-<td>{{ a.employee }}</td>
+            <td>{{ a.calculate_points }}</td>
+          </tr>
 
-<td>
-<span class="status-badge status-{{ a.status }}">
-{{ a.get_status_display }}
-</span>
-</td>
+        {% empty %}
 
-<td>{{ a.created_at|date:"d M Y H:i" }}</td>
+          <tr>
+            <td colspan="4" class="no-data">
+              No assignments
+            </td>
+          </tr>
 
-<td>{{ a.calculate_points }}</td>
+        {% endfor %}
 
-</tr>
+        </tbody>
 
-{% empty %}
+      </table>
 
-<tr>
-<td colspan="4" class="no-data">
-No assignments
-</td>
-</tr>
+    </div>
 
-{% endfor %}
+    <!-- RUN DATE TAB -->
+    <div id="dates" class="tab-content">
 
-</tbody>
+      <table class="emp-table">
 
-</table>
+        <thead>
+          <tr>
+            <th>Run Date</th>
+          </tr>
+        </thead>
 
-</div>
+        <tbody>
 
+        {% for d in run_dates %}
+          <tr>
+            <td>{{ d|date:"d M Y H:i" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td class="no-data">No run dates</td>
+          </tr>
+        {% endfor %}
 
-<!-- RUN DATE TAB -->
+        </tbody>
 
-<div id="dates" class="tab-content">
+      </table>
 
-<table class="emp-table">
+    </div>
 
-<thead>
-<tr>
-<th>Run Date</th>
-</tr>
-</thead>
-
-<tbody>
-
-{% for d in run_dates %}
-
-<tr>
-<td>{{ d|date:"d M Y H:i" }}</td>
-</tr>
-
-{% empty %}
-
-<tr>
-<td class="no-data">No run dates</td>
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
-
-
-</div>
+  </div>
 
 </div>
 

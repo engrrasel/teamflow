@@ -26,7 +26,6 @@ def get_membership(request):
     return getattr(request, "membership", None)
 
 
-# ---------- Company ----------
 @login_required
 def create_company_view(request):
 
@@ -61,7 +60,8 @@ def create_company_view(request):
 
             messages.success(request, "Company created successfully!")
 
-            return redirect("dashboard")
+            # 🔥 FIX: dashboard না, setup page
+            return redirect("company_edit")
 
     return render(
         request,
@@ -71,8 +71,6 @@ def create_company_view(request):
             "weekend_days": []
         }
     )
-
-
 # ---------- Designation ----------
 @login_required
 def designation_list_view(request):
@@ -352,7 +350,12 @@ def company_weekend_view(request):
 @login_required
 def company_holiday_view(request):
 
-    company = request.membership.company
+    membership = get_membership(request)
+
+    if not membership:
+        return redirect("create_company")
+
+    company = membership.company
 
     if request.method == "POST":
 
@@ -368,7 +371,8 @@ def company_holiday_view(request):
             end_date=end_date
         )
 
-        return redirect("company_holiday")
+        # 🔥 optional: একবার holiday add হলে dashboard
+        return redirect("dashboard")
 
     holidays = CompanyHoliday.objects.filter(
         company=company
@@ -421,16 +425,15 @@ def company_edit_view(request):
         CompanyWeekend.objects.filter(company=company).delete()
 
         for w in weekdays:
-
             CompanyWeekend.objects.create(
                 company=company,
                 weekday=int(w)
             )
 
-        return redirect("dashboard")
+        # 🔥 NEXT STEP: holiday setup
+        return redirect("company_holiday")
 
     weekends = CompanyWeekend.objects.filter(company=company)
-
     weekend_days = [w.weekday for w in weekends]
 
     return render(

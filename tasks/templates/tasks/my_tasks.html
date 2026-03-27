@@ -2,238 +2,66 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/task.css' %}">
+<link rel="stylesheet" href="{% static 'tasks/css/my_tasks.css' %}">
 {% endblock %}
 
 {% block content %}
 
 <div class="task-header">
+    <h2>My Tasks</h2>
 
-<h2>Today's Tasks</h2>
+    {% if request.membership.role == "company_admin" %}
+    <a href="{% url 'task_list' %}" class="btn btn-primary">
+        Assign Task
+    </a>
+    {% endif %}
+</div>
 
-{% if request.membership.role == "company_admin" %}
-<a href="{% url 'task_list' %}" class="btn btn-primary">
-Assign Task
-</a>
-{% endif %}
+
+<!-- ================= TABS ================= -->
+<div class="task-tabs">
+
+    <button class="tab-btn active" data-tab="today">
+        Today ({{ today_tasks|length }})
+    </button>
+
+    <button class="tab-btn" data-tab="ongoing">
+        Ongoing ({{ ongoing_tasks|length }})
+    </button>
+
+    <button class="tab-btn" data-tab="history">
+        History ({{ history_tasks|length }})
+    </button>
 
 </div>
 
 
-<div class="emp-card">
-
-<table class="emp-table">
-
-<thead>
-<tr>
-<th>Task</th>
-<th>Customer</th>
-<th>Deadline</th>
-<th>Status</th>
-<th>Action</th>
-</tr>
-</thead>
-
-<tbody>
-
-{% for a in assignments %}
-
-<tr>
-
-<td>{{ a.task.title }}</td>
-
-<td>
-{% if a.task.customer %}
-{{ a.task.customer }}
-{% else %}
--
-{% endif %}
-</td>
-
-<td>
-{% if a.task.due_date %}
-{{ a.task.due_date|date:"d M Y" }}
-{% else %}
--
-{% endif %}
-</td>
-
-<td>
-
-<span class="status status-{{ a.status }}">
-{{ a.get_status_display }}
-</span>
-
-{% if a.status == "rejected" %}
-<div class="reject-reason">
-❌ Reason: {{ a.reject_note }}
+<!-- ================= TODAY ================= -->
+<div id="today" class="tab-content active">
+    <div class="emp-card">
+        {% include "tasks/partials/task_table.html" with assignments=today_tasks %}
+    </div>
 </div>
-{% endif %}
-
-</td>
 
 
-<td class="action-area">
+<!-- ================= ONGOING ================= -->
+<div id="ongoing" class="tab-content">
+    <div class="emp-card">
+        {% include "tasks/partials/task_table.html" with assignments=ongoing_tasks %}
+    </div>
+</div>
 
 
-{% if a.status == "pending" %}
-
-<button onclick="checkIn({{ a.id }})" class="btn btn-primary">
-Check-in
-</button>
-
-{% endif %}
-
-
-
-{% if a.status == "checked_in" %}
-
-<form action="{% url 'add_order' a.id %}" method="post" class="inline-form">
-{% csrf_token %}
-<input type="number" name="amount" placeholder="Order amount">
-<button type="submit" class="btn btn-primary">
-Order
-</button>
-</form>
-
-{% endif %}
-
-
-
-{% if a.status == "checked_in" %}
-
-<form action="{% url 'add_collection' a.id %}" method="post" class="inline-form">
-{% csrf_token %}
-<input type="number" name="amount" placeholder="Collection">
-<button type="submit" class="btn btn-success">
-Collect
-</button>
-</form>
-
-{% endif %}
-
-
-
-{% if a.status == "checked_in" %}
-
-<a href="{% url 'submit_task' a.id %}" class="btn btn-warning">
-Submit
-</a>
-
-{% endif %}
-
-
-
-{% if a.status == "submitted" %}
-
-<span class="status status-submitted">
-Waiting Approval
-</span>
-
-{% endif %}
-
-
-
-{% if a.status == "approved" %}
-
-<span class="status status-approved">
-Completed
-</span>
-
-{% endif %}
-
-
-
-{% if a.status == "rejected" and request.membership.role != "company_admin" %}
-
-<form action="{% url 'resubmit_task' a.id %}" method="post" style="margin-top:6px;">
-
-{% csrf_token %}
-
-<textarea
-name="resubmit_note"
-placeholder="Write what you fixed..."
-required
-style="width:200px;height:45px;margin-bottom:4px;">
-</textarea>
-
-<button class="btn btn-warning btn-sm">
-Resubmit
-</button>
-
-</form>
-
-{% endif %}
-
-
-</td>
-
-</tr>
-
-{% empty %}
-
-<tr>
-<td colspan="5" class="no-data">
-No tasks assigned
-</td>
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
+<!-- ================= HISTORY ================= -->
+<div id="history" class="tab-content">
+    <div class="emp-card">
+        {% include "tasks/partials/task_table.html" with assignments=history_tasks %}
+    </div>
 </div>
 
 {% endblock %}
 
 
-
 {% block extra_js %}
-
-<script>
-
-function checkIn(assignmentId){
-
-if(!navigator.geolocation){
-alert("Geolocation not supported");
-return;
-}
-
-navigator.geolocation.getCurrentPosition(function(pos){
-
-let lat = pos.coords.latitude;
-let lng = pos.coords.longitude;
-
-window.location.href =
-"/tasks/"+assignmentId+"/check-in/?lat="+lat+"&lng="+lng;
-
-});
-
-}
-
-
-
-function sendLocation(){
-
-if(!navigator.geolocation) return;
-
-navigator.geolocation.getCurrentPosition(function(pos){
-
-let lat = pos.coords.latitude;
-let lng = pos.coords.longitude;
-
-fetch("/tasks/update-location/?lat="+lat+"&lng="+lng);
-
-});
-
-}
-
-
-// প্রতি ২০ সেকেন্ডে location update
-setInterval(sendLocation,20000);
-
-</script>
-
+<script src="{% static 'tasks/js/my_tasks.js' %}"></script>
 {% endblock %}

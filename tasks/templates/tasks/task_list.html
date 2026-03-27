@@ -2,10 +2,11 @@
 {% load static %}
 
 {% block extra_css %}
+
 <link rel="stylesheet" href="{% static 'tasks/css/add_task_modal.css' %}">
+<link rel="stylesheet" href="{% static 'tasks/css/reject_modal.css' %}">
 <link rel="stylesheet" href="{% static 'tasks/css/task.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
 {% endblock %}
 
 {% block content %}
@@ -15,74 +16,33 @@
 <!-- HEADER -->
 
 <div class="task-header">
-
 <h2>Tasks</h2>
 
 <div class="task-actions">
-
-<a href="{% url 'scheduled_tasks' %}" class="task-btn schedule">
-Scheduled Tasks
-</a>
-
-<a href="{% url 'leaderboard' %}" class="task-btn leaderboard">
-Leaderboard
-</a>
-
-<button onclick="openTaskModal()" class="task-btn add">
-+ Add Task
-</button>
-
-<a href="{% url 'my_tasks' %}" class="task-btn my">
-My Tasks
-</a>
-
+<a href="{% url 'scheduled_tasks' %}" class="task-btn schedule">Scheduled Tasks</a>
+<a href="{% url 'leaderboard' %}" class="task-btn leaderboard">Leaderboard</a>
+<button onclick="openTaskModal()" class="task-btn add">+ Add Task</button>
+<a href="{% url 'my_tasks' %}" class="task-btn my">My Tasks</a>
 </div>
 </div>
-
 
 <!-- STATS -->
 
 <div class="task-stats">
-
-<div class="stat-card">
-<span>Total</span>
-<strong>{{ total_count }}</strong>
+<div class="stat-card"><span>Total</span><strong>{{ total_count }}</strong></div>
+<div class="stat-card pending"><span>Pending</span><strong>{{ pending_count|default:0 }}</strong></div>
+<div class="stat-card checkin"><span>Submitted</span><strong>{{ submitted_count|default:0 }}</strong></div>
+<div class="stat-card completed"><span>Approved</span><strong>{{ approved_count|default:0 }}</strong></div>
 </div>
-
-<div class="stat-card pending">
-<span>Pending</span>
-<strong>{{ pending_count|default:0 }}</strong>
-</div>
-
-<div class="stat-card checkin">
-<span>Submitted</span>
-<strong>{{ submitted_count|default:0 }}</strong>
-</div>
-
-<div class="stat-card completed">
-<span>Approved</span>
-<strong>{{ approved_count|default:0 }}</strong>
-</div>
-
-</div>
-
 
 <!-- TOOLBAR -->
 
 <div class="task-toolbar">
 
 <div class="task-date-filter">
-
 <input type="text" id="dateRange" placeholder="Select date or range">
-
-<button class="btn-filter" onclick="applyFilter()">
-Filter
-</button>
-
-<a href="#" class="btn-today" id="todayBtn">
-Today
-</a>
-
+<button class="btn-filter" onclick="applyFilter()">Filter</button>
+<a href="#" class="btn-today" id="todayBtn">Today</a>
 </div>
 
 <input type="text" id="taskSearch" placeholder="Search task..." class="task-search">
@@ -96,7 +56,6 @@ Today
 </div>
 
 </div>
-
 
 <!-- TABLE -->
 
@@ -124,56 +83,44 @@ Today
 
 <tr class="task-row"
     data-status="{{ a.status }}"
-    data-url="{% url 'task_detail' task.id %}">
+    data-url="{% url 'assignment_detail' a.id %}">  {# 🔥 FIX HERE #}
 
 <td>
+
+<!-- MOBILE -->
 
 <div class="task-mobile">
 
 <div class="task-title">
-<span class="task-link">
-{{ task.title }}
-</span>
+<a href="{% url 'assignment_detail' a.id %}" class="task-link">
+{{ a.title }}
+</a>
 </div>
 
 <div class="task-meta">
 {{ a.employee }} -
-{% if task.customer %}
-{{ task.customer }}
-{% else %}
--
-{% endif %}
+{% if a.task.customer %}{{ a.task.customer }}{% else %}-{% endif %}
 </div>
 
 <div class="task-dates">
-{{ task.created_at|date:"d M Y" }} -
-{% if task.due_date %}
-{{ task.due_date|date:"d M Y" }}
-{% else %}
--
-{% endif %}
+{{ a.assignment_date|date:"d M Y" }} -
+{% if a.due_date_value %}{{ a.due_date_value|date:"d M Y" }}{% else %}-{% endif %}
 </div>
 
 <div class="task-status-row">
-
-<span class="status status-{{ a.status }}">
-{{ a.get_status_display }}
-</span>
-
+<span class="status status-{{ a.status }}">{{ a.get_status_display }}</span>
 {% if a.status != "approved" %}
 <span class="approx">(approx)</span>
 {% endif %}
-
 </div>
 
 <div class="task-actions-mobile">
 
-<a href="{% url 'task_edit' task.id %}">
+<a href="{% url 'assignment_edit' a.id %}">
 <i class="fa-solid fa-pen"></i>
 </a>
 
-<a href="{% url 'task_delete' task.id %}"
-onclick="return confirm('Delete this task?')">
+<a href="{% url 'assignment_delete' a.id %}" onclick="return confirm('Delete this assignment?')">
 <i class="fa-solid fa-trash"></i>
 </a>
 
@@ -183,7 +130,7 @@ onclick="return confirm('Delete this task?')">
 <i class="fa-solid fa-check"></i>
 </a>
 
-<button onclick="openRejectModal({{ a.id }})">
+<button type="button" onclick="openRejectModal({{ a.id }})">
 <i class="fa-solid fa-xmark"></i>
 </button>
 
@@ -193,12 +140,12 @@ onclick="return confirm('Delete this task?')">
 
 </div>
 
+<!-- DESKTOP -->
+
 <div class="desktop-only">
-<div class="desktop-only">
-<span class="task-link">
-{{ task.title }}
-</span>
-</div>
+<a href="{% url 'assignment_detail' a.id %}" class="task-link">
+{{ a.title }}
+</a>
 </div>
 
 </td>
@@ -206,51 +153,35 @@ onclick="return confirm('Delete this task?')">
 <td class="desktop-only">{{ a.employee }}</td>
 
 <td class="desktop-only">
-{% if task.customer %}
-{{ task.customer }}
-{% else %}
--
-{% endif %}
+{% if a.task.customer %}{{ a.task.customer }}{% else %}-{% endif %}
 </td>
 
-<td class="desktop-only">{{ task.created_at|date:"d M Y" }}</td>
+<td class="desktop-only">{{ a.assignment_date|date:"d M Y" }}</td>
 
 <td class="desktop-only">
-{% if task.due_date %}
-{{ task.due_date|date:"d M Y" }}
-{% else %}
--
-{% endif %}
+{% if a.due_date_value %}{{ a.due_date_value|date:"d M Y" }}{% else %}-{% endif %}
 </td>
 
 <td class="desktop-only">
-<span class="status status-{{ a.status }}">
-{{ a.get_status_display }}
-</span>
+<span class="status status-{{ a.status }}">{{ a.get_status_display }}</span>
 </td>
 
 <td class="desktop-only points">
-
-<span class="point-value">
-{{ a.calculate_points }}
-</span>
-
+<span class="point-value">{{ a.calculate_points }}</span>
 {% if a.status != "approved" %}
 <span class="approx">(approx)</span>
 {% endif %}
-
 </td>
 
 <td class="desktop-only actions">
 
 <div class="action-buttons">
 
-<a href="{% url 'task_edit' task.id %}">
+<a href="{% url 'assignment_edit' a.id %}">
 <i class="fa-solid fa-pen"></i>
 </a>
 
-<a href="{% url 'task_delete' task.id %}"
-onclick="return confirm('Delete this task?')">
+<a href="{% url 'assignment_delete' a.id %}" onclick="return confirm('Delete this assignment?')">
 <i class="fa-solid fa-trash"></i>
 </a>
 
@@ -260,7 +191,7 @@ onclick="return confirm('Delete this task?')">
 <i class="fa-solid fa-check"></i>
 </a>
 
-<button onclick="openRejectModal({{ a.id }})">
+<button type="button" onclick="openRejectModal({{ a.id }})">
 <i class="fa-solid fa-xmark"></i>
 </button>
 
@@ -276,11 +207,8 @@ onclick="return confirm('Delete this task?')">
 {% empty %}
 
 <tr>
-<td colspan="8" class="no-data">
-No tasks found
-</td>
+<td colspan="8" class="no-data">No tasks found</td>
 </tr>
-
 {% endfor %}
 
 </tbody>
@@ -289,20 +217,19 @@ No tasks found
 
 </div>
 
-
-<!-- ADD TASK MODAL INCLUDE -->
-
 {% include "tasks/add_task_modal.html" %}
+{% include "tasks/reject_modal.html" %}
 
 </div>
 
 {% endblock %}
 
-
 {% block extra_js %}
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
+
 <script src="{% static 'tasks/js/add_task_modal.js' %}"></script>
 
 {% endblock %}
