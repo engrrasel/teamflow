@@ -13,7 +13,7 @@
 <div class="left">
 
 <div class="box title-box">
-<h2>{{ assignment.title }}</h2>
+<h2>{{ assignment.id }} - {{ assignment.title }}</h2>
 
 <div class="badges">
 <span class="badge type">{{ assignment.task.get_task_type_display }}</span>
@@ -87,52 +87,58 @@
 <!-- ========================= -->
 <!-- FORM -->
 <!-- ========================= -->
-
-<form method="post" class="chat-input">
+<form method="post" class="chat-form">
 {% csrf_token %}
 
-<input type="text" name="note" id="chatInput" placeholder="Write message...">
+<div class="action-bar">
 
-<!-- default action for Enter -->
-<input type="hidden" name="action" value="message">
+    <!-- SINGLE INPUT (FIXED) -->
+    <input type="text"
+           name="note"
+           id="chatInput"
+           placeholder="Write message..."
+           class="chat-input">
 
-<!-- ========================= -->
-<!-- 👤 EMPLOYEE -->
-<!-- ========================= -->
-{% if request.user == assignment.employee %}
+    <!-- DEFAULT ACTION -->
+    <input type="hidden" name="action" value="message">
 
-    <button type="submit"
-            name="action"
-            value="submit"
-            class="submit-btn"
-            {% if assignment.status != "checked_in" and assignment.status != "rejected" and assignment.status != "resubmitted" %}disabled{% endif %}>
-        Submit
-    </button>
+    <div class="action-buttons">
 
-{% endif %}
+        <!-- 👤 EMPLOYEE -->
+        {% if request.user == assignment.employee %}
+        <button type="submit"
+                name="action"
+                value="submit"
+                class="btn submit"
+                {% if assignment.status != "checked_in" and assignment.status != "rejected" %}disabled{% endif %}>
+            Submit
+        </button>
+        {% endif %}
 
-<!-- ========================= -->
-<!-- 🧑‍💼 ADMIN -->
-<!-- ========================= -->
-{% if request.membership.role == "company_admin" %}
+        <!-- 🧑‍💼 ADMIN -->
+        {% if request.membership.role == "company_admin" %}
 
-    <button type="submit"
-            name="action"
-            value="approve"
-            class="approve-btn"
-            {% if assignment.status != "submitted" %}disabled{% endif %}>
-        Approve
-    </button>
+        <button type="submit"
+                name="action"
+                value="approve"
+                class="btn approve"
+                {% if assignment.status != "submitted" %}disabled{% endif %}>
+            ✓ Approve
+        </button>
 
-    <button type="submit"
-            name="action"
-            value="reject"
-            class="reject-btn"
-            {% if assignment.status != "submitted" %}disabled{% endif %}>
-        Resubmit
-    </button>
+        <button type="submit"
+                name="action"
+                value="reject"
+                class="btn revise"
+                {% if assignment.status != "submitted" %}disabled{% endif %}>
+            ↺ Revise
+        </button>
 
-{% endif %}
+        {% endif %}
+
+    </div>
+
+</div>
 
 </form>
 
@@ -148,12 +154,10 @@
 <script src="{% static 'tasks/js/assignment_detail.js' %}"></script>
 
 <script>
-/* Enter = send message only */
 document.getElementById("chatInput").addEventListener("keypress", function(e){
     if(e.key === "Enter"){
-        // default action already message
+        // message send
     }
 });
 </script>
-
 {% endblock %}

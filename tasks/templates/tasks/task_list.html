@@ -7,6 +7,19 @@
 <link rel="stylesheet" href="{% static 'tasks/css/reject_modal.css' %}">
 <link rel="stylesheet" href="{% static 'tasks/css/task.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<style>
+.task-id{
+    background:#eef2ff;
+    color:#4f46e5;
+    padding:3px 8px;
+    border-radius:6px;
+    font-size:12px;
+    font-weight:600;
+    margin-right:6px;
+}
+</style>
+
 {% endblock %}
 
 {% block content %}
@@ -65,6 +78,7 @@
 
 <thead>
 <tr>
+<th>ID</th>
 <th>Task</th>
 <th class="desktop-only">Employee</th>
 <th class="desktop-only">Customer</th>
@@ -83,7 +97,11 @@
 
 <tr class="task-row"
     data-status="{{ a.status }}"
-    data-url="{% url 'assignment_detail' a.id %}">  {# 🔥 FIX HERE #}
+    data-url="{% url 'assignment_detail' a.id %}">
+
+<td class="desktop-only">
+<span class="task-id">#{{ a.id }}</span>
+</td>
 
 <td>
 
@@ -93,7 +111,7 @@
 
 <div class="task-title">
 <a href="{% url 'assignment_detail' a.id %}" class="task-link">
-{{ a.title }}
+#{{ a.id }} - {{ a.title }}
 </a>
 </div>
 
@@ -123,18 +141,6 @@
 <a href="{% url 'assignment_delete' a.id %}" onclick="return confirm('Delete this assignment?')">
 <i class="fa-solid fa-trash"></i>
 </a>
-
-{% if a.status == "submitted" %}
-
-<a href="{% url 'approve_task' a.id %}">
-<i class="fa-solid fa-check"></i>
-</a>
-
-<button type="button" onclick="openRejectModal({{ a.id }})">
-<i class="fa-solid fa-xmark"></i>
-</button>
-
-{% endif %}
 
 </div>
 
@@ -185,18 +191,6 @@
 <i class="fa-solid fa-trash"></i>
 </a>
 
-{% if a.status == "submitted" %}
-
-<a href="{% url 'approve_task' a.id %}">
-<i class="fa-solid fa-check"></i>
-</a>
-
-<button type="button" onclick="openRejectModal({{ a.id }})">
-<i class="fa-solid fa-xmark"></i>
-</button>
-
-{% endif %}
-
 </div>
 
 </td>
@@ -207,8 +201,9 @@
 {% empty %}
 
 <tr>
-<td colspan="8" class="no-data">No tasks found</td>
+<td colspan="9" class="no-data">No tasks found</td>
 </tr>
+
 {% endfor %}
 
 </tbody>
@@ -227,9 +222,7 @@
 {% block extra_js %}
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
-
 <script src="{% static 'tasks/js/add_task_modal.js' %}"></script>
 
 {% endblock %}
