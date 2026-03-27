@@ -27,7 +27,6 @@
 <div class="task-page">
 
 <!-- HEADER -->
-
 <div class="task-header">
 <h2>Tasks</h2>
 
@@ -40,7 +39,6 @@
 </div>
 
 <!-- STATS -->
-
 <div class="task-stats">
 <div class="stat-card"><span>Total</span><strong>{{ total_count }}</strong></div>
 <div class="stat-card pending"><span>Pending</span><strong>{{ pending_count|default:0 }}</strong></div>
@@ -49,7 +47,6 @@
 </div>
 
 <!-- TOOLBAR -->
-
 <div class="task-toolbar">
 
 <div class="task-date-filter">
@@ -58,7 +55,10 @@
 <a href="#" class="btn-today" id="todayBtn">Today</a>
 </div>
 
-<input type="text" id="taskSearch" placeholder="Search task..." class="task-search">
+<div class="search-box">
+<span class="search-icon">🔍</span>
+<input type="text" id="taskSearch" placeholder="Search tasks..." class="task-search">
+</div>
 
 <div class="task-tabs">
 <button class="tab active" data-status="all">All</button>
@@ -71,7 +71,6 @@
 </div>
 
 <!-- TABLE -->
-
 <div class="emp-card">
 
 <table class="emp-table" id="taskTable">
@@ -106,7 +105,6 @@
 <td>
 
 <!-- MOBILE -->
-
 <div class="task-mobile">
 
 <div class="task-title">
@@ -132,22 +130,21 @@
 {% endif %}
 </div>
 
-<div class="task-actions-mobile">
-
-<a href="{% url 'assignment_edit' a.id %}">
+<div class="action-buttons">
+<a href="{% url 'assignment_edit' a.id %}" class="btn-edit">
 <i class="fa-solid fa-pen"></i>
 </a>
 
-<a href="{% url 'assignment_delete' a.id %}" onclick="return confirm('Delete this assignment?')">
+<a href="{% url 'assignment_delete' a.id %}"
+   class="btn-delete"
+   onclick="return confirm('Delete this assignment?')">
 <i class="fa-solid fa-trash"></i>
 </a>
-
 </div>
 
 </div>
 
 <!-- DESKTOP -->
-
 <div class="desktop-only">
 <a href="{% url 'assignment_detail' a.id %}" class="task-link">
 {{ a.title }}
@@ -180,19 +177,17 @@
 </td>
 
 <td class="desktop-only actions">
-
 <div class="action-buttons">
-
-<a href="{% url 'assignment_edit' a.id %}">
+<a href="{% url 'assignment_edit' a.id %}" class="btn-edit">
 <i class="fa-solid fa-pen"></i>
 </a>
 
-<a href="{% url 'assignment_delete' a.id %}" onclick="return confirm('Delete this assignment?')">
+<a href="{% url 'assignment_delete' a.id %}"
+   class="btn-delete"
+   onclick="return confirm('Delete this assignment?')">
 <i class="fa-solid fa-trash"></i>
 </a>
-
 </div>
-
 </td>
 
 </tr>
