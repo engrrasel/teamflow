@@ -6,7 +6,6 @@ from django.utils import timezone
 # =========================================
 # TASK (MASTER TASK)
 # =========================================
-
 class Task(models.Model):
 
     TASK_TYPE = (
@@ -31,85 +30,49 @@ class Task(models.Model):
         ("monthly", "Monthly"),
     )
 
-    company = models.ForeignKey(
-        "company.Company",
-        on_delete=models.CASCADE,
-        related_name="tasks"
-    )
-
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="created_tasks"
-    )
+    company = models.ForeignKey("company.Company", on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
     title = models.CharField(max_length=200)
 
-    task_type = models.CharField(
-        max_length=20,
-        choices=TASK_TYPE,
-        default="desk"
-    )
+    task_type = models.CharField(max_length=20, choices=TASK_TYPE, default="desk")
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="medium")
 
-    priority = models.CharField(
-        max_length=10,
-        choices=PRIORITY_CHOICES,
-        default="medium"
-    )
-
-    customer = models.ForeignKey(
-        "customers.Customer",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="tasks"
-    )
+    customer = models.ForeignKey("customers.Customer", on_delete=models.SET_NULL, null=True, blank=True)
 
     description = models.TextField(blank=True)
 
+    # ❗ শুধু one-time task এর জন্য
     due_date = models.DateField(null=True, blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    # 🔥 NEW (MOST IMPORTANT)
+    duration_days = models.IntegerField(default=1)
 
-    repeat_type = models.CharField(
-        max_length=20,
-        choices=REPEAT_CHOICES,
-        default="none"
-    )
+    repeat_type = models.CharField(max_length=20, choices=REPEAT_CHOICES, default="none")
 
-    next_run = models.DateField(
-        null=True,
-        blank=True,
-        help_text="Next date this task will auto appear"
-    )
+    next_run = models.DateField(null=True, blank=True)
 
-    assign_time = models.TimeField(
-        null=True,
-        blank=True,
-        help_text="Time when task should appear"
-    )
+    assign_time = models.TimeField(null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
 
-    class Meta:
-        ordering = ["-created_at"]
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
 
-
 # =========================================
 # TASK ASSIGNMENT
 # =========================================
+from datetime import timedelta
+from django.utils import timezone
 
 class TaskAssignment(models.Model):
 
     STATUS_CHOICES = (
         ("pending", "Pending"),
         ("checked_in", "Checked In"),
-        ("submitted", "Submitted"), 
+        ("submitted", "Submitted"),
         ("approved", "Approved"),
         ("rejected", "Rejected"),
     )
@@ -127,6 +90,9 @@ class TaskAssignment(models.Model):
     )
 
     assignment_date = models.DateField(db_index=True)
+
+    # 🔥 NEW (DYNAMIC DEADLINE)
+    due_date = models.DateField(null=True, blank=True)
 
     status = models.CharField(
         max_length=20,
@@ -152,15 +118,14 @@ class TaskAssignment(models.Model):
     # ===============================
 
     checked_in_at = models.DateTimeField(null=True, blank=True)
-
     checkin_lat = models.FloatField(null=True, blank=True)
     checkin_lng = models.FloatField(null=True, blank=True)
+
     # ===============================
-    # EMPLOYEE OVERRIDE FIELDS
+    # OVERRIDE FIELDS
     # ===============================
 
     title_override = models.CharField(max_length=200, null=True, blank=True)
-
     description_override = models.TextField(null=True, blank=True)
 
     task_type_override = models.CharField(
@@ -190,17 +155,15 @@ class TaskAssignment(models.Model):
     # ===============================
 
     reject_note = models.TextField(blank=True, null=True)
-
     resubmit_note = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     # ===============================
-    # DATABASE OPTIMIZATION
+    # CONSTRAINTS & INDEXES
     # ===============================
 
     class Meta:
-
         constraints = [
             models.UniqueConstraint(
                 fields=["task", "employee", "assignment_date"],
@@ -215,6 +178,17 @@ class TaskAssignment(models.Model):
         ]
 
         ordering = ["-assignment_date", "-created_at"]
+
+    # ===============================
+    # 🔥 AUTO DEADLINE (MAIN FIX)
+    # ===============================
+
+    def save(self, *args, **kwargs):
+
+        if self.assignment_date and self.task.duration_days:
+            self.due_date = self.assignment_date + timedelta(days=self.task.duration_days - 1)
+
+        super().save(*args, **kwargs)
 
     # ===============================
     # DISPLAY HELPERS
@@ -238,23 +212,20 @@ class TaskAssignment(models.Model):
 
     @property
     def due_date_value(self):
-        return self.due_date_override or self.task.due_date
+        # 🔥 FINAL FIX (no static deadline)
+        return self.due_date_override or self.due_date
 
-
-# =========================================
-# WORKFLOW METHODS
-# =========================================
+    # ===============================
+    # WORKFLOW
+    # ===============================
 
     def submit(self):
 
-        # checked_in OR rejected → both allowed
         if self.status not in ["checked_in", "rejected"]:
             return False
 
         self.status = "submitted"
         self.submitted_at = timezone.now()
-
-        # reset approval cycle
         self.approved_at = None
         self.approved_by = None
 
@@ -264,9 +235,7 @@ class TaskAssignment(models.Model):
             "approved_at",
             "approved_by"
         ])
-
         return True
-
 
     def approve(self, admin_user):
 
@@ -284,10 +253,8 @@ class TaskAssignment(models.Model):
         ])
         return True
 
-
     def reject(self, admin_user, note=None):
 
-        # admin asking for resubmit
         if self.status != "submitted":
             return False
 
@@ -304,11 +271,9 @@ class TaskAssignment(models.Model):
         ])
         return True
 
-
-
-    # =========================================
-    # POINT CALCULATION SYSTEM
-    # =========================================
+    # ===============================
+    # POINT SYSTEM
+    # ===============================
 
     @property
     def calculate_points(self):
@@ -337,7 +302,6 @@ class TaskAssignment(models.Model):
         points = base_points * priority_multiplier
 
         if due_date and self.approved_at:
-
             approved_date = self.approved_at.date()
 
             if approved_date <= due_date:
@@ -352,7 +316,6 @@ class TaskAssignment(models.Model):
         points += float(total_collection) * 0.01
 
         return round(points, 2)
-
 
 # =========================================
 # SALES ORDER

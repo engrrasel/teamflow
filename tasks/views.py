@@ -48,26 +48,30 @@ def my_tasks_view(request):
 
     today = timezone.localdate()
 
-    base_qs = TaskAssignment.objects.filter(
+    # 🔥 Base queryset (optimized + latest first)
+    base_qs = TaskAssignment.objects.select_related(
+        "task",
+        "task__customer"
+    ).filter(
         employee=request.user
-    ).select_related("task", "task__customer")
+    ).order_by("-id")   # ✅ সব জায়গায় latest first
 
-    # আজকের কাজ
+    # ✅ Today Tasks (latest first)
     today_tasks = base_qs.filter(
         assignment_date=today
-    ).order_by("status")
+    )
 
-    # চলমান (pending + checked_in + submitted)
+    # ✅ Ongoing Tasks
     ongoing_tasks = base_qs.filter(
         status__in=["pending", "checked_in", "submitted"]
     ).exclude(
         assignment_date=today
-    ).order_by("-assignment_date")
+    )
 
-    # history (approved + rejected)
+    # ✅ History Tasks
     history_tasks = base_qs.filter(
         status__in=["approved", "rejected"]
-    ).order_by("-assignment_date")
+    )
 
     return render(
         request,
@@ -335,7 +339,7 @@ def task_list_view(request):
     ).prefetch_related(
         "assignments",
         "assignments__employee"
-    )
+    ).order_by('-id') 
 
     start = request.GET.get("start")
     end = request.GET.get("end")
@@ -916,7 +920,7 @@ def assignment_detail_view(request, assignment_id):
     is_admin = request.membership.role == "company_admin"
 
     # =========================
-    # 🔒 CHECK-IN REQUIRED (CORE FIX)
+    # 🔒 CHECK-IN REQUIRED
     # =========================
     if is_employee and not assignment.checked_in_at:
         messages.warning(request, "Please check in first.")
@@ -931,21 +935,20 @@ def assignment_detail_view(request, assignment_id):
         action = request.POST.get("action") or "message"
 
         # =========================
-        # 💬 ALWAYS SAVE MESSAGE
-        # =========================
-        if note:
-            TaskActionNote.objects.create(
-                assignment=assignment,
-                note=note,
-                created_by=user,
-                note_type="comment"
-            )
-
-        # =========================
-        # 👤 EMPLOYEE
+        # 👤 EMPLOYEE ACTION
         # =========================
         if is_employee:
 
+            # 💬 message
+            if note:
+                TaskActionNote.objects.create(
+                    assignment=assignment,
+                    note=note,
+                    created_by=user,
+                    note_type="comment"
+                )
+
+            # 📤 submit
             if action == "submit":
                 success = assignment.submit()
 
@@ -953,14 +956,25 @@ def assignment_detail_view(request, assignment_id):
                     messages.warning(request, "Task cannot be submitted in current state.")
 
         # =========================
-        # 🧑‍💼 ADMIN
+        # 🧑‍💼 ADMIN ACTION
         # =========================
         elif is_admin:
 
+            # ✅ APPROVE
             if action == "approve":
+
+                if note:
+                    TaskActionNote.objects.create(
+                        assignment=assignment,
+                        note=note,
+                        created_by=user,
+                        note_type="comment"
+                    )
+
                 assignment.approve(user)
 
-            if action == "reject":
+            # ❌ REJECT
+            elif action == "reject":
 
                 if not note:
                     messages.error(request, "Reject note is required.")
@@ -975,8 +989,22 @@ def assignment_detail_view(request, assignment_id):
                     note_type="reject"
                 )
 
+            # 💬 NORMAL MESSAGE
+            else:
+
+                if note:
+                    TaskActionNote.objects.create(
+                        assignment=assignment,
+                        note=note,
+                        created_by=user,
+                        note_type="comment"
+                    )
+
         return redirect("assignment_detail", assignment.id)
 
+    # =========================
+    # RENDER
+    # =========================
     return render(
         request,
         "tasks/assignment_detail.html",
@@ -984,6 +1012,7 @@ def assignment_detail_view(request, assignment_id):
             "assignment": assignment
         }
     )
+
 
 
 @login_required

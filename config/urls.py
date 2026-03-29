@@ -4,25 +4,31 @@ from django.contrib.auth import views as auth_views
 
 from accounts.views import dashboard_view
 
+
 urlpatterns = [
-    # Admin
+    # ================= ADMIN =================
     path('admin/', admin.site.urls),
-    
+
+    # ================= COMPANY =================
     path('company/', include('company.urls')),
 
-    path('', include('locations.urls')),
+    # ================= LOCATIONS (🔥 FIXED) =================
+    # NOTE: আগে '' ছিল → এখন clean prefix
+    path('locations/', include('locations.urls')),
 
-    path("customers/", include("customers.urls")),
+    # ================= CUSTOMERS =================
+    path('customers/', include('customers.urls')),
 
-    path("tasks/", include("tasks.urls")),
+    # ================= TASKS =================
+    path('tasks/', include('tasks.urls')),
 
-
+    # ================= DASHBOARD =================
     path('dashboard/', dashboard_view, name='dashboard'),
 
-    # Accounts (Login, Signup, Logout)
+    # ================= ACCOUNTS =================
     path('accounts/', include('accounts.urls')),
 
-    # Password Reset (Forgot Password)
+    # ================= PASSWORD RESET =================
     path(
         'accounts/password-reset/',
         auth_views.PasswordResetView.as_view(
@@ -30,6 +36,7 @@ urlpatterns = [
         ),
         name='password_reset'
     ),
+
     path(
         'accounts/password-reset/done/',
         auth_views.PasswordResetDoneView.as_view(
@@ -37,6 +44,7 @@ urlpatterns = [
         ),
         name='password_reset_done'
     ),
+
     path(
         'accounts/reset/<uidb64>/<token>/',
         auth_views.PasswordResetConfirmView.as_view(
@@ -44,6 +52,7 @@ urlpatterns = [
         ),
         name='password_reset_confirm'
     ),
+
     path(
         'accounts/reset/done/',
         auth_views.PasswordResetCompleteView.as_view(

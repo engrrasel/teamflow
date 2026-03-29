@@ -52,6 +52,12 @@ class CustomerForm(forms.ModelForm):
         self.company = kwargs.pop("company")
         super().__init__(*args, **kwargs)
 
+        self.fields['division'].widget.attrs.update({'id': 'division'})
+        self.fields['district'].widget.attrs.update({'id': 'district'})
+        self.fields['thana'].widget.attrs.update({'id': 'thana'})
+        self.fields['post_office'].widget.attrs.update({'id': 'post_office'})
+
+
         # -----------------------------
         # Company Isolation
         # -----------------------------

@@ -50,9 +50,17 @@
 <div class="task-toolbar">
 
 <div class="task-date-filter">
+
 <input type="text" id="dateRange" placeholder="Select date or range">
+
+<select id="filterType" class="btn-filter">
+    <option value="assign" selected>Assign Date</option>
+    <option value="deadline">Deadline</option>
+</select>
+
 <button class="btn-filter" onclick="applyFilter()">Filter</button>
 <a href="#" class="btn-today" id="todayBtn">Today</a>
+
 </div>
 
 <div class="search-box">
@@ -96,7 +104,9 @@
 
 <tr class="task-row"
     data-status="{{ a.status }}"
-    data-url="{% url 'assignment_detail' a.id %}">
+    data-url="{% url 'assignment_detail' a.id %}"
+    data-assign="{{ a.assignment_date|date:'Y-m-d' }}"
+    data-deadline="{% if a.due_date_value %}{{ a.due_date_value|date:'Y-m-d' }}{% endif %}">
 
 <td class="desktop-only">
 <span class="task-id">#{{ a.id }}</span>
@@ -162,7 +172,11 @@
 <td class="desktop-only">{{ a.assignment_date|date:"d M Y" }}</td>
 
 <td class="desktop-only">
-{% if a.due_date_value %}{{ a.due_date_value|date:"d M Y" }}{% else %}-{% endif %}
+{% if a.due_date_value %}
+    {{ a.due_date_value|date:"d M Y" }}
+{% else %}
+    -
+{% endif %}
 </td>
 
 <td class="desktop-only">
@@ -219,5 +233,36 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
 <script src="{% static 'tasks/js/add_task_modal.js' %}"></script>
+
+<script>
+function applyFilter() {
+
+    const range = document.getElementById("dateRange").value;
+    const type = document.getElementById("filterType").value;
+
+    if (!range) return;
+
+    let [start, end] = range.split(" to ");
+
+    start = new Date(start);
+    end = end ? new Date(end) : new Date(start);
+
+    document.querySelectorAll("#taskTable tbody tr").forEach(row => {
+
+        const assignDate = row.dataset.assign ? new Date(row.dataset.assign) : null;
+        const deadlineDate = row.dataset.deadline ? new Date(row.dataset.deadline) : null;
+
+        let targetDate = type === "assign" ? assignDate : deadlineDate;
+
+        let show = false;
+
+        if (targetDate && targetDate >= start && targetDate <= end) {
+            show = true;
+        }
+
+        row.style.display = show ? "" : "none";
+    });
+}
+</script>
 
 {% endblock %}
