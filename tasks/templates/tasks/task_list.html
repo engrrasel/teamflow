@@ -16,7 +16,6 @@
     border-radius:6px;
     font-size:12px;
     font-weight:600;
-    margin-right:6px;
 }
 </style>
 
@@ -99,8 +98,7 @@
 
 <tbody>
 
-{% for task in tasks %}
-{% for a in task.assignments.all %}
+{% for a in assignments %}
 
 <tr class="task-row"
     data-status="{{ a.status }}"
@@ -109,7 +107,7 @@
     data-deadline="{% if a.due_date_value %}{{ a.due_date_value|date:'Y-m-d' }}{% endif %}">
 
 <td class="desktop-only">
-<span class="task-id">#{{ a.id }}</span>
+<span class="task-id"># {{ a.id }}</span>
 </td>
 
 <td>
@@ -119,7 +117,7 @@
 
 <div class="task-title">
 <a href="{% url 'assignment_detail' a.id %}" class="task-link">
-#{{ a.id }} - {{ a.title }}
+# {{ a.id }} - {{ a.title }}
 </a>
 </div>
 
@@ -206,7 +204,6 @@
 
 </tr>
 
-{% endfor %}
 {% empty %}
 
 <tr>

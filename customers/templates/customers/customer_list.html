@@ -78,7 +78,7 @@
 
 <h3>Add Customer</h3>
 
-<form method="post" action="{% url 'customer_add' %}">
+<form method="post" action="{% if form.instance.pk %}{% url 'customer_edit' form.instance.pk %}{% else %}{% url 'customer_add' %}{% endif %}">
 {% csrf_token %}
 
 <div class="form-grid">

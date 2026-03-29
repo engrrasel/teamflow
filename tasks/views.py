@@ -326,32 +326,31 @@ def task_list_view(request):
     if membership.role == "employee":
         return redirect("my_tasks")
 
-    # admin হলে normal task list
     company = membership.company
 
+    # recurring generate
     generate_recurring_tasks(company)
 
-    tasks = Task.objects.filter(
-        company=company
+    # ✅ MAIN FIX: Task না, Assignment use করো
+    assignments = TaskAssignment.objects.filter(
+        task__company=company
     ).select_related(
-        "customer",
-        "created_by"
-    ).prefetch_related(
-        "assignments",
-        "assignments__employee"
-    ).order_by('-id') 
+        "task",
+        "task__customer",
+        "employee"
+    ).order_by("-id")   # 🔥 latest first
 
+    # 🔍 Date filter
     start = request.GET.get("start")
     end = request.GET.get("end")
 
     if start and end:
-
         start_date = parse_date(start)
         end_date = parse_date(end)
 
         if start_date and end_date:
-            tasks = tasks.filter(
-                created_at__date__range=(start_date, end_date)
+            assignments = assignments.filter(
+                assignment_date__range=(start_date, end_date)
             )
 
     employees = Membership.objects.filter(
@@ -361,14 +360,12 @@ def task_list_view(request):
 
     customers = Customer.objects.filter(company=company)
 
-    assignments = TaskAssignment.objects.filter(
-        task__company=company
-    )
-
     context = {
-        "tasks": tasks,
+        "assignments": assignments,
         "employees": employees,
         "customers": customers,
+
+        # counts
         "total_count": assignments.count(),
         "pending_count": assignments.filter(status="pending").count(),
         "submitted_count": assignments.filter(status="submitted").count(),
