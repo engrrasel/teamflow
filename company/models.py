@@ -6,6 +6,9 @@ class Company(models.Model):
     address = models.TextField()
     phone = models.CharField(max_length=20)
     is_setup_complete = models.BooleanField(default=False)
+    holiday_setup_done = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
 
     def __str__(self):
         return self.name

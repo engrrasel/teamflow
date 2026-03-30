@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
-
 from django.utils.dateparse import parse_date
 
 from .forms import (
@@ -26,6 +25,9 @@ def get_membership(request):
     return getattr(request, "membership", None)
 
 
+# =============================
+# CREATE COMPANY
+# =============================
 @login_required
 def create_company_view(request):
 
@@ -36,32 +38,30 @@ def create_company_view(request):
 
     form = CompanyCreateForm(request.POST or None)
 
-    if request.method == "POST":
+    if request.method == "POST" and form.is_valid():
 
-        if form.is_valid():
+        company = form.save()
 
-            company = form.save()
+        Membership.objects.create(
+            user=request.user,
+            company=company,
+            role="company_admin"
+        )
 
-            Membership.objects.create(
-                user=request.user,
+        weekdays = request.POST.getlist("weekdays")
+
+        for w in weekdays:
+            CompanyWeekend.objects.create(
                 company=company,
-                role="company_admin"
+                weekday=int(w)
             )
 
-            weekdays = request.POST.getlist("weekdays")
+        request.session["company_id"] = company.id
 
-            for w in weekdays:
-                CompanyWeekend.objects.create(
-                    company=company,
-                    weekday=int(w)
-                )
+        messages.success(request, "Company created successfully!")
 
-            request.session["company_id"] = company.id
-
-            messages.success(request, "Company created successfully!")
-
-            # 🔥 FIX: dashboard না, setup page
-            return redirect("company_edit")
+        # 🔥 FIX: company_edit না → setup page
+        return redirect("company_setup")
 
     return render(
         request,
@@ -71,7 +71,66 @@ def create_company_view(request):
             "weekend_days": []
         }
     )
-# ---------- Designation ----------
+
+
+# =============================
+# COMPANY SETUP (NEW)
+# =============================
+@login_required
+def company_setup_view(request):
+
+    membership = get_membership(request)
+
+    if not membership:
+        return redirect("create_company")
+
+    company = membership.company
+
+    # already setup → dashboard
+    if company.is_setup_complete:
+        return redirect("dashboard")
+
+    form = CompanyCreateForm(
+        request.POST or None,
+        instance=company
+    )
+
+    if request.method == "POST" and form.is_valid():
+
+        form.save()
+
+        weekdays = request.POST.getlist("weekdays")
+
+        CompanyWeekend.objects.filter(company=company).delete()
+
+        for w in weekdays:
+            CompanyWeekend.objects.create(
+                company=company,
+                weekday=int(w)
+            )
+
+        # ✅ setup complete
+        company.is_setup_complete = True
+        company.save()
+
+        return redirect("dashboard")
+
+    weekends = CompanyWeekend.objects.filter(company=company)
+    weekend_days = [w.weekday for w in weekends]
+
+    return render(
+        request,
+        "company/company_setup.html",
+        {
+            "form": form,
+            "weekend_days": weekend_days
+        }
+    )
+
+
+# =============================
+# DESIGNATION
+# =============================
 @login_required
 def designation_list_view(request):
 
@@ -166,7 +225,9 @@ def designation_delete_view(request, pk):
     return redirect('designation_list')
 
 
-# ---------- Designation AJAX ----------
+# =============================
+# DESIGNATION AJAX
+# =============================
 @login_required
 def create_designation_ajax(request):
 
@@ -178,10 +239,10 @@ def create_designation_ajax(request):
     if not membership:
         return JsonResponse({"error": "No company"}, status=400)
 
+    company = membership.company
+
     group_name = request.POST.get("group", "").strip()
     designation_name = request.POST.get("designation", "").strip()
-
-    company = membership.company
 
     group = DesignationGroup.objects.filter(
         company=company,
@@ -189,7 +250,6 @@ def create_designation_ajax(request):
     ).first()
 
     if not group:
-
         group = DesignationGroup.objects.create(
             name=group_name,
             company=company
@@ -201,7 +261,6 @@ def create_designation_ajax(request):
     ).first()
 
     if not designation:
-
         designation = Designation.objects.create(
             name=designation_name,
             group=group
@@ -214,7 +273,9 @@ def create_designation_ajax(request):
     })
 
 
-# ---------- Groups ----------
+# =============================
+# GROUPS
+# =============================
 @login_required
 def group_list_view(request):
 
@@ -316,7 +377,9 @@ def group_delete_view(request, pk):
     return redirect('group_list')
 
 
-# ---------- Weekend ----------
+# =============================
+# WEEKEND
+# =============================
 @login_required
 def company_weekend_view(request):
 
@@ -329,7 +392,6 @@ def company_weekend_view(request):
         CompanyWeekend.objects.filter(company=company).delete()
 
         for w in weekdays:
-
             CompanyWeekend.objects.create(
                 company=company,
                 weekday=int(w)
@@ -346,7 +408,9 @@ def company_weekend_view(request):
     )
 
 
-# ---------- Holiday ----------
+# =============================
+# HOLIDAY
+# =============================
 @login_required
 def company_holiday_view(request):
 
@@ -371,7 +435,9 @@ def company_holiday_view(request):
             end_date=end_date
         )
 
-        # 🔥 optional: একবার holiday add হলে dashboard
+        company.holiday_setup_done = True
+        company.save()
+
         return redirect("dashboard")
 
     holidays = CompanyHoliday.objects.filter(
@@ -400,7 +466,9 @@ def delete_company_holiday(request):
     return redirect("company_holiday")
 
 
-# ---------- Company Edit ----------
+# =============================
+# COMPANY EDIT (UNCHANGED)
+# =============================
 @login_required
 def company_edit_view(request):
 
@@ -430,8 +498,9 @@ def company_edit_view(request):
                 weekday=int(w)
             )
 
-        # 🔥 NEXT STEP: holiday setup
-        return redirect("company_holiday")
+        messages.success(request, "Company updated successfully!")
+
+        return redirect("company_settings")
 
     weekends = CompanyWeekend.objects.filter(company=company)
     weekend_days = [w.weekday for w in weekends]
@@ -446,11 +515,9 @@ def company_edit_view(request):
     )
 
 
-# ---------- Settings ----------
+# =============================
+# SETTINGS
+# =============================
 @login_required
 def company_settings_view(request):
-
-    return render(
-        request,
-        "company/settings.html"
-    )
+    return render(request, "company/settings.html")

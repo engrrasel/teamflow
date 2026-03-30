@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'locations',
     'sales',
     'tasks',
+    'dashboard',
 
 ]
 

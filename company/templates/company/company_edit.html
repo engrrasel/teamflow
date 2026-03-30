@@ -2,37 +2,115 @@
 {% load static %}
 
 {% block extra_css %}
-
-<link rel="stylesheet" href="{% static 'company/css/company.css' %}">
+<link rel="stylesheet" href="{% static 'company/css/company_create.css' %}">
 {% endblock %}
 
 {% block content %}
 
 <div class="settings-container">
 
-<!-- COMPANY EDIT -->
+  <div class="settings-card">
 
-<div class="settings-card">
+    <div class="settings-header">
+      <h2>Edit Company</h2>
+      <p>Update your company information</p>
+    </div>
 
-<div class="settings-header">
-<h2>Edit Company</h2>
-<p>Update company information and default weekend</p>
-</div>
+    <!-- Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
 
-<form method="post">
-{% csrf_token %}
+    <form method="post">
+      {% csrf_token %}
 
-{% include "company/_company_form.html" %}
+      <!-- Company Name -->
+      <div class="form-group">
+        <label>Company Name</label>
+        <input type="text" name="name"
+               value="{{ form.instance.name }}"
+               placeholder="Example: ABC Ltd" required>
+      </div>
 
-<div class="form-actions">
-<button type="submit" class="primary-btn">
-Save Changes
-</button>
-</div>
+      <!-- Address -->
+      <div class="form-group">
+        <label>Address</label>
+        <textarea name="address" required>{{ form.instance.address }}</textarea>
+      </div>
 
-</form>
+      <!-- Phone -->
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" name="phone"
+               value="{{ form.instance.phone }}"
+               placeholder="01XXXXXXXXX" required>
+      </div>
 
-</div>
+      <!-- Weekend Chips -->
+      <div class="form-group">
+        <label>Weekend Days</label>
+
+        <div class="chip-group">
+
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="4"
+              {% if 4 in weekend_days %}checked{% endif %}>
+            <span>Friday</span>
+          </label>
+
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="5"
+              {% if 5 in weekend_days %}checked{% endif %}>
+            <span>Saturday</span>
+          </label>
+
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="6"
+              {% if 6 in weekend_days %}checked{% endif %}>
+            <span>Sunday</span>
+          </label>
+
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="0"
+              {% if 0 in weekend_days %}checked{% endif %}>
+            <span>Monday</span>
+          </label>
+
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="1"
+              {% if 1 in weekend_days %}checked{% endif %}>
+            <span>Tuesday</span>
+          </label>
+
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="2"
+              {% if 2 in weekend_days %}checked{% endif %}>
+            <span>Wednesday</span>
+          </label>
+
+          <label class="chip">
+            <input type="checkbox" name="weekdays" value="3"
+              {% if 3 in weekend_days %}checked{% endif %}>
+            <span>Thursday</span>
+          </label>
+
+        </div>
+
+        <small class="hint">Select your weekly holidays</small>
+      </div>
+
+      <!-- Submit -->
+      <div class="form-actions">
+        <button type="submit" class="primary-btn">
+          Update Company
+        </button>
+      </div>
+
+    </form>
+
+  </div>
 
 </div>
 

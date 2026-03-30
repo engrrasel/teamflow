@@ -28,6 +28,10 @@ urlpatterns = [
     # ================= ACCOUNTS =================
     path('accounts/', include('accounts.urls')),
 
+    # ================= DASHBOARD =================
+    path('dashboard/', include('dashboard.urls')),
+
+
     # ================= PASSWORD RESET =================
     path(
         'accounts/password-reset/',

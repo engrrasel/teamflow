@@ -5,6 +5,9 @@ urlpatterns = [
     # Company
     path('create/', views.create_company_view, name='create_company'),
 
+    # 🔥 ADD THIS LINE (IMPORTANT)
+    path('setup/', views.company_setup_view, name='company_setup'),
+
     # Designation CRUD
     path('designations/', views.designation_list_view, name='designation_list'),
     path('designations/add/', views.designation_create_view, name='designation_add'),
@@ -14,27 +17,22 @@ urlpatterns = [
     # AJAX designation create
     path('ajax/designation/create/', views.create_designation_ajax, name='designation_ajax_create'),
 
+    # Company Edit
     path('edit/', views.company_edit_view, name='company_edit'),
-
-    path('groups/<int:pk>/edit/', views.group_edit_view, name='group_edit'),
-    path('groups/<int:pk>/delete/', views.group_delete_view, name='group_delete'),
 
     # Groups
     path('groups/', views.group_list_view, name='group_list'),
     path('groups/add/', views.group_create_view, name='group_add'),
+    path('groups/<int:pk>/edit/', views.group_edit_view, name='group_edit'),
+    path('groups/<int:pk>/delete/', views.group_delete_view, name='group_delete'),
 
+    # Settings
     path("settings/", views.company_settings_view, name="company_settings"),
+
     # Weekend setup
     path('weekend/', views.company_weekend_view, name='company_weekend'),
 
     # Holiday setup
     path("holiday/", views.company_holiday_view, name="company_holiday"),
-    path(
-        "holiday/delete/",
-        views.delete_company_holiday,
-        name="delete_company_holiday"
-    )
-
+    path("holiday/delete/", views.delete_company_holiday, name="delete_company_holiday"),
 ]
-
-
